@@ -1,315 +1,296 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vice City Retro - HTML5</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #111;
-      font-family: Arial, sans-serif;
-    }
-    #gameCanvas {
-      background-color: #333;
-      display: block;
-    }
-    /* Pantalla de bloqueo si la orientación es Vertical */
-    #orient-warning {
-      display: none;
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #000;
-      color: #ff007f;
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      padding: 20px;
-    }
-    @media (orientation: portrait) {
-      #orient-warning {
-        display: flex;
-      }
-    }
-    /* Botón Pantalla Completa */
-    #fs-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 8px 12px;
-      background: rgba(255, 0, 127, 0.7);
-      color: white;
-      border: 2px solid white;
-      border-radius: 6px;
-      font-weight: bold;
-      z-index: 100;
-    }
-    /* Controles Táctiles Retro (Overlay) */
-    .touch-controls {
-      position: absolute;
-      bottom: 15px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .dpad, .action-buttons {
-      pointer-events: auto;
-      display: grid;
-      gap: 5px;
-    }
-    /* D-Pad Crucecita */
-    .dpad {
-      grid-template-columns: repeat(3, 50px);
-      grid-template-rows: repeat(3, 50px);
-    }
-    .btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      border-radius: 8px;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      active {
-        background: rgba(255, 0, 127, 0.6);
-      }
-    }
-    .btn-up { grid-column: 2; grid-row: 1; }
-    .btn-left { grid-column: 1; grid-row: 2; }
-    .btn-right { grid-column: 3; grid-row: 2; }
-    .btn-down { grid-column: 2; grid-row: 3; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VICE CITY RETRO (HTML5) - Neon Drive</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #1a002a; font-family: 'Courier New', Courier, monospace; color: #fff; }
+        #gameCanvas { display: block; filter: blur(0.5px) contrast(1.2); }
+        
+        /* Pantalla de Bloqueo Vertical */
+        #orient-warning { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #ff00ff; z-index: 1000; justify-content: center; align-items: center; text-align: center; font-size: 20px; font-weight: bold; padding: 20px; text-shadow: 0 0 10px #ff00ff; }
+        @media (orientation: portrait) { #orient-warning { display: flex; } }
 
-    /* Botones de Acción (A / B) */
-    .action-buttons {
-      display: flex;
-      gap: 15px;
-      align-items: flex-end;
-    }
-    .btn-action {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: rgba(0, 230, 255, 0.3);
-      border: 2px solid cyan;
-    }
-  </style>
+        /* HUD - Información del Juego (Arriba) */
+        .hud-top { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 10; font-size: 14px; text-shadow: 0 0 5px #00ffff; }
+        .hud-top .label { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+
+        /* Botón Pantalla Completa */
+        #fs-btn { position: absolute; top: 50px; right: 20px; padding: 5px 10px; background: rgba(0, 255, 255, 0.2); color: #00ffff; border: 1px solid #00ffff; border-radius: 4px; font-size: 12px; cursor: pointer; z-index: 20; text-shadow: 0 0 5px #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.5); }
+        #fs-btn:active { background: rgba(0, 255, 255, 0.5); }
+
+        /* Controles Táctiles (Overlay - Abajo) */
+        .touch-controls { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 10; pointer-events: none; }
+        .dpad, .action-buttons { pointer-events: auto; display: grid; gap: 5px; }
+
+        /* D-Pad (Izquierda) */
+        .dpad { grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); }
+        .btn { background: rgba(255, 0, 255, 0.1); border: 2px solid #ff00ff; border-radius: 10px; color: #ff00ff; font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-shadow: 0 0 10px #ff00ff; box-shadow: 0 0 15px rgba(255,0,255,0.3); }
+        .btn:active { background: rgba(255, 0, 255, 0.4); box-shadow: 0 0 20px rgba(255,0,255,0.7); }
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 3; }
+
+        /* Botones Acción (Derecha - A/B) */
+        .action-buttons { display: flex; gap: 15px; align-items: flex-end; }
+        .btn-action { width: 70px; height: 70px; border-radius: 50%; border-color: #00ffff; color: #00ffff; font-size: 28px; text-shadow: 0 0 10px #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.3); }
+        .btn-action:active { background: rgba(0, 255, 255, 0.4); box-shadow: 0 0 20px rgba(0,255,255,0.7); }
+    </style>
 </head>
 <body>
 
-  <div id="orient-warning">
-    Gira tu dispositivo a posición HORIZONTAL para jugar 🔄
-  </div>
-
-  <button id="fs-btn">Pantalla Completa</button>
-  <canvas id="gameCanvas"></canvas>
-
-  <!-- D-PAD / Controles Táctiles estilo Consola Retro -->
-  <div class="touch-controls">
-    <div class="dpad">
-      <div class="btn btn-up" id="btn-up">▲</div>
-      <div class="btn btn-left" id="btn-left">◀</div>
-      <div class="btn btn-right" id="btn-right">▶</div>
-      <div class="btn btn-down" id="btn-down">▼</div>
+    <div id="orient-warning">
+        Gira tu dispositivo a posición HORIZONTAL para jugar 🔄
     </div>
-    <div class="action-buttons">
-      <div class="btn btn-action" id="btn-a">A</div>
-      <div class="btn btn-action" id="btn-b">B</div>
+
+    <div class="hud-top">
+        <div><span class="label">VICE CITY RETRO:</span> NEON DRIVE</div>
+        <div><span class="label">LIVES:</span> ❤️❤️🖤</div>
+        <div><span class="label">MONEY:</span> $1200</div>
     </div>
-  </div>
+    
+    <button id="fs-btn">PANTALLA COMPLETA</button>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const fsBtn = document.getElementById('fs-btn');
+    <canvas id="gameCanvas"></canvas>
 
-    // Ajustar canvas al tamaño de ventana
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    <div class="touch-controls">
+        <div class="dpad">
+            <div class="btn btn-up" id="btn-up">▲</div>
+            <div class="btn btn-left" id="btn-left">◀</div>
+            <div class="btn btn-right" id="btn-right">▶</div>
+            <div class="btn btn-down" id="btn-down">▼</div>
+        </div>
+        <div class="action-buttons">
+            <div class="btn btn-action" id="btn-a">A</div>
+            <div class="btn btn-action" id="btn-b">B</div>
+        </div>
+    </div>
 
-    // Estado del Teclado / Táctil
-    const keys = { up: false, down: false, left: false, right: false, actionA: false };
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const fsBtn = document.getElementById('fs-btn');
 
-    // Mapeo Táctil
-    function setupTouch(id, keyName) {
-      const el = document.getElementById(id);
-      el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
-      el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
-    }
-    setupTouch('btn-up', 'up');
-    setupTouch('btn-down', 'down');
-    setupTouch('btn-left', 'left');
-    setupTouch('btn-right', 'right');
-    setupTouch('btn-a', 'actionA');
-
-    // Mapeo de Teclado (para probar en PC)
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
-      if (e.key === 'ArrowDown' || e.key === 's') keys.down = true;
-      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
-      if (e.key === ' ') keys.actionA = true;
-    });
-    window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = false;
-      if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
-      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
-      if (e.key === ' ') keys.actionA = false;
-    });
-
-    // Forzar Pantalla Completa y Bloqueo de Orientación
-    fsBtn.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-          if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape');
-          }
-        } else {
-          document.exitFullscreen();
+        // Ajuste de canvas a la ventana
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initializeMap(); // Regenerar mapa al cambiar tamaño
         }
-      } catch (err) {
-        console.log("Error solicitando pantalla completa:", err);
-      }
-    });
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-    // --- LÓGICA DEL JUEGO (Estilo Vice City / GTA 1-2) ---
-    const player = {
-      x: 400,
-      y: 400,
-      angle: 0,
-      speed: 0,
-      maxSpeed: 3.5,
-      inVehicle: false,
-      color: '#00e6ff' // Estilo Tommy Vercetti / Neón
-    };
+        // Estado de controles
+        const inputs = { up: false, down: false, left: false, right: false, actionA: false, actionB: false };
 
-    const vehicle = {
-      x: 500,
-      y: 450,
-      angle: 0,
-      speed: 0,
-      maxSpeed: 7,
-      color: '#ff007f' // Auto retro rosa Vice City
-    };
-
-    function update() {
-      const activeObj = player.inVehicle ? vehicle : player;
-
-      // Rotación y movimiento estilo GTA
-      if (keys.left) activeObj.angle -= 0.06;
-      if (keys.right) activeObj.angle += 0.06;
-
-      if (keys.up) {
-        activeObj.speed = Math.min(activeObj.speed + 0.15, activeObj.maxSpeed);
-      } else if (keys.down) {
-        activeObj.speed = Math.max(activeObj.speed - 0.1, -activeObj.maxSpeed / 2);
-      } else {
-        activeObj.speed *= 0.95; // Fricción
-      }
-
-      activeObj.x += Math.cos(activeObj.angle) * activeObj.speed;
-      activeObj.y += Math.sin(activeObj.angle) * activeObj.speed;
-
-      if (player.inVehicle) {
-        player.x = vehicle.x;
-        player.y = vehicle.y;
-      }
-
-      // Subir / Bajar del auto con botón A
-      if (keys.actionA) {
-        keys.actionA = false; // Evitar spam
-        const dist = Math.hypot(player.x - vehicle.x, player.y - vehicle.y);
-        if (player.inVehicle) {
-          player.inVehicle = false;
-          player.x += 40; // Desplazar al bajar
-        } else if (dist < 50) {
-          player.inVehicle = true;
+        // Mapeo Táctil
+        function setupTouch(id, inputName) {
+            const el = document.getElementById(id);
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); inputs[inputName] = true; });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); inputs[inputName] = false; });
         }
-      }
-    }
+        setupTouch('btn-up', 'up'); setupTouch('btn-down', 'down');
+        setupTouch('btn-left', 'left'); setupTouch('btn-right', 'right');
+        setupTouch('btn-a', 'actionA'); setupTouch('btn-b', 'actionB');
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Mapeo Teclado (PC)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w') inputs.up = true;
+            if (e.key === 'ArrowDown' || e.key === 's') inputs.down = true;
+            if (e.key === 'ArrowLeft' || e.key === 'a') inputs.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') inputs.right = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w') inputs.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's') inputs.down = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a') inputs.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') inputs.right = false;
+        });
 
-      // Cámara centrada en el jugador/vehículo
-      const camX = canvas.width / 2 - (player.inVehicle ? vehicle.x : player.x);
-      const camY = canvas.height / 2 - (player.inVehicle ? vehicle.y : player.y);
+        // Pantalla Completa y Bloqueo de Orientación
+        fsBtn.addEventListener('click', async () => {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape');
+                    }
+                } else { document.exitFullscreen(); }
+            } catch (err) { console.log("Error de pantalla completa:", err); }
+        });
 
-      ctx.save();
-      ctx.translate(camX, camY);
+        // --- CONFIGURACIÓN DEL JUEGO (SYNTHWAVE ART) ---
+        const colors = {
+            bg: '#1a002a',
+            grid: '#ff00ff', // Rosa Neón
+            buildings: '#00ffff', // Cian Neón
+            player: '#ff00ff', // Rosa Neón (Auto)
+            text: '#fff'
+        };
 
-      // Mapa básico (Calles y Cuadras)
-      ctx.fillStyle = '#222';
-      ctx.fillRect(0, 0, 1600, 1200); // Fondo ciudad
+        const mapSize = { width: 3000, height: 2000 };
+        let buildings = [];
+        let palmTrees = [];
 
-      ctx.strokeStyle = '#ff007f';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(100, 100, 600, 400); // Edificio / Manzana 1
-      ctx.strokeRect(800, 100, 600, 400); // Edificio / Manzana 2
+        function initializeMap() {
+            buildings = [];
+            palmTrees = [];
+            // Generar edificios de neón
+            for (let i = 0; i < 60; i++) {
+                buildings.push({
+                    x: Math.random() * mapSize.width,
+                    y: Math.random() * mapSize.height,
+                    width: 80 + Math.random() * 150,
+                    height: 150 + Math.random() * 300,
+                    color: Math.random() > 0.5 ? colors.buildings : colors.grid
+                });
+            }
+            // Generar palmeras de neón
+            for (let i = 0; i < 100; i++) {
+                palmTrees.push({
+                    x: Math.random() * mapSize.width,
+                    y: Math.random() * mapSize.height,
+                    color: colors.buildings
+                });
+            }
+        }
 
-      // Dibujar Vehículo
-      ctx.save();
-      ctx.translate(vehicle.x, vehicle.y);
-      ctx.rotate(vehicle.angle);
-      ctx.fillStyle = vehicle.color;
-      ctx.fillRect(-25, -15, 50, 30); // Cuerpo del auto
-      ctx.fillStyle = '#111';
-      ctx.fillRect(-10, -12, 15, 24); // Parabrisas
-      ctx.restore();
+        const player = {
+            x: mapSize.width / 2,
+            y: mapSize.height / 2,
+            angle: 0,
+            speed: 0,
+            maxSpeed: 6,
+            color: colors.player
+        };
 
-      // Dibujar Jugador (si no está montado)
-      if (!player.inVehicle) {
-        ctx.save();
-        ctx.translate(player.x, player.y);
-        ctx.rotate(player.angle);
-        ctx.fillStyle = player.color;
-        ctx.beginPath();
-        ctx.arc(0, 0, 12, 0, Math.PI * 2);
-        ctx.fill();
-        // Dirección de mirada
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(4, -3, 8, 6);
-        ctx.restore();
-      }
+        // --- FUNCIONES DE DIBUJO CON EFECTO NEÓN ---
+        function drawNeonLine(x1, y1, x2, y2, color, width) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset
+        }
 
-      ctx.restore();
+        function drawPalmTree(x, y, color) {
+            drawNeonLine(x, y, x, y - 60, color, 3); // Tronco
+            for(let i = 0; i < 6; i++) { // Hojas
+                ctx.save();
+                ctx.translate(x, y-60);
+                ctx.rotate(i * Math.PI / 3);
+                drawNeonLine(0, 0, 20, 10, color, 2);
+                ctx.restore();
+            }
+        }
 
-      // HUD / Instrucciones en pantalla
-      ctx.fillStyle = '#00e6ff';
-      ctx.font = '16px Arial';
-      ctx.fillText(player.inVehicle ? "Vehículo: Conduciendo" : "A pie (Acerque al auto y presione 'A' para subir)", 20, 30);
-    }
+        // --- BUCLE PRINCIPAL DEL JUEGO ---
+        function update() {
+            // Física del auto (Rotación y velocidad)
+            if (inputs.left) player.angle -= 0.05;
+            if (inputs.right) player.angle += 0.05;
 
-    function gameLoop() {
-      update();
-      draw();
-      requestAnimationFrame(gameLoop);
-    }
+            if (inputs.up) {
+                player.speed = Math.min(player.speed + 0.2, player.maxSpeed);
+            } else if (inputs.down) {
+                player.speed = Math.max(player.speed - 0.1, -player.maxSpeed / 2);
+            } else {
+                player.speed *= 0.96; // Fricción
+            }
 
-    gameLoop();
-  </script>
+            // Mover jugador basándose en ángulo
+            player.x += Math.cos(player.angle) * player.speed;
+            player.y += Math.sin(player.angle) * player.speed;
+
+            // Límites del mapa
+            player.x = Math.max(0, Math.min(player.x, mapSize.width));
+            player.y = Math.max(0, Math.min(player.y, mapSize.height));
+        }
+
+        function draw() {
+            // Fondo oscuro Synthwave
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Cámara centrada en el jugador
+            const camX = canvas.width / 2 - player.x;
+            const camY = canvas.height / 2 - player.y;
+
+            ctx.save();
+            ctx.translate(camX, camY);
+
+            // 1. Dibujar Cuadrícula de Suelo (Rosa Neón)
+            const gridSize = 100;
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.4;
+            for (let x = 0; x < mapSize.width; x += gridSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, mapSize.height); ctx.stroke();
+            }
+            for (let y = 0; y < mapSize.height; y += gridSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(mapSize.width, y); ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 2. Dibujar Palmeras
+            palmTrees.forEach(palm => drawPalmTree(palm.x, palm.y, palm.color));
+
+            // 3. Dibujar Edificios con Resplandor
+            buildings.forEach(b => {
+                ctx.save();
+                ctx.translate(b.x, b.y);
+                // Efecto Neón
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = b.color;
+                ctx.strokeStyle = b.color;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(-b.width / 2, -b.height, b.width, b.height);
+                
+                // Ventanas (puntos de luz)
+                ctx.fillStyle = b.color;
+                ctx.shadowBlur = 10;
+                for(let wy = -b.height + 20; wy < -20; wy+=40) {
+                    for(let wx = -b.width/2 + 20; wx < b.width/2 - 20; wx+=30) {
+                        if(Math.random() > 0.3) ctx.fillRect(wx, wy, 8, 12);
+                    }
+                }
+                ctx.restore();
+            });
+
+            // 4. Dibujar Jugador (Auto Rosa Neón)
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            ctx.rotate(player.angle);
+            // Efecto Neón Auto
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = player.color;
+            ctx.fillStyle = player.color;
+            ctx.fillRect(-25, -15, 50, 30); // Cuerpo
+            // Luces delanteras
+            ctx.shadowColor = '#fff';
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(20, -12, 8, 6);
+            ctx.fillRect(20, 6, 8, 6);
+            ctx.restore();
+
+            ctx.restore(); // Restaurar Cámara
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        initializeMap();
+        gameLoop();
+    </script>
 </body>
 </html>
