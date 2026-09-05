@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vicio City v2.9.2</title>
+  <title>Vicio City v2.9.3 - Restaurado</title>
   <style>
     * {
       box-sizing: border-box;
@@ -34,10 +34,10 @@
       display: block;
       width: 100%;
       height: 100%;
-      background-color: #1a2332;
+      background-color: #151c28;
     }
 
-    /* --- ADVERTENCIA DE ORIENTACIÓN --- */
+    /* Advertencia de giro en pantalla vertical */
     #rotate-warning {
       display: none;
       position: fixed;
@@ -54,36 +54,28 @@
       padding: 20px;
     }
 
-    #rotate-warning span {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    /* Mostrar advertencia solo en celulares verticales */
     @media screen and (orientation: portrait) and (max-width: 768px) {
-      #rotate-warning {
-        display: flex;
-      }
+      #rotate-warning { display: flex; }
     }
 
-    /* --- UI: TOP LEFT HUD --- */
+    /* --- HUD TOP LEFT --- */
     .hud-panel {
       position: absolute;
       top: 10px;
       left: 10px;
-      width: clamp(160px, 25vw, 220px);
-      background: rgba(10, 15, 26, 0.85);
-      border: 1.5px solid #ff007f;
+      width: clamp(170px, 24vw, 230px);
+      background: rgba(10, 15, 26, 0.88);
+      border: 2px solid #ff007f;
       border-radius: 8px;
       padding: 6px 10px;
-      box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
       z-index: 10;
       font-size: 11px;
     }
 
     .hud-header {
       font-weight: bold;
-      font-size: 11px;
+      font-size: 12px;
       text-transform: uppercase;
       background: linear-gradient(90deg, #ff007f, #00f0ff);
       -webkit-background-clip: text;
@@ -95,12 +87,12 @@
       display: flex;
       justify-content: space-between;
       color: #33ffff;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
       font-size: 10px;
     }
 
     .mission-box {
-      margin-top: 4px;
+      margin-top: 5px;
       background: rgba(255, 204, 0, 0.15);
       border: 1px solid #ffcc00;
       border-radius: 4px;
@@ -109,7 +101,7 @@
       color: #ffea79;
     }
 
-    /* --- UI: TOP RIGHT PANEL --- */
+    /* --- HUD TOP RIGHT --- */
     .top-right-panel {
       position: absolute;
       top: 10px;
@@ -130,7 +122,7 @@
       background: rgba(10, 15, 26, 0.85);
       border: 1.5px solid #00f0ff;
       color: #00f0ff;
-      padding: 5px 10px;
+      padding: 4px 8px;
       border-radius: 5px;
       font-size: 10px;
       cursor: pointer;
@@ -143,12 +135,12 @@
     }
 
     .minimap-container {
-      width: clamp(65px, 14vw, 95px);
-      height: clamp(65px, 14vw, 95px);
+      width: clamp(75px, 15vw, 105px);
+      height: clamp(75px, 15vw, 105px);
       border: 2px solid #ff007f;
       border-radius: 50%;
       overflow: hidden;
-      box-shadow: 0 0 8px rgba(255, 0, 127, 0.5);
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
       background: #000;
     }
 
@@ -157,7 +149,7 @@
       height: 100%;
     }
 
-    /* --- ARMAS & D-PAD --- */
+    /* --- MENÚ DE ARMAS --- */
     .weapon-selector-container {
       position: absolute;
       bottom: 15px;
@@ -177,6 +169,7 @@
       border: 1.5px solid #00f0ff;
       border-radius: 8px;
       padding: 6px;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
     }
 
     .weapon-option {
@@ -184,9 +177,10 @@
       align-items: center;
       gap: 8px;
       background: rgba(255, 255, 255, 0.05);
-      padding: 4px 8px;
+      padding: 5px 8px;
       border-radius: 4px;
       cursor: pointer;
+      min-width: 120px;
     }
 
     .weapon-option.active {
@@ -195,32 +189,34 @@
     }
 
     .btn-weapon-active {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: rgba(10, 15, 26, 0.9);
       border: 2px solid #ff007f;
       color: #fff;
-      font-size: 18px;
+      font-size: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
     }
 
+    /* --- D-PAD --- */
     .dpad {
       position: absolute;
       bottom: 15px;
       left: 15px;
-      width: 90px;
-      height: 90px;
+      width: 96px;
+      height: 96px;
       z-index: 10;
     }
 
     .dpad-btn {
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       background: rgba(0, 240, 255, 0.2);
       border: 1.5px solid #00f0ff;
       border-radius: 6px;
@@ -236,33 +232,35 @@
       color: #000;
     }
 
-    .dpad-up    { top: 0; left: 30px; }
-    .dpad-down  { bottom: 0; left: 30px; }
-    .dpad-left  { top: 30px; left: 0; }
-    .dpad-right { top: 30px; right: 0; }
+    .dpad-up    { top: 0; left: 32px; }
+    .dpad-down  { bottom: 0; left: 32px; }
+    .dpad-left  { top: 32px; left: 0; }
+    .dpad-right { top: 32px; right: 0; }
   </style>
 </head>
 <body>
 
   <div id="rotate-warning">
-    <span>🔄</span>
-    <h2>Por favor, gira tu dispositivo</h2>
-    <p style="margin-top: 8px; font-size: 12px; color: #aaa;">Este juego está optimizado para jugarse en modo horizontal.</p>
+    <span style="font-size: 35px;">🔄</span>
+    <h2 style="margin-top: 10px;">Por favor, gira tu dispositivo</h2>
+    <p style="margin-top: 5px; font-size: 11px; color: #aaa;">Juega en modo horizontal para ver todo el mapa correctamente.</p>
   </div>
 
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
 
+    <!-- HUD Izquierdo -->
     <div class="hud-panel">
-      <div class="hud-header">VICIO CITY v2.9.2</div>
+      <div class="hud-header">VICIO CITY v2.9.3</div>
       <div class="stat-row"><span>LVL: 1</span> <span>XP: 95/100</span></div>
       <div class="stat-row"><span>HP: 100/100</span> <span>CASH: $960</span></div>
       <div class="stat-row"><span>WANTED:</span> <span style="color: #ffcc00;">★☆☆☆☆</span></div>
       <div class="mission-box">
-        🎯 <b>MISIÓN:</b> Elimina 3 Pandilleros (0/3)
+        🎯 <b>MISIÓN:</b> Elimina 3 Pandilleros en la ciudad (0/3)
       </div>
     </div>
 
+    <!-- HUD Derecho -->
     <div class="top-right-panel">
       <div class="top-buttons">
         <button class="btn-ui" id="btnFull">FULL</button>
@@ -270,15 +268,17 @@
         <button class="btn-ui">CARGAR</button>
       </div>
       <div class="minimap-container">
-        <canvas id="minimap" width="95" height="95"></canvas>
+        <canvas id="minimap" width="105" height="105"></canvas>
       </div>
     </div>
 
+    <!-- Menú Desplegable de Armas -->
     <div class="weapon-selector-container">
       <div class="weapon-dropdown" id="weaponDropdown"></div>
-      <button class="btn-weapon-active" id="btnWeaponActive" onclick="toggleWeaponMenu()">🔫</button>
+      <button class="btn-weapon-active" id="btnWeaponActive" onclick="toggleWeaponMenu()">🎯</button>
     </div>
 
+    <!-- D-Pad -->
     <div class="dpad">
       <div class="dpad-btn dpad-up" id="btnUp">▲</div>
       <div class="dpad-btn dpad-left" id="btnLeft">◀</div>
@@ -293,7 +293,6 @@
     const minimapCanvas = document.getElementById('minimap');
     const minimapCtx = minimapCanvas.getContext('2d');
 
-    // Redimensionamiento exacto del Canvas
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -301,7 +300,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Pantalla completa y bloqueo de orientación landscape
+    // Pantalla Completa + Orientación
     document.getElementById('btnFull').addEventListener('click', async () => {
       try {
         if (!document.fullscreenElement) {
@@ -312,12 +311,10 @@
         } else {
           await document.exitFullscreen();
         }
-      } catch (err) {
-        console.log("Error al intentar activar Fullscreen:", err);
-      }
+      } catch (e) {}
     });
 
-    // --- CONFIGURACIÓN DE ARMAS ---
+    // --- ARMAS ---
     const armas = [
       { id: 'pistola', nombre: 'Pistola 9mm', icono: '🔫', daño: 25 },
       { id: 'escopeta', nombre: 'Escopeta', icono: '💥', daño: 60 },
@@ -325,7 +322,7 @@
     ];
     let armaEquipada = armas[0];
 
-    // --- JUGADOR ---
+    // --- ENTIDADES Y DETALLES ---
     const jugador = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
@@ -334,19 +331,30 @@
       velocidad: 3.2
     };
 
-    // --- ELEMENTOS DEL MAPA ---
+    const edificaciónes = [
+      { x: 50, y: 40, w: 180, h: 120, color: '#101726', borde: '#00f0ff' },
+      { x: 280, y: 40, w: 220, h: 120, color: '#101726', borde: '#ff007f' },
+      { x: 700, y: 40, w: 250, h: 140, color: '#101726', borde: '#00f0ff' }
+    ];
+
     const arboles = [
-      { x: 120, y: 100, r: 20 }, { x: 180, y: 130, r: 18 }, { x: 100, y: 180, r: 22 },
-      { x: 450, y: 120, r: 20 }, { x: 520, y: 100, r: 24 },
-      { x: 200, y: 350, r: 22 }, { x: 260, y: 380, r: 18 }
+      { x: 120, y: 220, r: 22 }, { x: 180, y: 240, r: 18 }, { x: 90, y: 270, r: 24 },
+      { x: 550, y: 200, r: 20 }, { x: 610, y: 180, r: 25 }, { x: 670, y: 220, r: 19 },
+      { x: 200, y: 480, r: 22 }, { x: 260, y: 510, r: 20 }, { x: 140, y: 520, r: 25 }
+    ];
+
+    const autos = [
+      { x: 600, y: window.innerHeight * 0.62 + 8, w: 42, h: 22, color: '#ff0055', vx: -1.2 },
+      { x: 150, y: window.innerHeight * 0.62 + 38, w: 42, h: 22, color: '#00ccff', vx: 1.5 }
     ];
 
     const npcs = [
-      { x: 280, y: 250, vx: 0.7, vy: 0, color: '#e0a080', tipo: 'peaton' },
-      { x: 420, y: 180, vx: 0, vy: 0.6, color: '#ff3366', tipo: 'pandillero' }
+      { x: 300, y: 260, vx: 0.7, vy: 0, color: '#e0a080', tipo: 'peaton' },
+      { x: 750, y: 280, vx: -0.6, vy: 0, color: '#e0a080', tipo: 'peaton' },
+      { x: 420, y: 220, vx: 0, vy: 0.6, color: '#ff3366', tipo: 'pandillero' }
     ];
 
-    // Teclas y táctiles
+    // CONTROLES
     const teclas = { w: false, a: false, s: false, d: false };
 
     window.addEventListener('keydown', e => {
@@ -373,7 +381,7 @@
     bindTouch('btnLeft', 'a');
     bindTouch('btnRight', 'd');
 
-    // Menú de armas
+    // ARMAS UI
     function renderWeaponMenu() {
       const dropdown = document.getElementById('weaponDropdown');
       dropdown.innerHTML = '';
@@ -382,7 +390,7 @@
         item.className = `weapon-option ${a.id === armaEquipada.id ? 'active' : ''}`;
         item.onclick = () => seleccionarArma(a);
         item.innerHTML = `
-          <span>${a.icono}</span>
+          <span style="font-size:16px;">${a.icono}</span>
           <div style="display:flex; flex-direction:column; font-size:9px;">
             <b>${a.nombre}</b>
             <span style="color:#aaa;">Daño: ${a.daño}</span>
@@ -404,62 +412,105 @@
       renderWeaponMenu();
     }
 
-    // Actualización de estado
+    // UPDATE
     function actualizar() {
       if (teclas.w && jugador.y > jugador.radio) jugador.y -= jugador.velocidad;
       if (teclas.s && jugador.y < canvas.height - jugador.radio) jugador.y += jugador.velocidad;
       if (teclas.a && jugador.x > jugador.radio) jugador.x -= jugador.velocidad;
       if (teclas.d && jugador.x < canvas.width - jugador.radio) jugador.x += jugador.velocidad;
 
+      // Animación lenta de NPCs
       npcs.forEach(npc => {
         npc.x += npc.vx;
         npc.y += npc.vy;
         if (npc.x < 30 || npc.x > canvas.width - 30) npc.vx *= -1;
         if (npc.y < 30 || npc.y > canvas.height - 30) npc.vy *= -1;
       });
+
+      // Movimiento de Autos
+      autos.forEach(auto => {
+        auto.x += auto.vx;
+        if (auto.x < -60) auto.x = canvas.width + 20;
+        if (auto.x > canvas.width + 60) auto.x = -50;
+      });
     }
 
-    // Renderizado continuo
+    // RENDERIZADO DETALLADO
     function renderizar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Calles
-      ctx.fillStyle = '#222938';
-      ctx.fillRect(0, canvas.height * 0.55, canvas.width, 70);
+      const calleY = canvas.height * 0.62;
+      const calleAltura = 80;
 
-      // Línea divisoria de calle
+      // 1. Edificios del mapa
+      edificaciónes.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeStyle = b.borde;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+      });
+
+      // 2. Veredas
+      ctx.fillStyle = '#2b3548';
+      ctx.fillRect(0, calleY - 12, canvas.width, calleAltura + 24);
+
+      // 3. Calzada
+      ctx.fillStyle = '#1e2533';
+      ctx.fillRect(0, calleY, canvas.width, calleAltura);
+
+      // Línea divisoria amarilla discontinua
       ctx.strokeStyle = '#ffcc00';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([12, 10]);
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([15, 12]);
       ctx.beginPath();
-      ctx.moveTo(0, canvas.height * 0.55 + 35);
-      ctx.lineTo(canvas.width, canvas.height * 0.55 + 35);
+      ctx.moveTo(0, calleY + calleAltura / 2);
+      ctx.lineTo(canvas.width, calleY + calleAltura / 2);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Árboles
+      // 4. Árboles con sombreado dual
       arboles.forEach(a => {
+        // Sombra suave
+        ctx.beginPath();
+        ctx.arc(a.x + 4, a.y + 4, a.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.fill();
+
+        // Copa
         ctx.beginPath();
         ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
         ctx.fillStyle = '#2e7d32';
         ctx.fill();
         ctx.strokeStyle = '#1b5e20';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.stroke();
       });
 
-      // NPCs
+      // 5. Vehículos
+      autos.forEach(auto => {
+        ctx.fillStyle = auto.color;
+        ctx.fillRect(auto.x, auto.y, auto.w, auto.h);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(auto.x, auto.y, auto.w, auto.h);
+        // Parabrisas
+        ctx.fillStyle = '#111';
+        ctx.fillRect(auto.x + (auto.vx > 0 ? 25 : 8), auto.y + 3, 10, auto.h - 6);
+      });
+
+      // 6. NPCs
       npcs.forEach(npc => {
         ctx.beginPath();
         ctx.arc(npc.x, npc.y, 8, 0, Math.PI * 2);
         ctx.fillStyle = npc.color;
         ctx.fill();
         ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
       });
 
-      // Jugador
+      // 7. Jugador
       ctx.beginPath();
       ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2);
       ctx.fillStyle = jugador.color;
@@ -471,24 +522,43 @@
       renderizarMinimapa();
     }
 
+    // MINIMAPA DETALLADO CON RETÍCULA URBANA
     function renderizarMinimapa() {
+      const mw = minimapCanvas.width;
+      const mh = minimapCanvas.height;
+
       minimapCtx.fillStyle = '#0a0f1a';
-      minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+      minimapCtx.fillRect(0, 0, mw, mh);
 
-      const escalaX = minimapCanvas.width / canvas.width;
-      const escalaY = minimapCanvas.height / canvas.height;
+      const ex = mw / canvas.width;
+      const ey = mh / canvas.height;
 
-      // Jugador en minimapa
+      // Cuadrícula / Bloques del mapa
+      minimapCtx.strokeStyle = '#1e2d42';
+      minimapCtx.lineWidth = 1;
+      minimapCtx.strokeRect(10, 10, mw - 20, mh - 20);
+
+      // Calles en minimapa
+      minimapCtx.fillStyle = '#223344';
+      minimapCtx.fillRect(0, (canvas.height * 0.62) * ey, mw, 80 * ey);
+
+      // Edificios en minimapa
+      edificaciónes.forEach(b => {
+        minimapCtx.fillStyle = '#152238';
+        minimapCtx.fillRect(b.x * ex, b.y * ey, b.w * ex, b.h * ey);
+      });
+
+      // NPCs (Rojos / Azules)
+      npcs.forEach(npc => {
+        minimapCtx.fillStyle = npc.tipo === 'pandillero' ? '#ff3333' : '#00ccff';
+        minimapCtx.fillRect(npc.x * ex - 1, npc.y * ey - 1, 3, 3);
+      });
+
+      // Jugador (Rosa Neón)
       minimapCtx.fillStyle = '#ff007f';
       minimapCtx.beginPath();
-      minimapCtx.arc(jugador.x * escalaX, jugador.y * escalaY, 3, 0, Math.PI * 2);
+      minimapCtx.arc(jugador.x * ex, jugador.y * ey, 3.5, 0, Math.PI * 2);
       minimapCtx.fill();
-
-      // NPCs
-      npcs.forEach(npc => {
-        minimapCtx.fillStyle = npc.tipo === 'pandillero' ? '#ff3333' : '#6688aa';
-        minimapCtx.fillRect(npc.x * escalaX - 1, npc.y * escalaY - 1, 3, 3);
-      });
     }
 
     function gameLoop() {
