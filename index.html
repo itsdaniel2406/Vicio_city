@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vicio City v2.9.1 - Responsivo</title>
+  <title>Vicio City v2.9.2</title>
   <style>
     * {
       box-sizing: border-box;
@@ -14,21 +14,18 @@
     }
 
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       background-color: #0b0f19;
       color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     #game-container {
       position: relative;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       background-color: #121826;
       overflow: hidden;
     }
@@ -40,16 +37,45 @@
       background-color: #1a2332;
     }
 
+    /* --- ADVERTENCIA DE ORIENTACIÓN --- */
+    #rotate-warning {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0b0f19;
+      z-index: 9999;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #rotate-warning span {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    /* Mostrar advertencia solo en celulares verticales */
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      #rotate-warning {
+        display: flex;
+      }
+    }
+
     /* --- UI: TOP LEFT HUD --- */
     .hud-panel {
       position: absolute;
       top: 10px;
       left: 10px;
-      width: min(220px, 45vw);
+      width: clamp(160px, 25vw, 220px);
       background: rgba(10, 15, 26, 0.85);
       border: 1.5px solid #ff007f;
       border-radius: 8px;
-      padding: 8px;
+      padding: 6px 10px;
       box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
       z-index: 10;
       font-size: 11px;
@@ -57,7 +83,7 @@
 
     .hud-header {
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
       background: linear-gradient(90deg, #ff007f, #00f0ff);
       -webkit-background-clip: text;
@@ -69,21 +95,21 @@
       display: flex;
       justify-content: space-between;
       color: #33ffff;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
+      font-size: 10px;
     }
 
     .mission-box {
-      margin-top: 6px;
+      margin-top: 4px;
       background: rgba(255, 204, 0, 0.15);
       border: 1px solid #ffcc00;
       border-radius: 4px;
       padding: 4px;
-      font-size: 10px;
+      font-size: 9px;
       color: #ffea79;
-      line-height: 1.2;
     }
 
-    /* --- UI: TOP RIGHT PANEL (BOTONES & MINIMAPA) --- */
+    /* --- UI: TOP RIGHT PANEL --- */
     .top-right-panel {
       position: absolute;
       top: 10px;
@@ -91,20 +117,20 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
+      gap: 6px;
       z-index: 10;
     }
 
     .top-buttons {
       display: flex;
-      gap: 5px;
+      gap: 4px;
     }
 
     .btn-ui {
-      background: rgba(10, 15, 26, 0.8);
-      border: 1px solid #00f0ff;
+      background: rgba(10, 15, 26, 0.85);
+      border: 1.5px solid #00f0ff;
       color: #00f0ff;
-      padding: 4px 8px;
+      padding: 5px 10px;
       border-radius: 5px;
       font-size: 10px;
       cursor: pointer;
@@ -117,8 +143,8 @@
     }
 
     .minimap-container {
-      width: clamp(70px, 18vw, 110px);
-      height: clamp(70px, 18vw, 110px);
+      width: clamp(65px, 14vw, 95px);
+      height: clamp(65px, 14vw, 95px);
       border: 2px solid #ff007f;
       border-radius: 50%;
       overflow: hidden;
@@ -131,7 +157,7 @@
       height: 100%;
     }
 
-    /* --- UI: ARMAS Y CONTROLES INFERIORES --- */
+    /* --- ARMAS & D-PAD --- */
     .weapon-selector-container {
       position: absolute;
       bottom: 15px;
@@ -145,13 +171,12 @@
     .weapon-dropdown {
       display: none;
       flex-direction: column;
-      gap: 5px;
-      margin-bottom: 8px;
+      gap: 4px;
+      margin-bottom: 6px;
       background: rgba(10, 15, 26, 0.95);
       border: 1.5px solid #00f0ff;
       border-radius: 8px;
       padding: 6px;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
     }
 
     .weapon-option {
@@ -159,47 +184,43 @@
       align-items: center;
       gap: 8px;
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid transparent;
-      padding: 6px 10px;
-      border-radius: 5px;
+      padding: 4px 8px;
+      border-radius: 4px;
       cursor: pointer;
-      min-width: 130px;
     }
 
     .weapon-option.active {
-      border-color: #ff007f;
+      border: 1px solid #ff007f;
       background: rgba(255, 0, 127, 0.25);
     }
 
     .btn-weapon-active {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: rgba(10, 15, 26, 0.9);
       border: 2px solid #ff007f;
       color: #fff;
-      font-size: 20px;
+      font-size: 18px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
     }
 
-    /* --- CONTROLES MOVILES (D-PAD) --- */
     .dpad {
       position: absolute;
       bottom: 15px;
       left: 15px;
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
       z-index: 10;
     }
 
     .dpad-btn {
       position: absolute;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       background: rgba(0, 240, 255, 0.2);
       border: 1.5px solid #00f0ff;
       border-radius: 6px;
@@ -207,8 +228,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 12px;
-      cursor: pointer;
+      font-size: 11px;
     }
 
     .dpad-btn:active {
@@ -216,19 +236,25 @@
       color: #000;
     }
 
-    .dpad-up    { top: 0; left: 34px; }
-    .dpad-down  { bottom: 0; left: 34px; }
-    .dpad-left  { top: 34px; left: 0; }
-    .dpad-right { top: 34px; right: 0; }
+    .dpad-up    { top: 0; left: 30px; }
+    .dpad-down  { bottom: 0; left: 30px; }
+    .dpad-left  { top: 30px; left: 0; }
+    .dpad-right { top: 30px; right: 0; }
   </style>
 </head>
 <body>
+
+  <div id="rotate-warning">
+    <span>🔄</span>
+    <h2>Por favor, gira tu dispositivo</h2>
+    <p style="margin-top: 8px; font-size: 12px; color: #aaa;">Este juego está optimizado para jugarse en modo horizontal.</p>
+  </div>
 
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
 
     <div class="hud-panel">
-      <div class="hud-header">VICIO CITY v2.9.1</div>
+      <div class="hud-header">VICIO CITY v2.9.2</div>
       <div class="stat-row"><span>LVL: 1</span> <span>XP: 95/100</span></div>
       <div class="stat-row"><span>HP: 100/100</span> <span>CASH: $960</span></div>
       <div class="stat-row"><span>WANTED:</span> <span style="color: #ffcc00;">★☆☆☆☆</span></div>
@@ -239,12 +265,12 @@
 
     <div class="top-right-panel">
       <div class="top-buttons">
-        <button class="btn-ui" onclick="toggleFullScreen()">FULL</button>
+        <button class="btn-ui" id="btnFull">FULL</button>
         <button class="btn-ui">GUARDAR</button>
         <button class="btn-ui">CARGAR</button>
       </div>
       <div class="minimap-container">
-        <canvas id="minimap" width="110" height="110"></canvas>
+        <canvas id="minimap" width="95" height="95"></canvas>
       </div>
     </div>
 
@@ -267,7 +293,7 @@
     const minimapCanvas = document.getElementById('minimap');
     const minimapCtx = minimapCanvas.getContext('2d');
 
-    // Ajuste dinámico del tamaño del Canvas
+    // Redimensionamiento exacto del Canvas
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -275,16 +301,23 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Configuración de Pantalla Completa
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(()=>{});
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+    // Pantalla completa y bloqueo de orientación landscape
+    document.getElementById('btnFull').addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape').catch(() => {});
+          }
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.log("Error al intentar activar Fullscreen:", err);
       }
-    }
+    });
 
-    // --- ARMAS ---
+    // --- CONFIGURACIÓN DE ARMAS ---
     const armas = [
       { id: 'pistola', nombre: 'Pistola 9mm', icono: '🔫', daño: 25 },
       { id: 'escopeta', nombre: 'Escopeta', icono: '💥', daño: 60 },
@@ -296,25 +329,24 @@
     const jugador = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
-      radio: 10,
+      radio: 11,
       color: '#ff9999',
-      velocidad: 3
+      velocidad: 3.2
     };
 
-    // --- ARBOLES ---
+    // --- ELEMENTOS DEL MAPA ---
     const arboles = [
       { x: 120, y: 100, r: 20 }, { x: 180, y: 130, r: 18 }, { x: 100, y: 180, r: 22 },
       { x: 450, y: 120, r: 20 }, { x: 520, y: 100, r: 24 },
-      { x: 200, y: 400, r: 22 }, { x: 260, y: 430, r: 18 }
+      { x: 200, y: 350, r: 22 }, { x: 260, y: 380, r: 18 }
     ];
 
-    // --- NPCS (Velocidad ajustada) ---
     const npcs = [
-      { x: 250, y: 300, vx: 0.8, vy: 0, color: '#e0a080', tipo: 'peaton' },
-      { x: 400, y: 200, vx: 0, vy: 0.7, color: '#ff3366', tipo: 'pandillero' }
+      { x: 280, y: 250, vx: 0.7, vy: 0, color: '#e0a080', tipo: 'peaton' },
+      { x: 420, y: 180, vx: 0, vy: 0.6, color: '#ff3366', tipo: 'pandillero' }
     ];
 
-    // Controles por teclado y táctiles
+    // Teclas y táctiles
     const teclas = { w: false, a: false, s: false, d: false };
 
     window.addEventListener('keydown', e => {
@@ -331,18 +363,17 @@
       if (['d','D','ArrowRight'].includes(e.key)) teclas.d = false;
     });
 
-    // Controles táctiles D-Pad
-    const setupTouchBtn = (id, key) => {
-      const btn = document.getElementById(id);
-      btn.addEventListener('touchstart', (e) => { e.preventDefault(); teclas[key] = true; });
-      btn.addEventListener('touchend', (e) => { e.preventDefault(); teclas[key] = false; });
+    const bindTouch = (id, key) => {
+      const el = document.getElementById(id);
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); teclas[key] = true; });
+      el.addEventListener('touchend', (e) => { e.preventDefault(); teclas[key] = false; });
     };
-    setupTouchBtn('btnUp', 'w');
-    setupTouchBtn('btnDown', 's');
-    setupTouchBtn('btnLeft', 'a');
-    setupTouchBtn('btnRight', 'd');
+    bindTouch('btnUp', 'w');
+    bindTouch('btnDown', 's');
+    bindTouch('btnLeft', 'a');
+    bindTouch('btnRight', 'd');
 
-    // Menú desplegable de armas
+    // Menú de armas
     function renderWeaponMenu() {
       const dropdown = document.getElementById('weaponDropdown');
       dropdown.innerHTML = '';
@@ -352,7 +383,7 @@
         item.onclick = () => seleccionarArma(a);
         item.innerHTML = `
           <span>${a.icono}</span>
-          <div style="display:flex; flex-direction:column; font-size:10px;">
+          <div style="display:flex; flex-direction:column; font-size:9px;">
             <b>${a.nombre}</b>
             <span style="color:#aaa;">Daño: ${a.daño}</span>
           </div>
@@ -373,7 +404,7 @@
       renderWeaponMenu();
     }
 
-    // Actualización del bucle de juego
+    // Actualización de estado
     function actualizar() {
       if (teclas.w && jugador.y > jugador.radio) jugador.y -= jugador.velocidad;
       if (teclas.s && jugador.y < canvas.height - jugador.radio) jugador.y += jugador.velocidad;
@@ -383,16 +414,30 @@
       npcs.forEach(npc => {
         npc.x += npc.vx;
         npc.y += npc.vy;
-        if (npc.x < 20 || npc.x > canvas.width - 20) npc.vx *= -1;
-        if (npc.y < 20 || npc.y > canvas.height - 20) npc.vy *= -1;
+        if (npc.x < 30 || npc.x > canvas.width - 30) npc.vx *= -1;
+        if (npc.y < 30 || npc.y > canvas.height - 30) npc.vy *= -1;
       });
     }
 
-    // Renderizado
+    // Renderizado continuo
     function renderizar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Dibujar Árboles
+      // Calles
+      ctx.fillStyle = '#222938';
+      ctx.fillRect(0, canvas.height * 0.55, canvas.width, 70);
+
+      // Línea divisoria de calle
+      ctx.strokeStyle = '#ffcc00';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([12, 10]);
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height * 0.55 + 35);
+      ctx.lineTo(canvas.width, canvas.height * 0.55 + 35);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Árboles
       arboles.forEach(a => {
         ctx.beginPath();
         ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
@@ -403,15 +448,18 @@
         ctx.stroke();
       });
 
-      // Dibujar NPCs
+      // NPCs
       npcs.forEach(npc => {
         ctx.beginPath();
         ctx.arc(npc.x, npc.y, 8, 0, Math.PI * 2);
         ctx.fillStyle = npc.color;
         ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       });
 
-      // Dibujar Jugador
+      // Jugador
       ctx.beginPath();
       ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2);
       ctx.fillStyle = jugador.color;
@@ -420,22 +468,27 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Renderizar Minimapa
       renderizarMinimapa();
     }
 
     function renderizarMinimapa() {
       minimapCtx.fillStyle = '#0a0f1a';
-      minimapCtx.fillRect(0, 0, 110, 110);
+      minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
 
-      const escalaX = 110 / canvas.width;
-      const escalaY = 110 / canvas.height;
+      const escalaX = minimapCanvas.width / canvas.width;
+      const escalaY = minimapCanvas.height / canvas.height;
 
       // Jugador en minimapa
       minimapCtx.fillStyle = '#ff007f';
       minimapCtx.beginPath();
       minimapCtx.arc(jugador.x * escalaX, jugador.y * escalaY, 3, 0, Math.PI * 2);
       minimapCtx.fill();
+
+      // NPCs
+      npcs.forEach(npc => {
+        minimapCtx.fillStyle = npc.tipo === 'pandillero' ? '#ff3333' : '#6688aa';
+        minimapCtx.fillRect(npc.x * escalaX - 1, npc.y * escalaY - 1, 3, 3);
+      });
     }
 
     function gameLoop() {
