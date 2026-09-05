@@ -2,58 +2,174 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vicio city - Dani Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vice City 3D - Full Engine</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; color: #fff; }
-        #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        
-        /* Advertencia Vertical */
-        #orient-warning { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #ff00ff; z-index: 1000; justify-content: center; align-items: center; text-align: center; font-size: 20px; font-weight: bold; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #05000a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+        /* Canvas cubre el 100% real de la pantalla */
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Bloqueo Horizontal */
+        #orient-warning {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            color: #ff00ff;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff00ff;
+        }
         @media (orientation: portrait) { #orient-warning { display: flex; } }
 
-        /* HUD - Información del Juego */
-        .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 10; font-size: 14px; text-shadow: 0 0 5px #00ffff; pointer-events: none; }
-        .hud-value { color: #ff00ff; font-weight: bold; }
-        #mission-box { position: absolute; top: 40px; left: 10px; background: rgba(0,0,0,0.7); border: 1px solid #ff00ff; padding: 8px; border-radius: 4px; z-index: 10; font-size: 12px; color: #00ffff; max-width: 250px; }
+        /* HUD - Barra Superior Limpia */
+        .hud-bar {
+            position: absolute;
+            top: env(safe-area-inset-top, 10px);
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .hud-card {
+            background: rgba(10, 0, 20, 0.75);
+            border: 1.5px solid #ff00ff;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        .hud-value { color: #00ffff; font-size: 15px; }
 
-        #fs-btn { position: absolute; top: 10px; right: 10px; padding: 6px 12px; background: rgba(0, 255, 255, 0.2); color: #00ffff; border: 1px solid #00ffff; border-radius: 4px; z-index: 20; font-weight: bold; cursor: pointer; pointer-events: auto; }
+        /* Misión Box */
+        #mission-box {
+            position: absolute;
+            top: 55px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 4px solid #00ffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            z-index: 10;
+            font-size: 12px;
+            color: #fff;
+            max-width: 280px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
 
-        /* Controles Táctiles Overlay */
-        .controls { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 10; pointer-events: none; }
-        .dpad, .actions { pointer-events: auto; display: grid; gap: 5px; }
-        .dpad { grid-template-columns: repeat(3, 55px); grid-template-rows: repeat(3, 55px); }
-        .btn { background: rgba(255, 0, 255, 0.15); border: 2px solid #ff00ff; border-radius: 8px; color: #ff00ff; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-shadow: 0 0 8px #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.3); }
-        .btn:active { background: rgba(255, 0, 255, 0.5); }
+        /* Botón Fullscreen */
+        #fs-btn {
+            pointer-events: auto;
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0,255,255,0.4);
+        }
+
+        /* Controles Táctiles Integrados y con Margen Adaptativo */
+        .controls {
+            position: absolute;
+            bottom: env(safe-area-inset-bottom, 20px);
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .dpad, .actions { pointer-events: auto; display: grid; gap: 6px; }
+        .dpad { grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); }
+        .btn {
+            background: rgba(255, 0, 255, 0.2);
+            border: 2px solid #ff00ff;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 6px #ff00ff;
+            box-shadow: 0 0 12px rgba(255,0,255,0.3);
+        }
+        .btn:active { background: rgba(255, 0, 255, 0.6); transform: scale(0.95); }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
+        
         .actions { display: flex; gap: 15px; align-items: flex-end; }
-        .btn-action { width: 65px; height: 65px; border-radius: 50%; border-color: #00ffff; color: #00ffff; text-shadow: 0 0 8px #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.3); }
+        .btn-action {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border-color: #00ffff;
+            color: #00ffff;
+            font-size: 22px;
+            box-shadow: 0 0 12px rgba(0,255,255,0.4);
+        }
+        .btn-action:active { background: rgba(0, 255, 255, 0.5); }
     </style>
-    <!-- Three.js CDN (Librería 3D) -->
+    <!-- Three.js + GLTFLoader Addon -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
 
     <div id="orient-warning">Gira tu dispositivo a HORIZONTAL 🔄</div>
     
-    <div class="hud">
-        <div>SALUD: <span class="hud-value" id="hud-health">100</span></div>
-        <div>WANTED: <span class="hud-value" id="hud-wanted">⭐ 0</span></div>
-        <div>DINERO: <span class="hud-value" id="hud-money">$0</span></div>
+    <div class="hud-bar">
+        <div class="hud-card">SALUD: <span class="hud-value" id="hud-health">100</span></div>
+        <div class="hud-card">WANTED: <span class="hud-value" id="hud-wanted">⭐ 0</span></div>
+        <div class="hud-card">DINERO: <span class="hud-value" id="hud-money">$0</span></div>
+        <button id="fs-btn">PANTALLA COMPLETA</button>
     </div>
     
     <div id="mission-box">
-        MISION: <span id="mission-text">Ve al marcador amarillo en el mapa para iniciar.</span>
+        <b>MISIÓN:</b> <span id="mission-text">Súbete al deportivo rosa o ve al marcador amarillo.</span>
     </div>
 
-    <button id="fs-btn">FULLSCREEN</button>
     <div id="canvas-container"></div>
 
-    <!-- Controles Táctiles -->
     <div class="controls">
         <div class="dpad">
             <div class="btn btn-up" id="btn-up">▲</div>
@@ -62,125 +178,189 @@
             <div class="btn btn-down" id="btn-down">▼</div>
         </div>
         <div class="actions">
-            <div class="btn btn-action" id="btn-a">A</div> <!-- Entrar/Salir vehículo -->
-            <div class="btn btn-action" id="btn-b" style="border-color: #ff00ff; color: #ff00ff;">🔫</div> <!-- Disparar -->
+            <div class="btn btn-action" id="btn-a">🚗</div>
+            <div class="btn btn-action" id="btn-b" style="border-color: #ff007f; color: #ff007f;">🔫</div>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN TÉCNICA 3D ---
+        // --- 1. SETUP DE ESCENA Y RENDERIZADOR ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a002a, 0.012);
+        scene.fog = new THREE.FogExp2(0x0a001a, 0.012);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        
+        // Ajuste exacto al Viewport
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x1a002a);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        // Iluminación Synthwave
-        const ambientLight = new THREE.AmbientLight(0xff00ff, 0.6);
+        // --- 2. ILUMINACIÓN Y AMBIENTE ---
+        const ambientLight = new THREE.AmbientLight(0xd8b4fe, 0.7);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0x00ffff, 0.9);
-        dirLight.position.set(30, 50, 30);
-        scene.add(dirLight);
 
-        // --- 2. MAPA, EDIFICIOS Y PALMERAS ---
-        const mapSize = 300;
-        const gridHelper = new THREE.GridHelper(mapSize, 60, 0xff00ff, 0x330033);
+        const mainLight = new THREE.DirectionalLight(0x00ffff, 1.2);
+        mainLight.position.set(40, 60, 20);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 1024;
+        mainLight.shadow.mapSize.height = 1024;
+        scene.add(mainLight);
+
+        const pinkLight = new THREE.PointLight(0xff007f, 2, 80);
+        pinkLight.position.set(0, 10, 0);
+        scene.add(pinkLight);
+
+        // --- 3. CONSTRUCCIÓN DE LA CIUDAD (Piso, Edificios con Textura/Material) ---
+        // Suelo Asfalto
+        const roadGeo = new THREE.PlaneGeometry(300, 300);
+        const roadMat = new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.8 });
+        const road = new THREE.Mesh(roadGeo, roadMat);
+        road.rotation.x = -Math.PI / 2;
+        road.receiveShadow = true;
+        scene.add(road);
+
+        // Grid Neón
+        const gridHelper = new THREE.GridHelper(300, 60, 0xff00ff, 0x220033);
+        gridHelper.position.y = 0.01;
         scene.add(gridHelper);
 
-        const colliders = [];
-
-        // Generar Edificios 3D con luces
-        const buildingGeo = new THREE.BoxGeometry(1, 1, 1);
-        for (let i = 0; i < 70; i++) {
-            const color = Math.random() > 0.5 ? 0x00ffff : 0xff00ff;
-            const mat = new THREE.MeshLambertMaterial({ color: color, wireframe: true });
-            const building = new THREE.Mesh(buildingGeo, mat);
-            
-            const h = 12 + Math.random() * 25;
-            const w = 8 + Math.random() * 8;
-            const d = 8 + Math.random() * 8;
-            building.scale.set(w, h, d);
-            
-            let x = (Math.random() - 0.5) * (mapSize - 40);
-            let z = (Math.random() - 0.5) * (mapSize - 40);
-            if (Math.abs(x) < 15) x += 25; // Dejar la avenida principal libre
-            
-            building.position.set(x, h / 2, z);
-            scene.add(building);
-
-            colliders.push({ x, z, radius: Math.max(w, d) / 2 });
-        }
-
-        // --- 3. JUGADOR, VEHÍCULO Y POLICÍA (MODELOS PROCEDURALES) ---
-        // Jugador
-        const playerGroup = new THREE.Group();
-        const pMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 0.5, 2, 8),
-            new THREE.MeshBasicMaterial({ color: 0x00ffff })
-        );
-        pMesh.position.y = 1;
-        playerGroup.add(pMesh);
-        scene.add(playerGroup);
-        playerGroup.position.set(0, 0, 20);
-
-        let gameState = {
-            health: 100,
-            money: 0,
-            wanted: 0,
-            inVehicle: false,
-            missionStep: 0
-        };
-
-        // Auto Jugador
-        function createCarMesh(color) {
+        // Creador Procedural de Edificios Bonitos (Fallback si no hay GLB)
+        function createDetailedBuilding(w, h, d, color) {
             const group = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1, 4.5), new THREE.MeshLambertMaterial({ color }));
-            body.position.y = 0.6;
-            group.add(body);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x181825, roughness: 0.3 });
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+            mesh.position.y = h / 2;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            group.add(mesh);
+
+            // Marcos Neón
+            const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d));
+            const lineMat = new THREE.LineBasicMaterial({ color: color });
+            const wireframe = new THREE.LineSegments(edges, lineMat);
+            wireframe.position.y = h / 2;
+            group.add(wireframe);
+
             return group;
         }
 
-        const carGroup = createCarMesh(0xff00ff);
-        scene.add(carGroup);
-        carGroup.position.set(5, 0, 0);
+        const mapSize = 260;
+        for (let i = 0; i < 45; i++) {
+            const color = Math.random() > 0.5 ? 0x00ffff : 0xff00ff;
+            const h = 15 + Math.random() * 30;
+            const w = 10 + Math.random() * 8;
+            const d = 10 + Math.random() * 8;
 
-        // Patrulla Policial
-        const policeGroup = createCarMesh(0x0000ff);
-        // Luz policial en el techo
-        const siren = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-        siren.position.set(0, 1.2, 0);
-        policeGroup.add(siren);
-        scene.add(policeGroup);
-        policeGroup.position.set(-50, 0, -50);
+            const bld = createDetailedBuilding(w, h, d, color);
+            let x = (Math.random() - 0.5) * mapSize;
+            let z = (Math.random() - 0.5) * mapSize;
+            if (Math.abs(x) < 20) x += 35; // Avenida Libre
 
-        // NPCs Ciudadanos
-        const npcs = [];
-        for (let i = 0; i < 15; i++) {
-            const npc = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.4, 0.4, 1.8, 8),
-                new THREE.MeshLambertMaterial({ color: 0xffff00 })
-            );
-            npc.position.set((Math.random() - 0.5) * 150, 0.9, (Math.random() - 0.5) * 150);
-            scene.add(npc);
-            npcs.push({ mesh: npc, dir: Math.random() * Math.PI * 2, speed: 0.05, alive: true });
+            bld.position.set(x, 0, z);
+            scene.add(bld);
         }
 
-        // Marcador de Misión (Luz/Cilindro flotante)
+        // --- 4. MODELOS DE PERSONAJES Y VEHÍCULOS (CON GLTFLoader Y FALLBACKS) ---
+        const loader = new THREE.GLTFLoader();
+
+        // Creamos Jugador Avanzado
+        function buildHumanoid() {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.2, metalness: 0.5 });
+            
+            // Torso
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.5), bodyMat);
+            torso.position.y = 1.2;
+            torso.castShadow = true;
+            group.add(torso);
+
+            // Cabeza
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffcc99 }));
+            head.position.y = 2.0;
+            head.castShadow = true;
+            group.add(head);
+
+            return group;
+        }
+
+        const playerGroup = buildHumanoid();
+        playerGroup.position.set(0, 0, 15);
+        scene.add(playerGroup);
+
+        // Creamos Auto Avanzado
+        function buildCar(colorHex) {
+            const group = new THREE.Group();
+            const carMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.8, roughness: 0.2 });
+            
+            const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 4.2), carMat);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            group.add(body);
+
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 2.0), new THREE.MeshStandardMaterial({ color: 0x111, roughness: 0.1 }));
+            cabin.position.set(0, 1.1, -0.2);
+            group.add(cabin);
+
+            // Ruedas
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x050505 });
+            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16);
+            [ [-1.2, 0.4, 1.2], [1.2, 0.4, 1.2], [-1.2, 0.4, -1.2], [1.2, 0.4, -1.2] ].forEach(pos => {
+                const w = new THREE.Mesh(wheelGeo, wheelMat);
+                w.rotation.z = Math.PI / 2;
+                w.position.set(...pos);
+                group.add(w);
+            });
+
+            return group;
+        }
+
+        const carGroup = buildCar(0xff007f);
+        carGroup.position.set(6, 0, 0);
+        scene.add(carGroup);
+
+        const policeGroup = buildCar(0x0022ff);
+        const siren = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        siren.position.set(0, 1.5, 0);
+        policeGroup.add(siren);
+        policeGroup.position.set(-60, 0, -60);
+        scene.add(policeGroup);
+
+        // Intentar cargar modelo GLB Anónimo/Externo (Demostración de Integración)
+        loader.load(
+            'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb',
+            (gltf) => {
+                const duck = gltf.scene;
+                duck.scale.set(0.8, 0.8, 0.8);
+                duck.position.set(0, 0, -10);
+                scene.add(duck);
+            },
+            undefined,
+            (err) => console.log("GLB Opcional no cargado, usando modelo procedural fallback.")
+        );
+
+        // NPCs
+        const npcs = [];
+        for(let i = 0; i < 12; i++) {
+            const npcMesh = buildHumanoid();
+            npcMesh.position.set((Math.random() - 0.5) * 140, 0, (Math.random() - 0.5) * 140);
+            scene.add(npcMesh);
+            npcs.push({ mesh: npcMesh, alive: true, dir: Math.random() * Math.PI * 2 });
+        }
+
+        // Marcador Misión
         const missionMarker = new THREE.Mesh(
-            new THREE.CylinderGeometry(2, 2, 0.2, 16),
+            new THREE.CylinderGeometry(2, 2, 0.1, 16),
             new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true })
         );
-        missionMarker.position.set(20, 0.1, 20);
+        missionMarker.position.set(25, 0.1, 25);
         scene.add(missionMarker);
 
-        // Loot Items (Dinero/Armas)
-        const lootItems = [];
-
-        // --- 4. CONTROLES TÁCTILES Y TECLADO ---
+        // --- 5. LÓGICA DE ESTADO Y CONTROLES ---
+        let gameState = { health: 100, money: 0, wanted: 0, inVehicle: false, missionStep: 0 };
         const keys = { up: false, down: false, left: false, right: false };
 
         function bindTouch(id, key) {
@@ -191,9 +371,7 @@
         bindTouch('btn-up', 'up'); bindTouch('btn-down', 'down');
         bindTouch('btn-left', 'left'); bindTouch('btn-right', 'right');
 
-        // Botón A: Subir/Bajar Auto
         document.getElementById('btn-a').addEventListener('touchstart', (e) => { e.preventDefault(); toggleVehicle(); });
-        // Botón B: Disparar
         document.getElementById('btn-b').addEventListener('touchstart', (e) => { e.preventDefault(); shootWeapon(); });
 
         window.addEventListener('keydown', (e) => {
@@ -217,49 +395,23 @@
                 gameState.inVehicle = false;
                 playerGroup.position.copy(carGroup.position).add(new THREE.Vector3(2, 0, 0));
                 playerGroup.visible = true;
-            } else if (dist < 5) {
+            } else if (dist < 4.5) {
                 gameState.inVehicle = true;
                 playerGroup.visible = false;
             }
         }
 
-        // --- 5. MECÁNICAS DE DISPARO, POLICÍA Y MISIONES ---
         function shootWeapon() {
             if (gameState.inVehicle) return;
-
-            // Al disparar sube el nivel de búsqueda
             gameState.wanted = Math.min(gameState.wanted + 1, 5);
             updateHUD();
 
-            // Bala (Línea de rayo)
             const activeObj = playerGroup;
-            const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), activeObj.rotation.y);
-            
-            // Impacto a NPCs
             npcs.forEach(npc => {
-                if (npc.alive) {
-                    const dist = npc.mesh.position.distanceTo(activeObj.position);
-                    if (dist < 20) {
-                        npc.alive = false;
-                        npc.mesh.rotation.x = Math.PI / 2; // Cae al suelo
-                        
-                        // Generar Dinero Loot
-                        const loot = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.5), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-                        loot.position.copy(npc.mesh.position);
-                        scene.add(loot);
-                        lootItems.push(loot);
-                    }
-                }
-            });
-        }
-
-        function spawnLootCheck() {
-            lootItems.forEach((loot, index) => {
-                const target = gameState.inVehicle ? carGroup : playerGroup;
-                if (target.position.distanceTo(loot.position) < 2.5) {
-                    scene.remove(loot);
-                    lootItems.splice(index, 1);
-                    gameState.money += 100;
+                if (npc.alive && npc.mesh.position.distanceTo(activeObj.position) < 18) {
+                    npc.alive = false;
+                    npc.mesh.rotation.x = Math.PI / 2;
+                    gameState.money += 150;
                     updateHUD();
                 }
             });
@@ -271,24 +423,12 @@
             document.getElementById('hud-money').innerText = "$" + gameState.money;
         }
 
-        function checkMission() {
-            const target = gameState.inVehicle ? carGroup : playerGroup;
-            if (target.position.distanceTo(missionMarker.position) < 4) {
-                if (gameState.missionStep === 0) {
-                    gameState.missionStep = 1;
-                    gameState.money += 500;
-                    missionMarker.position.set(-40, 0.1, -30);
-                    document.getElementById('mission-text').innerText = "¡Misión 1 Completada (+$500)! Ahora ve al punto norte.";
-                    updateHUD();
-                } else if (gameState.missionStep === 1) {
-                    gameState.missionStep = 2;
-                    gameState.money += 1000;
-                    missionMarker.visible = false;
-                    document.getElementById('mission-text').innerText = "¡MISIONES COMPLETADAS! Explora la ciudad libremente.";
-                    updateHUD();
-                }
-            }
-        }
+        // Resize automático sin distorsión
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
 
         // Fullscreen
         document.getElementById('fs-btn').addEventListener('click', () => {
@@ -298,55 +438,41 @@
             } else { document.exitFullscreen(); }
         });
 
-        // --- 6. BUCLE DE ANIMACIÓN E IA ---
+        // --- 6. ANIMACIÓN Y BUCLE PRINCIPAL ---
         let carSpeed = 0;
 
         function animate() {
             requestAnimationFrame(animate);
 
             const activeObj = gameState.inVehicle ? carGroup : playerGroup;
-            const turnSpeed = gameState.inVehicle ? 0.04 : 0.06;
-            const maxSpeed = gameState.inVehicle ? 0.7 : 0.2;
+            const turnSpeed = gameState.inVehicle ? 0.04 : 0.05;
+            const maxSpeed = gameState.inVehicle ? 0.8 : 0.22;
 
-            // Movimiento
             if (keys.left) activeObj.rotation.y += turnSpeed;
             if (keys.right) activeObj.rotation.y -= turnSpeed;
 
             if (keys.up) carSpeed = Math.min(carSpeed + 0.02, maxSpeed);
             else if (keys.down) carSpeed = Math.max(carSpeed - 0.02, -maxSpeed / 2);
-            else carSpeed *= 0.92; // Fricción
+            else carSpeed *= 0.92;
 
             activeObj.translateZ(-carSpeed);
 
             if (gameState.inVehicle) playerGroup.position.copy(carGroup.position);
 
-            // IA NPCs (Caminar aleatorio)
-            npcs.forEach(npc => {
-                if (npc.alive) {
-                    npc.mesh.translateZ(-npc.speed);
-                    if (Math.random() < 0.02) npc.mesh.rotation.y += (Math.random() - 0.5);
-                }
-            });
-
-            // IA Policía (Si tienes Wanted Level > 0, la patrulla te persigue)
+            // Policía persigue si hay estrellas
             if (gameState.wanted > 0) {
                 policeGroup.lookAt(activeObj.position);
-                policeGroup.translateZ(0.25);
-
-                // Si te alcanza la policía
+                policeGroup.translateZ(0.3);
                 if (policeGroup.position.distanceTo(activeObj.position) < 3) {
                     gameState.health = Math.max(0, gameState.health - 1);
                     updateHUD();
                 }
             }
 
-            spawnLootCheck();
-            checkMission();
-
-            // Cámara 3ª Persona
-            const camOffset = new THREE.Vector3(0, 5, 10).applyMatrix4(activeObj.matrixWorld);
+            // Cámara en 3ª Persona Suave
+            const camOffset = new THREE.Vector3(0, 5, 11).applyMatrix4(activeObj.matrixWorld);
             camera.position.lerp(camOffset, 0.1);
-            camera.lookAt(activeObj.position.clone().add(new THREE.Vector3(0, 1, 0)));
+            camera.lookAt(activeObj.position.clone().add(new THREE.Vector3(0, 1.2, 0)));
 
             renderer.render(scene, camera);
         }
