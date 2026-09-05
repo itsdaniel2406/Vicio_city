@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vice City 2D - Ultimate Open World</title>
+    <title>Vice City 2D - Ultimate Edition</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
         body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; }
@@ -14,30 +14,35 @@
         @media (orientation: portrait) { #orient-warning { display: flex; } }
 
         /* HUD - Esquina Superior Izquierda */
-        .hud-left { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 20; pointer-events: none; }
+        .hud-left { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; pointer-events: none; }
         .hud-card { background: rgba(5,5,15,0.85); border: 1.5px solid #00f0ff; padding: 4px 10px; border-radius: 6px; color: #fff; font-size: 11px; font-weight: bold; box-shadow: 0 0 8px rgba(0,240,255,0.3); }
+        .mission-card { border-color: #ffee00; color: #ffee00; }
 
-        /* Guardar / Cargar / Minimapa - Esquina Superior Derecha */
+        /* Minimapa / Sistema - Esquina Superior Derecha */
         .top-right-container { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 20; }
         .save-load-btns { display: flex; gap: 6px; }
         .btn-small-sys { background: rgba(0,0,0,0.8); border: 1.5px solid #00f0ff; color: #00f0ff; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; pointer-events: auto; }
         .btn-small-sys:active { background: #00f0ff; color: #000; }
         
-        #minimap-container { width: 95px; height: 95px; border-radius: 50%; border: 2.5px solid #ff007f; background: rgba(0,0,0,0.9); overflow: hidden; box-shadow: 0 0 10px #ff007f; }
+        #minimap-container { width: 90px; height: 90px; border-radius: 50%; border: 2.5px solid #ff007f; background: rgba(0,0,0,0.9); overflow: hidden; box-shadow: 0 0 10px #ff007f; }
         #minimap { width: 100%; height: 100%; }
 
-        /* Diálogos / Notificaciones */
-        #npc-dialog { display: none; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 2px solid #ffee00; padding: 8px 16px; border-radius: 10px; z-index: 90; font-size: 13px; color: #ffee00; text-align: center; }
+        /* Botón Contextual de Entrar Edificio */
+        #enter-building-btn { display: none; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: #ffee00; color: #000; font-size: 14px; font-weight: bold; padding: 12px 24px; border-radius: 30px; border: 2px solid #fff; box-shadow: 0 0 15px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.08); } }
 
         /* Modales */
-        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; background: rgba(10, 10, 25, 0.95); border: 2px solid #ff007f; border-radius: 10px; padding: 12px; z-index: 100; box-shadow: 0 0 20px rgba(255,0,127,0.5); pointer-events: auto; }
+        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 290px; background: rgba(10, 10, 25, 0.95); border: 2px solid #ff007f; border-radius: 10px; padding: 12px; z-index: 100; box-shadow: 0 0 20px rgba(255,0,127,0.5); pointer-events: auto; }
         .modal h3 { color: #00f0ff; margin-bottom: 8px; font-size: 14px; text-align: center; border-bottom: 1px solid #ff007f; padding-bottom: 4px; }
         .modal-item { background: rgba(255,255,255,0.08); padding: 8px; margin: 4px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; cursor: pointer; }
         .modal-item.active { border: 1px solid #00f0ff; background: rgba(0,240,255,0.25); }
         .btn-buy { background: #00ff88; color: #000; border: none; padding: 4px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .close-btn { background: #ff0055; border: none; color: #fff; padding: 6px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 8px; cursor: pointer; }
+        
+        .color-picker-box { display: flex; gap: 8px; justify-content: center; margin: 10px 0; }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
 
-        /* Controles - Esquina Inferior Izquierda */
+        /* Controles - DPAD */
         .dpad-container { position: absolute; bottom: 15px; left: 15px; pointer-events: auto; z-index: 20; }
         .dpad { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 3px; }
         .btn { background: rgba(0, 0, 0, 0.75); border: 2px solid #00f0ff; border-radius: 8px; color: #00f0ff; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
@@ -47,7 +52,7 @@
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
         
-        /* Controles - Esquina Inferior Derecha */
+        /* Controles - Botones Derecha */
         .controls-right { position: absolute; bottom: 15px; right: 15px; display: flex; gap: 6px; align-items: flex-end; z-index: 20; pointer-events: auto; }
         .btn-act { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 16px; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; }
         .btn-act:active { background: rgba(255, 0, 127, 0.4); }
@@ -57,15 +62,14 @@
 
     <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
 
-    <!-- HUD Izquierda -->
     <div class="hud-left">
         <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
         <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
         <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$0</span></div>
         <div class="hud-card">BUSCADO: <span id="wanted-val" style="color:#ffcc00">☆☆☆☆☆</span></div>
+        <div class="hud-card mission-card">🎯 MISIÓN: <span id="mission-val">Explora la ciudad</span></div>
     </div>
 
-    <!-- Minimapa & Controles del Sistema (Arriba Derecha) -->
     <div class="top-right-container">
         <div class="save-load-btns">
             <button class="btn-small-sys" onclick="saveGame()">💾 GUARDAR</button>
@@ -76,26 +80,39 @@
         </div>
     </div>
 
-    <div id="npc-dialog">💬 <span id="dialog-text">¡Hola!</span></div>
+    <button id="enter-building-btn" onclick="enterCurrentBuilding()">🚪 ENTRAR AL EDIFICIO</button>
 
-    <!-- Modales -->
     <div id="backpack-modal" class="modal">
         <h3>🎒 ARMAS EN INVENTARIO</h3>
-        <div class="modal-item active" id="wep-pistol"><span>🔫 Pistola 9mm</span> <span style="color:#00ff88" id="status-pistol">EQUIPADA</span></div>
-        <div class="modal-item" id="wep-shotgun"><span>💥 Escopeta Recortada</span> <span id="status-shotgun">SELECCIONAR</span></div>
+        <div class="modal-item active" id="wep-pistol"><span>🔫 Pistola 9mm</span> <span style="color:#00ff88">EQUIPADA</span></div>
+        <div class="modal-item" id="wep-shotgun"><span>💥 Escopeta Recortada</span> <span>SELECCIONAR</span></div>
         <button class="close-btn" onclick="toggleModal('backpack-modal')">CERRAR</button>
     </div>
 
     <div id="shop-modal" class="modal">
-        <h3>🛒 TIENDA DE MEJORAS</h3>
+        <h3>🛒 TIENDA Y FARMACIA</h3>
+        <div class="modal-item"><span>💊 Botiquín Salud Full ($100)</span><button class="btn-buy" onclick="buyItem('heal')">COMPRAR</button></div>
         <div class="modal-item"><span>❤️ +20 Salud Máx ($200)</span><button class="btn-buy" onclick="buyUpgrade('health')">COMPRAR</button></div>
         <div class="modal-item"><span>⚡ Vel. Movimiento ($150)</span><button class="btn-buy" onclick="buyUpgrade('speed')">COMPRAR</button></div>
         <button class="close-btn" onclick="toggleModal('shop-modal')">CERRAR</button>
     </div>
 
+    <div id="home-modal" class="modal">
+        <h3>🏠 MI CASA Y VESTIDOR</h3>
+        <p style="font-size:11px; text-align:center; margin-bottom:6px;">Personaliza el color de ropa de tu personaje:</p>
+        <div class="color-picker-box">
+            <div class="color-dot" style="background:#00f0ff" onclick="changeClothColor('#00f0ff')"></div>
+            <div class="color-dot" style="background:#ff007f" onclick="changeClothColor('#ff007f')"></div>
+            <div class="color-dot" style="background:#ffee00" onclick="changeClothColor('#ffee00')"></div>
+            <div class="color-dot" style="background:#00ff88" onclick="changeClothColor('#00ff88')"></div>
+            <div class="color-dot" style="background:#ffffff" onclick="changeClothColor('#ffffff')"></div>
+        </div>
+        <button class="btn-buy" style="width:100%; margin-top:6px;" onclick="healPlayerHome()">🛋️ DESCANSAR Y CURARSE</button>
+        <button class="close-btn" onclick="toggleModal('home-modal')">CERRAR</button>
+    </div>
+
     <canvas id="game"></canvas>
 
-    <!-- DPAD Izquierda -->
     <div class="dpad-container">
         <div class="dpad">
             <div class="btn btn-up" id="b-up">▲</div>
@@ -105,12 +122,10 @@
         </div>
     </div>
 
-    <!-- Botones Acción Derecha -->
     <div class="controls-right">
         <div class="btn-act" onclick="toggleFullscreen()">🖥️</div>
         <div class="btn-act" onclick="toggleModal('shop-modal')">🛒</div>
         <div class="btn-act" onclick="toggleModal('backpack-modal')">🎒</div>
-        <div class="btn-act" onclick="talkOrInteract()">💬</div>
         <div class="btn-act" id="b-enter">🚗</div>
         <div class="btn-act" id="b-shoot" style="border-color:#ff0055; color:#ff0055;">🔫</div>
     </div>
@@ -124,7 +139,7 @@
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            mCanvas.width = 95; mCanvas.height = 95;
+            mCanvas.width = 90; mCanvas.height = 90;
         }
         window.addEventListener('resize', resize);
         resize();
@@ -134,13 +149,22 @@
             else document.exitFullscreen().catch(()=>{});
         }
 
-        // --- ESTADO GENERAL ---
-        let interiorMode = null; // null = Exterior, 'bank' = Interior Banco
+        // DÍA / NOCHE
+        let timeOfDay = 0;
+        function getDayColor() {
+            let hour = (timeOfDay / 100) % 24;
+            if(hour > 6 && hour < 18) return 'rgba(0,0,0,0)';
+            if(hour >= 18 && hour < 20) return 'rgba(255, 100, 0, 0.15)';
+            return 'rgba(5, 5, 25, 0.65)';
+        }
+
+        let interiorMode = null;
+        let activeDoorBuilding = null;
 
         const player = { 
             x: 500, y: 500, angle: 0, speed: 3.3, radius: 10, inCar: false, 
-            health: 100, maxHealth: 100, money: 0, wanted: 0, level: 1, xp: 0, 
-            weapon: 'pistol', carRef: null 
+            health: 100, maxHealth: 100, money: 100, wanted: 0, level: 1, xp: 0, 
+            weapon: 'pistol', clothColor: '#00f0ff', carRef: null 
         };
         const keys = { up: false, down: false, left: false, right: false };
 
@@ -148,32 +172,72 @@
         const particles = [];
         const loot = [];
 
-        // MAPA EXTENDIDO & EDIFICIOS
+        // SOBREVUELO DE AVIONES / HELICÓPTEROS
+        const skyVehicles = [
+            { x: -200, y: 300, vx: 2.5, vy: 0.5, type: 'plane' },
+            { x: 1800, y: 900, vx: -1.8, vy: 0.8, type: 'cop_heli' }
+        ];
+
+        // EDIFICIOS
         const buildings = [
+            { id: 'home', x: 500, y: 380, w: 180, h: 180, color: '#1f3c88', roof: '#070d59', label: '🏠 MI CASA', doorX: 590, doorY: 560 },
+            { id: 'pharma', x: 1200, y: 380, w: 180, h: 180, color: '#116530', roof: '#18a558', label: '🏥 FARMACIA', doorX: 1290, doorY: 560 },
             { id: 'bank', x: 200, y: 200, w: 220, h: 220, color: '#1a1a2e', roof: '#16213e', label: '🏦 BANCO', doorX: 310, doorY: 420 },
             { id: 'police', x: 800, y: 200, w: 260, h: 220, color: '#0f3460', roof: '#1f4068', label: '🚔 COMISARÍA', doorX: 930, doorY: 420 },
-            { id: 'shop', x: 200, y: 800, w: 220, h: 240, color: '#2b1b36', roof: '#3e204d', label: '🛒 TIENDA', doorX: 310, doorY: 1040 },
-            { id: 'hotel', x: 800, y: 800, w: 280, h: 240, color: '#1b2e2b', roof: '#204d3e', label: '🏨 HOTEL', doorX: 940, doorY: 1040 }
+            { id: 'airport', x: 1400, y: 1100, w: 350, h: 300, color: '#333', roof: '#222', label: '✈️ AEROPUERTO', doorX: 1575, doorY: 1400 }
         ];
 
-        // VEHÍCULOS
+        // VEHÍCULOS OCULTOS & SOBRE EL MAPA
         const cars = [
-            { x: 550, y: 480, angle: 0, speed: 5.2, health: 100, maxHealth: 100, w: 42, h: 22, color: '#ff0055', type: 'sports', name: 'Deportivo' },
-            { x: 930, y: 450, angle: 0, speed: 4.5, health: 120, maxHealth: 120, w: 44, h: 22, color: '#0044ff', type: 'police', name: 'Patrullero' },
-            { x: 300, y: 1100, angle: 0, speed: 2.8, health: 300, maxHealth: 300, w: 54, h: 28, color: '#2d471e', type: 'tank', name: 'Tanque' }
+            { x: 550, y: 480, angle: 0, speed: 5.2, health: 100, w: 42, h: 22, color: '#ff0055', type: 'sports' },
+            { x: 930, y: 450, angle: 0, speed: 4.5, health: 120, w: 44, h: 22, color: '#0044ff', type: 'police' },
+            { x: 600, y: 900, angle: 0, speed: 6.0, health: 60, w: 30, h: 14, color: '#ffee00', type: 'moto' },
+            // Raros Escondidos
+            { x: 1550, y: 1250, angle: 0, speed: 5.5, health: 150, w: 38, h: 38, color: '#00ff88', type: 'heli' }, // Helico
+            { x: 150, y: 1400, angle: 0, speed: 4.8, health: 90, w: 28, h: 20, color: '#ff8800', type: 'quad' }, // Cuatrimoto
+            { x: 1200, y: 1400, angle: 0, speed: 7.2, health: 110, w: 44, h: 20, color: '#ff00ff', type: 'hypercar' } // Superdeportivo
         ];
 
-        // PEATONES (NPCs)
+        // NPCS Y BANDAS
+        const npcPhrases = ["¡Oye!", "¡Ese auto es increíble!", "¡Cuidado!", "¡Policía!", "¡Territorio de Banda!", "¡Hola!"];
         const npcs = [];
-        for(let i=0; i<30; i++) {
+        for(let i=0; i<40; i++) {
             npcs.push({ 
-                x: Math.random()*1500 + 100, y: Math.random()*1500 + 100, 
-                angle: Math.random()*6, speed: 0.9, alive: true, isPolice: (i % 6 === 0), radius: 8 
+                x: Math.random()*1600 + 100, y: Math.random()*1600 + 100, 
+                angle: Math.random()*6, speed: 0.9, alive: true, 
+                role: (i % 6 === 0) ? 'police' : ((i % 3 === 0) ? 'gangster' : 'civilian'),
+                radius: 8, chat: "", chatTimer: 0
             });
         }
 
-        // BÓVEDA DEL BANCO (Objeto Interactuable)
-        const bankVault = { x: 300, y: 200, stolen: false };
+        // MISIONES ALEATORIAS
+        const missionList = [
+            { text: "Roba la bóveda del Banco", type: "bank" },
+            { text: "Elimina a 3 Criminales", type: "kills", target: 3, current: 0 },
+            { text: "Consigue un Helicóptero u Oculto", type: "rare_veh" },
+            { text: "Visita la Farmacia", type: "pharma" }
+        ];
+        let currentMission = missionList[0];
+
+        function checkMissionProgress(type) {
+            if(currentMission.type === type) {
+                if(type === 'kills') {
+                    currentMission.current++;
+                    if(currentMission.current >= currentMission.target) completeMission();
+                } else {
+                    completeMission();
+                }
+            }
+        }
+
+        function completeMission() {
+            player.money += 350;
+            addXP(60);
+            alert("🎉 ¡MISIÓN CUMPLIDA! +$350 | +60 XP");
+            currentMission = missionList[Math.floor(Math.random()*missionList.length)];
+            if(currentMission.type === 'kills') currentMission.current = 0;
+            updateHUD();
+        }
 
         // CONTROLES
         function bindTouch(id, key) {
@@ -186,18 +250,15 @@
         bindTouch('b-up', 'up'); bindTouch('b-down', 'down');
         bindTouch('b-left', 'left'); bindTouch('b-right', 'right');
 
-        document.getElementById('b-enter').addEventListener('click', toggleCarOrBuilding);
+        document.getElementById('b-enter').addEventListener('click', toggleCar);
         document.getElementById('b-shoot').addEventListener('click', shoot);
-
-        document.getElementById('wep-pistol').addEventListener('click', () => selectWeapon('pistol'));
-        document.getElementById('wep-shotgun').addEventListener('click', () => selectWeapon('shotgun'));
 
         window.addEventListener('keydown', e => {
             if(e.key==='w'||e.key==='ArrowUp') keys.up=true;
             if(e.key==='s'||e.key==='ArrowDown') keys.down=true;
             if(e.key==='a'||e.key==='ArrowLeft') keys.left=true;
             if(e.key==='d'||e.key==='ArrowRight') keys.right=true;
-            if(e.key===' ') toggleCarOrBuilding();
+            if(e.key===' ') toggleCar();
             if(e.key==='f') shoot();
         });
         window.addEventListener('keyup', e => {
@@ -212,13 +273,15 @@
             m.style.display = (m.style.display === 'block') ? 'none' : 'block';
         }
 
-        function selectWeapon(wep) {
-            player.weapon = wep;
-            document.getElementById('wep-pistol').className = 'modal-item ' + (wep === 'pistol' ? 'active' : '');
-            document.getElementById('wep-shotgun').className = 'modal-item ' + (wep === 'shotgun' ? 'active' : '');
-            document.getElementById('status-pistol').innerText = wep === 'pistol' ? 'EQUIPADA' : 'SELECCIONAR';
-            document.getElementById('status-shotgun').innerText = wep === 'shotgun' ? 'EQUIPADA' : 'SELECCIONAR';
-            toggleModal('backpack-modal');
+        function changeClothColor(color) {
+            player.clothColor = color;
+            alert("👗 Personalización guardada!");
+        }
+
+        function healPlayerHome() {
+            player.health = player.maxHealth;
+            updateHUD();
+            alert("🛋️ Has descansado. Tu salud está al 100%");
         }
 
         function addXP(amount) {
@@ -242,57 +305,28 @@
             document.getElementById('xp-val').innerText = player.xp;
             document.getElementById('m-val').innerText = "$" + player.money;
             document.getElementById('wanted-val').innerText = "★".repeat(player.wanted) + "☆".repeat(5 - player.wanted);
+            document.getElementById('mission-val').innerText = currentMission.text + (currentMission.type==='kills'?` (${currentMission.current}/${currentMission.target})` : '');
         }
 
-        function talkOrInteract() {
-            if(interiorMode === 'bank') {
-                if(Math.hypot(player.x - bankVault.x, player.y - bankVault.y) < 50) {
-                    if(!bankVault.stolen) {
-                        bankVault.stolen = true;
-                        player.money += 1000;
-                        addWantedLevel(); addWantedLevel();
-                        showDialog("💰 ¡ROBASTE EL BANCO! +$1000");
-                        updateHUD();
-                    } else { showDialog("🔒 La caja fuerte está vacía."); }
-                    return;
-                }
-            }
-
-            npcs.forEach(npc => {
-                if(npc.alive && Math.hypot(npc.x - player.x, npc.y - player.y) < 45) {
-                    showDialog(npc.isPolice ? "🚔 Policía: ¡Circule ciudadano!" : "💬 Peatón: ¡Hola!");
-                }
-            });
-        }
-
-        function showDialog(text) {
-            const dialog = document.getElementById('npc-dialog');
-            document.getElementById('dialog-text').innerText = text;
-            dialog.style.display = 'block';
-            setTimeout(() => { dialog.style.display = 'none'; }, 2200);
-        }
-
-        function toggleCarOrBuilding() {
+        function enterCurrentBuilding() {
             if(interiorMode) {
-                // Salir del Edificio
                 interiorMode = null;
-                player.x = 310; player.y = 440;
-                return;
-            }
-
-            // Chequear si entra a un Edificio
-            for(let b of buildings) {
-                if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 30) {
-                    if(b.id === 'bank') {
-                        interiorMode = 'bank';
-                        player.x = 300; player.y = 400;
-                        showDialog("🏛️ Entraste al Banco");
-                        return;
-                    }
+                player.x = 590; player.y = 580;
+            } else if(activeDoorBuilding) {
+                if(activeDoorBuilding.id === 'home') {
+                    toggleModal('home-modal');
+                } else if(activeDoorBuilding.id === 'pharma') {
+                    toggleModal('shop-modal');
+                    checkMissionProgress('pharma');
+                } else {
+                    interiorMode = activeDoorBuilding.id;
+                    player.x = 300; player.y = 400;
                 }
             }
+            document.getElementById('enter-building-btn').style.display = 'none';
+        }
 
-            // Entrar / Salir Auto
+        function toggleCar() {
             if(player.inCar) {
                 player.inCar = false;
                 player.x = player.carRef.x + 35; player.y = player.carRef.y;
@@ -301,6 +335,7 @@
                 cars.forEach(c => {
                     if(c.health > 0 && Math.hypot(c.x - player.x, c.y - player.y) < 45) {
                         player.inCar = true; player.carRef = c;
+                        if(c.type === 'heli' || c.type === 'quad' || c.type === 'hypercar') checkMissionProgress('rare_veh');
                     }
                 });
             }
@@ -311,24 +346,24 @@
             const px = player.inCar ? player.carRef.x : player.x;
             const py = player.inCar ? player.carRef.y : player.y;
 
-            const isTank = player.inCar && player.carRef.type === 'tank';
-
-            const createBullet = (angleOffset = 0) => {
-                bullets.push({
-                    x: px + Math.cos(angle) * 20,
-                    y: py + Math.sin(angle) * 20,
-                    vx: Math.cos(angle + angleOffset) * (isTank ? 13 : 11),
-                    vy: Math.sin(angle + angleOffset) * (isTank ? 13 : 11),
-                    isTankShell: isTank,
-                    life: isTank ? 40 : 30
-                });
-            };
-
-            if(isTank) { createBullet(0); }
-            else if(player.weapon === 'pistol' || player.inCar) { createBullet(0); }
-            else if(player.weapon === 'shotgun') { createBullet(-0.2); createBullet(0); createBullet(0.2); }
+            bullets.push({
+                x: px + Math.cos(angle) * 20,
+                y: py + Math.sin(angle) * 20,
+                vx: Math.cos(angle) * 11,
+                vy: Math.sin(angle) * 11,
+                life: 35
+            });
 
             if(player.wanted === 0) addWantedLevel();
+        }
+
+        function buyItem(type) {
+            if(type === 'heal' && player.money >= 100) {
+                player.money -= 100;
+                player.health = player.maxHealth;
+                updateHUD();
+                alert("💊 ¡Salud completamente restaurada!");
+            }
         }
 
         function buyUpgrade(type) {
@@ -338,20 +373,18 @@
         }
 
         function saveGame() {
-            const data = { player, bankVault };
-            localStorage.setItem('vice_save', JSON.stringify(data));
-            showDialog("💾 Partida Guardada Con Éxito");
+            localStorage.setItem('vice_save_ult', JSON.stringify({ player }));
+            alert("💾 Partida guardada con éxito.");
         }
 
         function loadGame() {
-            const data = localStorage.getItem('vice_save');
+            const data = localStorage.getItem('vice_save_ult');
             if(data) {
                 const parsed = JSON.parse(data);
                 Object.assign(player, parsed.player);
-                Object.assign(bankVault, parsed.bankVault);
                 updateHUD();
-                showDialog("📂 Partida Cargada");
-            } else { showDialog("⚠️ No hay partida guardada"); }
+                alert("📂 Partida cargada.");
+            }
         }
 
         function checkBuildingCollision(x, y, radius) {
@@ -362,8 +395,17 @@
             return false;
         }
 
-        // --- BUCLE DE JUEGO ---
+        // BUCLE PRINCIPAL
         function update() {
+            timeOfDay += 0.2;
+
+            // Actualizar helicópteros/aviones en cielo
+            skyVehicles.forEach(sv => {
+                sv.x += sv.vx; sv.y += sv.vy;
+                if(sv.x > 2200) sv.x = -300;
+                if(sv.x < -300) sv.x = 2200;
+            });
+
             let dx = 0, dy = 0;
             if(keys.up) dy -= 1;
             if(keys.down) dy += 1;
@@ -382,91 +424,76 @@
                 if(!checkBuildingCollision(activeObj.x, ny, 14)) activeObj.y = ny;
             }
 
-            if(player.inCar) {
-                player.x = player.carRef.x; player.y = player.carRef.y;
+            if(player.inCar) { player.x = player.carRef.x; player.y = player.carRef.y; }
+
+            // Detectar puertas
+            activeDoorBuilding = null;
+            if(!interiorMode && !player.inCar) {
+                buildings.forEach(b => {
+                    if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 35) {
+                        activeDoorBuilding = b;
+                    }
+                });
+            }
+
+            const doorBtn = document.getElementById('enter-building-btn');
+            if(activeDoorBuilding || interiorMode) {
+                doorBtn.style.display = 'block';
+                doorBtn.innerText = interiorMode ? "🚪 SALIR AL EXTERIOR" : `🚪 ENTRAR / INTERACTUAR CON ${activeDoorBuilding.label}`;
+            } else {
+                doorBtn.style.display = 'none';
             }
 
             // Balas & Impactos
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; b.life--;
 
-                // Impacto en Autos
                 cars.forEach(c => {
                     if(c.health > 0 && Math.hypot(c.x - b.x, c.y - b.y) < 22) {
-                        c.health -= b.isTankShell ? 50 : 15;
-                        b.life = 0;
-                        if(c.health <= 0) {
-                            // Explosión
-                            for(let p=0; p<15; p++) particles.push({ x: c.x, y: c.y, vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6, life: 25 });
-                            if(player.inCar && player.carRef === c) { player.inCar = false; player.health -= 40; updateHUD(); }
-                        }
+                        c.health -= 20; b.life = 0;
                     }
                 });
 
-                // Impacto en NPCs
                 npcs.forEach(npc => {
                     if(npc.alive && Math.hypot(npc.x - b.x, npc.y - b.y) < 12) {
                         npc.alive = false; b.life = 0;
-                        loot.push({ x: npc.x, y: npc.y, amount: 80 });
-                        addXP(30); addWantedLevel();
+                        loot.push({ x: npc.x, y: npc.y, amount: 60 });
+                        addXP(25);
+                        if(npc.role === 'gangster') checkMissionProgress('kills');
                     }
                 });
 
                 if(b.life <= 0 || checkBuildingCollision(b.x, b.y, 3)) bullets.splice(i, 1);
             });
 
-            // Partículas
-            particles.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.life--; if(p.life <= 0) particles.splice(i, 1); });
+            // NPCs
+            npcs.forEach(npc => {
+                if(!npc.alive) return;
+                let distToPlayer = Math.hypot(player.x - npc.x, player.y - npc.y);
+                if(distToPlayer < 80 && Math.random() < 0.005) {
+                    npc.chat = npcPhrases[Math.floor(Math.random()*npcPhrases.length)];
+                    npc.chatTimer = 100;
+                }
+                if(npc.chatTimer > 0) npc.chatTimer--;
 
-            // Recoger Dinero
+                npc.x += Math.cos(npc.angle) * npc.speed;
+                npc.y += Math.sin(npc.angle) * npc.speed;
+                if(checkBuildingCollision(npc.x, npc.y, 8)) npc.angle += Math.PI/2;
+            });
+
             loot.forEach((l, i) => {
                 if(Math.hypot(l.x - player.x, l.y - player.y) < 22) {
                     player.money += l.amount; loot.splice(i, 1); updateHUD();
                 }
             });
-
-            // IA Policía e Persecución
-            npcs.forEach(npc => {
-                if(npc.alive) {
-                    if(npc.isPolice && player.wanted > 0) {
-                        let angleToPlayer = Math.atan2(player.y - npc.y, player.x - npc.x);
-                        npc.x += Math.cos(angleToPlayer) * 1.5;
-                        npc.y += Math.sin(angleToPlayer) * 1.5;
-                        if(Math.hypot(player.x - npc.x, player.y - npc.y) < 15) {
-                            player.health -= 0.2; updateHUD();
-                        }
-                    } else {
-                        npc.x += Math.cos(npc.angle) * npc.speed;
-                        npc.y += Math.sin(npc.angle) * npc.speed;
-                        if(checkBuildingCollision(npc.x, npc.y, 8)) npc.angle += Math.PI/2;
-                    }
-                }
-            });
         }
 
-        // --- RENDERIZADO VISUAL ---
-        function drawHuman(x, y, angle, bodyColor, headColor) {
+        // RENDERIZADO VISUAL
+        function drawHuman(x, y, angle, bodyColor) {
             ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-
-            // Sombra
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.beginPath(); ctx.arc(2, 2, 7, 0, Math.PI*2); ctx.fill();
-
-            // Hombros / Cuerpo
-            ctx.fillStyle = bodyColor;
-            ctx.fillRect(-4, -7, 8, 14);
-
-            // Manos
-            ctx.fillStyle = '#ffcc99';
-            ctx.beginPath(); ctx.arc(6, -6, 2.5, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(6, 6, 2.5, 0, Math.PI*2); ctx.fill();
-
-            // Cabeza
-            ctx.fillStyle = headColor;
-            ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI*2); ctx.fill();
-
+            ctx.translate(x, y); ctx.rotate(angle);
+            ctx.fillStyle = bodyColor; ctx.fillRect(-4, -7, 8, 14);
+            ctx.fillStyle = '#ffcc99'; ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         }
 
@@ -478,103 +505,93 @@
             ctx.translate(canvas.width/2 - player.x, canvas.height/2 - player.y);
 
             if(!interiorMode) {
-                // EXTERIOR (MUNDO ABIERTO)
-                ctx.fillStyle = '#181822';
-                ctx.fillRect(-800, -800, 3200, 3200);
+                // Terreno y Calles
+                ctx.fillStyle = '#181822'; ctx.fillRect(-800, -800, 3200, 3200);
 
                 // Edificios
                 buildings.forEach(b => {
-                    ctx.fillStyle = b.color;
-                    ctx.fillRect(b.x, b.y, b.w, b.h);
-                    ctx.fillStyle = b.roof;
-                    ctx.fillRect(b.x + 8, b.y + 8, b.w - 16, b.h - 16);
-                    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2;
-                    ctx.strokeRect(b.x, b.y, b.w, b.h);
+                    ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.w, b.h);
+                    ctx.fillStyle = b.roof; ctx.fillRect(b.x + 8, b.y + 8, b.w - 16, b.h - 16);
+                    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, b.w, b.h);
 
-                    // Puerta
-                    ctx.fillStyle = '#ffee00';
-                    ctx.fillRect(b.doorX - 10, b.doorY - 5, 20, 5);
-
+                    ctx.fillStyle = '#ffee00'; ctx.fillRect(b.doorX - 12, b.doorY - 6, 24, 6);
                     ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
                     ctx.fillText(b.label, b.x + b.w/2, b.y + 24);
                 });
 
-                // Loot
-                loot.forEach(l => {
-                    ctx.fillStyle = '#00ff88'; ctx.fillRect(l.x - 6, l.y - 4, 12, 8);
-                });
+                // Recompensas
+                loot.forEach(l => { ctx.fillStyle = '#00ff88'; ctx.fillRect(l.x - 5, l.y - 4, 10, 8); });
 
-                // Peatones
+                // NPCs
                 npcs.forEach(npc => {
-                    if(npc.alive) drawHuman(npc.x, npc.y, npc.angle, npc.isPolice ? '#0044ff' : '#eedd00', '#ffcc99');
+                    if(npc.alive) {
+                        let col = npc.role === 'police' ? '#0044ff' : (npc.role === 'gangster' ? '#ff0055' : '#eedd00');
+                        drawHuman(npc.x, npc.y, npc.angle, col);
+                        if(npc.chatTimer > 0) {
+                            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+                            ctx.fillText(npc.chat, npc.x, npc.y - 14);
+                        }
+                    }
                 });
 
-                // Autos
+                // Vehículos
                 cars.forEach(c => {
                     if(c.health <= 0) return;
                     ctx.save();
                     ctx.translate(c.x, c.y); ctx.rotate(c.angle);
                     ctx.fillStyle = c.color;
                     ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-                    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                    ctx.fillRect(-3, -c.h/2 + 2, 10, c.h - 4);
 
-                    if(c.type === 'tank') {
-                        ctx.fillStyle = '#1e2d0d'; ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); ctx.fill();
-                        ctx.fillRect(0, -3, 22, 6);
+                    if(c.type === 'heli') {
+                        // Aspas de Helicóptero
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+                        ctx.beginPath(); ctx.moveTo(-25, 0); ctx.lineTo(25, 0); ctx.stroke();
                     }
                     ctx.restore();
                 });
 
-            } else if(interiorMode === 'bank') {
-                // INTERIOR BANCO
-                ctx.fillStyle = '#111118';
-                ctx.fillRect(100, 100, 400, 400);
-                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 4;
-                ctx.strokeRect(100, 100, 400, 400);
+                // Sobrevuelo de Aviones y Helicópteros en el cielo
+                skyVehicles.forEach(sv => {
+                    ctx.save();
+                    ctx.translate(sv.x, sv.y);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    if(sv.type === 'plane') {
+                        ctx.fillRect(-20, -4, 40, 8); ctx.fillRect(-5, -20, 10, 40);
+                    } else {
+                        ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill();
+                    }
+                    ctx.restore();
+                });
 
-                // Caja Fuerte
-                ctx.fillStyle = bankVault.stolen ? '#444' : '#ffee00';
-                ctx.fillRect(bankVault.x - 20, bankVault.y - 20, 40, 40);
-                ctx.fillStyle = '#000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("CAJA", bankVault.x, bankVault.y + 3);
-
-                // Salida
-                ctx.fillStyle = '#ff0055'; ctx.fillRect(290, 490, 20, 10);
             }
 
-            // Balas & Partículas
+            // Balas
             bullets.forEach(b => {
-                ctx.fillStyle = b.isTankShell ? '#ff5500' : '#ffee00';
-                ctx.beginPath(); ctx.arc(b.x, b.y, b.isTankShell ? 5 : 3, 0, Math.PI*2); ctx.fill();
-            });
-            particles.forEach(p => {
-                ctx.fillStyle = '#ff3300'; ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI*2); ctx.fill();
             });
 
             // Jugador
-            if(!player.inCar) {
-                drawHuman(player.x, player.y, player.angle, '#00f0ff', '#ffcc99');
-            }
+            if(!player.inCar) drawHuman(player.x, player.y, player.angle, player.clothColor);
+
+            // Capa Día/Noche
+            ctx.fillStyle = getDayColor();
+            ctx.fillRect(-800, -800, 3200, 3200);
 
             ctx.restore();
             drawMinimap();
         }
 
         function drawMinimap() {
-            mCtx.fillStyle = '#000';
-            mCtx.fillRect(0, 0, 95, 95);
-            mCtx.save();
-            mCtx.translate(47.5, 47.5);
+            mCtx.fillStyle = '#000'; mCtx.fillRect(0, 0, 90, 90);
+            mCtx.save(); mCtx.translate(45, 45);
             const scale = 0.05;
 
             buildings.forEach(b => {
-                mCtx.fillStyle = b.id === 'bank' ? '#ffee00' : '#444';
+                mCtx.fillStyle = b.id === 'home' ? '#00f0ff' : '#444';
                 mCtx.fillRect((b.x - player.x)*scale, (b.y - player.y)*scale, b.w*scale, b.h*scale);
             });
 
-            mCtx.fillStyle = '#00f0ff';
-            mCtx.beginPath(); mCtx.arc(0, 0, 3, 0, Math.PI*2); mCtx.fill();
+            mCtx.fillStyle = player.clothColor; mCtx.beginPath(); mCtx.arc(0, 0, 3, 0, Math.PI*2); mCtx.fill();
             mCtx.restore();
         }
 
