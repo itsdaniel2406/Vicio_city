@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vicio City by Dani - Remastered HD</title>
+    <title>Vicio City by Dani - v2.5</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
-        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #0a0a10; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #05050a; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; }
         canvas { display: block; width: 100vw; height: 100vh; }
 
         /* Advertencia Orientación */
@@ -15,8 +15,9 @@
 
         /* HUD - Izquierda */
         .hud-left { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; pointer-events: none; }
-        .hud-card { background: rgba(10, 15, 30, 0.85); border: 1.5px solid #00f0ff; padding: 5px 12px; border-radius: 8px; color: #fff; font-size: 11px; font-weight: bold; box-shadow: 0 0 10px rgba(0,240,255,0.25); text-shadow: 0 0 4px #000; }
-        .mission-card { border-color: #ffee00; color: #ffee00; }
+        .hud-title { background: linear-gradient(135deg, #ff007f, #00f0ff); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 900; text-align: center; box-shadow: 0 0 10px rgba(255,0,127,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+        .hud-card { background: rgba(10, 15, 30, 0.88); border: 1.5px solid #00f0ff; padding: 5px 12px; border-radius: 8px; color: #fff; font-size: 11px; font-weight: bold; box-shadow: 0 0 10px rgba(0,240,255,0.25); text-shadow: 0 0 4px #000; }
+        .mission-card { border-color: #ffee00; color: #ffee00; background: rgba(25, 20, 5, 0.9); }
 
         /* Top Right */
         .top-right-container { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 20; }
@@ -24,28 +25,17 @@
         .btn-small-sys { background: rgba(5,5,15,0.9); border: 1.5px solid #00f0ff; color: #00f0ff; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; pointer-events: auto; }
         .btn-small-sys:active { background: #00f0ff; color: #000; }
         
-        #minimap-container { width: 96px; height: 96px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
+        #minimap-container { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
         #minimap { width: 100%; height: 100%; }
 
         /* Botón Interacción */
         #enter-building-btn { display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffee00, #ff8800); color: #000; font-size: 13px; font-weight: 900; padding: 12px 22px; border-radius: 25px; border: 2px solid #fff; box-shadow: 0 0 20px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.06); } }
 
-        /* Modales */
-        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: rgba(12, 14, 28, 0.95); border: 2px solid #ff007f; border-radius: 12px; padding: 14px; z-index: 100; box-shadow: 0 0 25px rgba(255,0,127,0.4); pointer-events: auto; }
-        .modal h3 { color: #00f0ff; margin-bottom: 10px; font-size: 14px; text-align: center; border-bottom: 1px solid #ff007f; padding-bottom: 6px; }
-        .modal-item { background: rgba(255,255,255,0.06); padding: 8px 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
-        .modal-item.active { border: 1px solid #00f0ff; background: rgba(0,240,255,0.2); }
-        .btn-buy { background: #00ff88; color: #000; border: none; padding: 5px 10px; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        .close-btn { background: #ff0055; border: none; color: #fff; padding: 8px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
-        
-        .color-picker-box { display: flex; gap: 10px; justify-content: center; margin: 12px 0; }
-        .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
-
         /* Controles - D-PAD */
         .dpad-container { position: absolute; bottom: 15px; left: 15px; pointer-events: auto; z-index: 20; }
-        .dpad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); gap: 4px; }
-        .btn { background: rgba(5, 10, 20, 0.8); border: 2px solid #00f0ff; border-radius: 10px; color: #00f0ff; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,240,255,0.3); }
+        .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); gap: 4px; }
+        .btn { background: rgba(5, 10, 20, 0.85); border: 2px solid #00f0ff; border-radius: 10px; color: #00f0ff; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,240,255,0.3); }
         .btn:active { background: rgba(0, 240, 255, 0.4); }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
@@ -54,7 +44,7 @@
         
         /* Controles Derecha */
         .controls-right { position: absolute; bottom: 15px; right: 15px; display: flex; gap: 8px; align-items: flex-end; z-index: 20; pointer-events: auto; }
-        .btn-act { width: 46px; height: 46px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 18px; background: rgba(5,5,15,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,0,127,0.3); }
+        .btn-act { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 18px; background: rgba(5,5,15,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,0,127,0.3); }
         .btn-act:active { background: rgba(255, 0, 127, 0.4); }
     </style>
 </head>
@@ -63,6 +53,7 @@
     <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
 
     <div class="hud-left">
+        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.5</span></div>
         <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
         <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
         <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$100</span></div>
@@ -80,37 +71,7 @@
         </div>
     </div>
 
-    <button id="enter-building-btn" onclick="enterCurrentBuilding()">🚪 ENTRAR AL EDIFICIO</button>
-
-    <!-- Modales -->
-    <div id="backpack-modal" class="modal">
-        <h3>🎒 ARMAS EN INVENTARIO</h3>
-        <div class="modal-item active"><span>🔫 Pistola 9mm</span> <span style="color:#00ff88">EQUIPADA</span></div>
-        <div class="modal-item"><span>💥 Escopeta Recortada</span> <span>DISPONIBLE</span></div>
-        <button class="close-btn" onclick="toggleModal('backpack-modal')">CERRAR</button>
-    </div>
-
-    <div id="shop-modal" class="modal">
-        <h3>🛒 TIENDA Y FARMACIA</h3>
-        <div class="modal-item"><span>💊 Botiquín Salud Full ($100)</span><button class="btn-buy" onclick="buyItem('heal')">COMPRAR</button></div>
-        <div class="modal-item"><span>❤️ +20 Salud Máx ($200)</span><button class="btn-buy" onclick="buyUpgrade('health')">COMPRAR</button></div>
-        <div class="modal-item"><span>⚡ Vel. Movimiento ($150)</span><button class="btn-buy" onclick="buyUpgrade('speed')">COMPRAR</button></div>
-        <button class="close-btn" onclick="toggleModal('shop-modal')">CERRAR</button>
-    </div>
-
-    <div id="home-modal" class="modal">
-        <h3>🏠 MI CASA Y VESTIDOR</h3>
-        <p style="font-size:11px; text-align:center; margin-bottom:6px;">Personaliza la ropa del personaje:</p>
-        <div class="color-picker-box">
-            <div class="color-dot" style="background:#00f0ff" onclick="changeClothColor('#00f0ff')"></div>
-            <div class="color-dot" style="background:#ff007f" onclick="changeClothColor('#ff007f')"></div>
-            <div class="color-dot" style="background:#ffee00" onclick="changeClothColor('#ffee00')"></div>
-            <div class="color-dot" style="background:#00ff88" onclick="changeClothColor('#00ff88')"></div>
-            <div class="color-dot" style="background:#ffffff" onclick="changeClothColor('#ffffff')"></div>
-        </div>
-        <button class="btn-buy" style="width:100%; margin-top:6px;" onclick="healPlayerHome()">🛋️ DESCANSAR Y CURARSE</button>
-        <button class="close-btn" onclick="toggleModal('home-modal')">CERRAR</button>
-    </div>
+    <button id="enter-building-btn" onclick="interactBuilding()">🚪 ENTRAR</button>
 
     <canvas id="game"></canvas>
 
@@ -125,13 +86,12 @@
 
     <div class="controls-right">
         <div class="btn-act" onclick="toggleFullscreen()">🖥️</div>
-        <div class="btn-act" onclick="toggleModal('shop-modal')">🛒</div>
-        <div class="btn-act" onclick="toggleModal('backpack-modal')">🎒</div>
         <div class="btn-act" id="b-enter">🚗</div>
         <div class="btn-act" id="b-shoot" style="border-color:#ff0055; color:#ff0055;">🔫</div>
     </div>
 
     <script>
+        const GAME_VERSION = "v2.5";
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const mCanvas = document.getElementById('minimap');
@@ -140,7 +100,7 @@
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            mCanvas.width = 96; mCanvas.height = 96;
+            mCanvas.width = 100; mCanvas.height = 100;
         }
         window.addEventListener('resize', resize);
         resize();
@@ -150,14 +110,14 @@
             else document.exitFullscreen().catch(()=>{});
         }
 
-        let timeOfDay = 0;
+        let currentInterior = null; // null = Exterior (Ciudad)
         let activeDoorBuilding = null;
         let rotorAngle = 0;
 
         const player = { 
-            x: 600, y: 700, angle: 0, speed: 3.5, radius: 10, inCar: false, 
+            x: 800, y: 1200, angle: 0, speed: 3.8, radius: 10, inCar: false, 
             health: 100, maxHealth: 100, money: 100, wanted: 0, level: 1, xp: 0, 
-            clothColor: '#00f0ff', carRef: null 
+            clothColor: '#00f0ff', carRef: null, savedExteriorX: 800, savedExteriorY: 1200
         };
         const keys = { up: false, down: false, left: false, right: false };
 
@@ -165,60 +125,99 @@
         const npcs = [];
         const loot = [];
 
-        // SOBREVUELO DE AVIONES EN EL CIELO
+        // AVIONES Y HELICÓPTEROS VOLANDO EN EL CIELO
         const skyVehicles = [
-            { x: -300, y: 400, vx: 2.8, vy: 0.3, type: 'plane' },
-            { x: 2200, y: 1200, vx: -2.0, vy: -0.4, type: 'cop_heli' }
+            { x: -500, y: 800, vx: 3.5, vy: 0.2, type: 'commercial_plane', scale: 1.2 },
+            { x: 3000, y: 2000, vx: -4.5, vy: -0.5, type: 'jet', scale: 0.9 },
+            { x: 1500, y: 500, vx: 2.0, vy: 0.8, type: 'police_heli', scale: 1.0 }
         ];
 
-        // RUTA / CALLES
+        // RED VIAL EXTENDIDA
         const roads = [
-            { x: 100, y: 650, w: 1800, h: 100 }, // Calle Principal Horizontal
-            { x: 700, y: 100, w: 120, h: 1600 }, // Avenida Vertical
-            { x: 100, y: 1300, w: 1800, h: 100 }  // Calle Sur
+            { x: 200, y: 1100, w: 5000, h: 140 }, // Avenida Principal Horizontal
+            { x: 200, y: 2500, w: 5000, h: 140 }, // Avenida Sur
+            { x: 200, y: 4000, w: 5000, h: 140 }, // Autopista Inferior
+            { x: 1200, y: 200, w: 140, h: 4800 }, // Avenida Vertical 1
+            { x: 2800, y: 200, w: 140, h: 4800 }, // Avenida Vertical 2
+            { x: 4400, y: 200, w: 140, h: 4800 }  // Avenida Vertical 3
         ];
 
-        // EDIFICIOS
+        // EDIFICIOS EN EL MAPA EXTERIOR
         const buildings = [
-            { id: 'home', x: 450, y: 420, w: 200, h: 180, color: '#1c2d42', roof: '#0f1b29', label: '🏠 MI CASA / GARAGE', doorX: 550, doorY: 600 },
-            { id: 'pharma', x: 900, y: 420, w: 200, h: 180, color: '#133e2b', roof: '#0a2318', label: '🏥 FARMACIA', doorX: 1000, doorY: 600 },
-            { id: 'bank', x: 200, y: 200, w: 240, h: 200, color: '#2a2238', roof: '#171221', label: '🏦 BANCO', doorX: 320, doorY: 400 },
-            { id: 'police', x: 900, y: 200, w: 260, h: 200, color: '#162b4c', roof: '#0d1a30', label: '🚔 COMISARÍA', doorX: 1030, doorY: 400 },
-            { id: 'airport', x: 1200, y: 900, w: 500, h: 350, color: '#2b2b2b', roof: '#1f1f1f', label: '✈️ AEROPUERTO INTERNACIONAL', doorX: 1450, doorY: 1250 }
+            { id: 'home', x: 600, y: 800, w: 260, h: 220, color: '#1c2d42', roof: '#0f1b29', label: '🏠 MI CASA', doorX: 730, doorY: 1020 },
+            { id: 'pharma', x: 1500, y: 800, w: 260, h: 220, color: '#133e2b', roof: '#0a2318', label: '🏥 FARMACIA', doorX: 1630, doorY: 1020 },
+            { id: 'bank', x: 400, y: 1400, w: 320, h: 280, color: '#2a2238', roof: '#171221', label: '🏦 BANCO CENTRAL', doorX: 560, doorY: 1680 },
+            { id: 'police', x: 1500, y: 1400, w: 340, h: 280, color: '#162b4c', roof: '#0d1a30', label: '🚔 COMISARÍA CENTRAL', doorX: 1670, doorY: 1680 },
+            { id: 'airport', x: 3200, y: 2800, w: 800, h: 500, color: '#2b2b2b', roof: '#1f1f1f', label: '✈️ AEROPUERTO INTERNACIONAL', doorX: 3600, doorY: 3300 },
+            { id: 'casino', x: 3000, y: 800, w: 380, h: 300, color: '#4a1232', roof: '#2b0a1c', label: '🎰 CASINO NEÓN', doorX: 3190, doorY: 1100 },
+            { id: 'dealership', x: 4600, y: 800, w: 360, h: 280, color: '#12384a', roof: '#0b202b', label: '🏎️ CONCESIONARIA', doorX: 4780, doorY: 1080 },
+            { id: 'hospital', x: 600, y: 2700, w: 350, h: 300, color: '#3a1616', roof: '#210d0d', label: '🚑 HOSPITAL GENERAL', doorX: 775, doorY: 3000 }
         ];
 
-        // ÁRBOLES Y PALMERAS DETALLADAS
-        const trees = [
-            { x: 400, y: 350 }, { x: 700, y: 350 }, { x: 1150, y: 450 },
-            { x: 350, y: 800 }, { x: 900, y: 800 }, { x: 200, y: 1200 }
-        ];
+        // INTERIORES INTERACTIVOS DETALLADOS
+        const interiors = {
+            'home': {
+                name: 'Mi Casa', w: 600, h: 500,
+                furniture: [
+                    { type: 'bed', x: 100, y: 100, w: 80, h: 120, color: '#00f0ff' },
+                    { type: 'tv', x: 260, y: 60, w: 100, h: 20, color: '#ff007f' },
+                    { type: 'sofa', x: 250, y: 140, w: 120, h: 50, color: '#333' },
+                    { type: 'wardrobe', x: 480, y: 80, w: 70, h: 100, color: '#ffee00', action: 'change_cloth' }
+                ],
+                exitDoor: { x: 300, y: 460 }
+            },
+            'pharma': {
+                name: 'Farmacia & Botica', w: 600, h: 500,
+                furniture: [
+                    { type: 'counter', x: 150, y: 150, w: 300, h: 40, color: '#00ff88', action: 'buy_heal' },
+                    { type: 'shelf', x: 80, y: 60, w: 440, h: 30, color: '#115522' },
+                    { type: 'bed', x: 80, y: 300, w: 60, h: 100, color: '#ffffff' }
+                ],
+                exitDoor: { x: 300, y: 460 }
+            },
+            'airport': {
+                name: 'Terminal de Aeropuerto', w: 900, h: 700,
+                furniture: [
+                    { type: 'seats', x: 150, y: 200, w: 200, h: 40, color: '#444' },
+                    { type: 'seats', x: 150, y: 350, w: 200, h: 40, color: '#444' },
+                    { type: 'scanner', x: 450, y: 150, w: 60, h: 120, color: '#ffee00' },
+                    { type: 'desk', x: 600, y: 300, w: 200, h: 50, color: '#00f0ff' }
+                ],
+                exitDoor: { x: 450, y: 660 }
+            },
+            'bank': {
+                name: 'Bóveda y Banco', w: 700, h: 550,
+                furniture: [
+                    { type: 'vault', x: 280, y: 80, w: 140, h: 100, color: '#ffcc00', action: 'rob_vault' },
+                    { type: 'counter', x: 150, y: 260, w: 400, h: 40, color: '#333' }
+                ],
+                exitDoor: { x: 350, y: 510 }
+            }
+        };
 
-        // VEHÍCULOS
+        // VEHÍCULOS DETALLADOS
         const cars = [
-            { x: 550, y: 620, angle: 0, speed: 5.5, health: 100, w: 44, h: 22, color: '#ff0055', type: 'sports' },
-            { x: 950, y: 620, angle: 0, speed: 4.8, health: 120, w: 46, h: 22, color: '#0055ff', type: 'police' },
-            { x: 750, y: 500, angle: 0, speed: 6.2, health: 60, w: 32, h: 14, color: '#ffee00', type: 'moto' },
-            // Ocultos / Raros
-            { x: 1450, y: 1050, angle: 0, speed: 5.0, health: 150, w: 40, h: 40, color: '#00ff88', type: 'heli' }, // Helico en Helipuerto
-            { x: 250, y: 1450, angle: 0, speed: 5.0, health: 90, w: 30, h: 20, color: '#ff7700', type: 'quad' },   // Cuatrimoto
-            { x: 1100, y: 1450, angle: 0, speed: 7.5, health: 110, w: 46, h: 22, color: '#ff00ff', type: 'hypercar' }
+            { x: 750, y: 1060, angle: 0, speed: 5.5, health: 100, w: 46, h: 22, color: '#ff0055', type: 'sports' },
+            { x: 1700, y: 1720, angle: 0, speed: 5.0, health: 120, w: 48, h: 22, color: '#0055ff', type: 'police' },
+            { x: 3600, y: 3100, angle: 0, speed: 5.2, health: 160, w: 50, h: 50, color: '#00ff88', type: 'heli' },
+            { x: 4800, y: 1120, angle: 0, speed: 7.2, health: 100, w: 48, h: 22, color: '#ffee00', type: 'hypercar' }
         ];
 
-        // NPCS
-        for(let i=0; i<35; i++) {
+        // GENERAR NPCS
+        for(let i=0; i<60; i++) {
             npcs.push({ 
-                x: Math.random()*1600 + 100, y: Math.random()*1200 + 100, 
+                x: Math.random()*4800 + 200, y: Math.random()*4000 + 200, 
                 angle: Math.random()*6, speed: 1.0, alive: true, 
-                role: (i % 5 === 0) ? 'police' : ((i % 3 === 0) ? 'gangster' : 'civilian'),
-                radius: 8, chat: "", chatTimer: 0
+                role: (i % 5 === 0) ? 'police' : ((i % 3 === 0) ? 'gangster' : 'civilian')
             });
         }
 
+        // MISIONES SISTEMÁTICAS
         const missionList = [
-            { text: "Roba la bóveda del Banco", type: "bank" },
-            { text: "Elimina a 3 Pandilleros", type: "kills", target: 3, current: 0 },
-            { text: "Pilota un Helicóptero o Auto Raro", type: "rare_veh" },
-            { text: "Visita la Farmacia", type: "pharma" }
+            { text: "Visita el Banco Central y entra a la bóveda", type: "bank" },
+            { text: "Elimina 3 Pandilleros en la ciudad", type: "kills", target: 3, current: 0 },
+            { text: "Pilota un Helicóptero en el Aeropuerto", type: "heli" },
+            { text: "Entra a la Farmacia a sanarte", type: "pharma" }
         ];
         let currentMission = missionList[0];
 
@@ -234,9 +233,9 @@
         }
 
         function completeMission() {
-            player.money += 350;
-            addXP(60);
-            alert("🎉 ¡MISIÓN CUMPLIDA! +$350 | +60 XP");
+            player.money += 500;
+            addXP(75);
+            alert("🎉 ¡MISIÓN COMPLETADA! +$500 | +75 XP");
             currentMission = missionList[Math.floor(Math.random()*missionList.length)];
             if(currentMission.type === 'kills') currentMission.current = 0;
             updateHUD();
@@ -270,27 +269,11 @@
             if(e.key==='d'||e.key==='ArrowRight') keys.right=false;
         });
 
-        function toggleModal(id) {
-            const m = document.getElementById(id);
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-        }
-
-        function changeClothColor(color) {
-            player.clothColor = color;
-            alert("👗 ¡Atuendo actualizado!");
-        }
-
-        function healPlayerHome() {
-            player.health = player.maxHealth;
-            updateHUD();
-            alert("🛋️ Te has recuperado por completo.");
-        }
-
         function addXP(amount) {
             player.xp += amount;
             if(player.xp >= 100) {
                 player.level++; player.xp -= 100;
-                player.maxHealth += 20; player.health = player.maxHealth;
+                player.maxHealth += 25; player.health = player.maxHealth;
             }
             updateHUD();
         }
@@ -305,23 +288,34 @@
             document.getElementById('mission-val').innerText = currentMission.text + (currentMission.type==='kills'?` (${currentMission.current}/${currentMission.target})` : '');
         }
 
-        function enterCurrentBuilding() {
-            if(activeDoorBuilding) {
-                if(activeDoorBuilding.id === 'home') toggleModal('home-modal');
-                else if(activeDoorBuilding.id === 'pharma') { toggleModal('shop-modal'); checkMissionProgress('pharma'); }
+        function interactBuilding() {
+            if(currentInterior) {
+                // Salir del interior a la ciudad
+                player.x = player.savedExteriorX;
+                player.y = player.savedExteriorY;
+                currentInterior = null;
+            } else if(activeDoorBuilding) {
+                // Teletransportarse al interior
+                player.savedExteriorX = player.x;
+                player.savedExteriorY = player.y + 30;
+                currentInterior = activeDoorBuilding.id;
+                player.x = interiors[currentInterior] ? interiors[currentInterior].w / 2 : 200;
+                player.y = interiors[currentInterior] ? interiors[currentInterior].h - 80 : 200;
+                checkMissionProgress(currentInterior);
             }
         }
 
         function toggleCar() {
+            if(currentInterior) return;
             if(player.inCar) {
                 player.inCar = false;
                 player.x = player.carRef.x + 35; player.y = player.carRef.y;
                 player.carRef = null;
             } else {
                 cars.forEach(c => {
-                    if(c.health > 0 && Math.hypot(c.x - player.x, c.y - player.y) < 45) {
+                    if(c.health > 0 && Math.hypot(c.x - player.x, c.y - player.y) < 50) {
                         player.inCar = true; player.carRef = c;
-                        if(c.type === 'heli' || c.type === 'quad' || c.type === 'hypercar') checkMissionProgress('rare_veh');
+                        if(c.type === 'heli') checkMissionProgress('heli');
                     }
                 });
             }
@@ -333,41 +327,29 @@
             const py = player.inCar ? player.carRef.y : player.y;
 
             bullets.push({
-                x: px + Math.cos(angle) * 22,
-                y: py + Math.sin(angle) * 22,
-                vx: Math.cos(angle) * 12,
-                vy: Math.sin(angle) * 12,
-                life: 35
+                x: px + Math.cos(angle) * 24,
+                y: py + Math.sin(angle) * 24,
+                vx: Math.cos(angle) * 14,
+                vy: Math.sin(angle) * 14,
+                life: 40
             });
         }
 
-        function buyItem(type) {
-            if(type === 'heal' && player.money >= 100) {
-                player.money -= 100; player.health = player.maxHealth;
-                updateHUD(); alert("💊 ¡Salud restaurada!");
-            }
-        }
-
-        function buyUpgrade(type) {
-            if(type === 'health' && player.money >= 200) { player.money -= 200; player.maxHealth += 20; player.health = player.maxHealth; }
-            else if(type === 'speed' && player.money >= 150) { player.money -= 150; player.speed += 0.5; }
-            updateHUD();
-        }
-
         function saveGame() {
-            localStorage.setItem('vice_save_ult_hd', JSON.stringify({ player }));
-            alert("💾 Partida guardada.");
+            localStorage.setItem('vicio_city_by_dani_save', JSON.stringify({ player, GAME_VERSION }));
+            alert("💾 Progreso Guardado - Vicio City by Dani " + GAME_VERSION);
         }
 
         function loadGame() {
-            const data = localStorage.getItem('vice_save_ult_hd');
+            const data = localStorage.getItem('vicio_city_by_dani_save');
             if(data) {
                 Object.assign(player, JSON.parse(data).player);
-                updateHUD(); alert("📂 Partida cargada.");
+                updateHUD(); alert("📂 Progreso Cargado correctamente.");
             }
         }
 
         function checkBuildingCollision(x, y, radius) {
+            if(currentInterior) return false;
             for(let b of buildings) {
                 if(x + radius > b.x && x - radius < b.x + b.w && y + radius > b.y && y - radius < b.y + b.h) return true;
             }
@@ -375,13 +357,12 @@
         }
 
         function update() {
-            timeOfDay += 0.1;
-            rotorAngle += 0.3;
+            rotorAngle += 0.35;
 
             skyVehicles.forEach(sv => {
                 sv.x += sv.vx; sv.y += sv.vy;
-                if(sv.x > 2400) sv.x = -400;
-                if(sv.x < -400) sv.x = 2400;
+                if(sv.x > 5500) sv.x = -600;
+                if(sv.x < -600) sv.x = 5500;
             });
 
             let dx = 0, dy = 0;
@@ -404,29 +385,35 @@
 
             if(player.inCar) { player.x = player.carRef.x; player.y = player.carRef.y; }
 
-            // Detectar puertas
             activeDoorBuilding = null;
-            if(!player.inCar) {
+            const doorBtn = document.getElementById('enter-building-btn');
+
+            if(!currentInterior && !player.inCar) {
                 buildings.forEach(b => {
-                    if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 40) activeDoorBuilding = b;
+                    if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 45) activeDoorBuilding = b;
                 });
             }
 
-            const doorBtn = document.getElementById('enter-building-btn');
-            if(activeDoorBuilding) {
+            if(currentInterior) {
+                const door = interiors[currentInterior].exitDoor;
+                doorBtn.style.display = 'block';
+                doorBtn.innerText = "🚪 SALIR A LA CIUDAD";
+                if(Math.hypot(player.x - door.x, player.y - door.y) < 35) {
+                    interactBuilding();
+                }
+            } else if(activeDoorBuilding) {
                 doorBtn.style.display = 'block';
                 doorBtn.innerText = `🚪 ENTRAR A ${activeDoorBuilding.label}`;
             } else {
                 doorBtn.style.display = 'none';
             }
 
-            // Balas
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; b.life--;
                 npcs.forEach(npc => {
-                    if(npc.alive && Math.hypot(npc.x - b.x, npc.y - b.y) < 12) {
+                    if(npc.alive && Math.hypot(npc.x - b.x, npc.y - b.y) < 14) {
                         npc.alive = false; b.life = 0;
-                        loot.push({ x: npc.x, y: npc.y, amount: 50 });
+                        loot.push({ x: npc.x, y: npc.y, amount: 60 });
                         addXP(20);
                         if(npc.role === 'gangster') checkMissionProgress('kills');
                     }
@@ -434,7 +421,6 @@
                 if(b.life <= 0 || checkBuildingCollision(b.x, b.y, 3)) bullets.splice(i, 1);
             });
 
-            // NPCs
             npcs.forEach(npc => {
                 if(!npc.alive) return;
                 npc.x += Math.cos(npc.angle) * npc.speed;
@@ -449,154 +435,143 @@
             });
         }
 
-        // DIBUJO HD DE PERSONA
         function drawHuman(x, y, angle, bodyColor) {
             ctx.save();
             ctx.translate(x, y); ctx.rotate(angle);
-            // Sombra
             ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(2, 2, 8, 0, Math.PI*2); ctx.fill();
-            // Cuerpo y Brazos
             ctx.fillStyle = bodyColor; ctx.fillRect(-5, -7, 10, 14);
             ctx.fillStyle = '#ffcc99'; 
-            ctx.fillRect(2, -8, 6, 4); ctx.fillRect(2, 4, 6, 4); // Manos/Brazos
-            ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill(); // Cabeza
+            ctx.fillRect(2, -8, 6, 4); ctx.fillRect(2, 4, 6, 4);
+            ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         }
 
-        // RENDERIZADO VISUAL
+        function drawAircraft(sv) {
+            ctx.save();
+            ctx.translate(sv.x, sv.y);
+            ctx.scale(sv.scale, sv.scale);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath(); ctx.ellipse(0, 80, 50, 12, 0, 0, Math.PI*2); ctx.fill();
+
+            if(sv.type === 'commercial_plane') {
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, 0, 70, 14, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#dddddd'; ctx.fillRect(-15, -60, 30, 120);
+                ctx.fillStyle = '#333'; ctx.fillRect(-10, -35, 20, 8); ctx.fillRect(-10, 27, 20, 8);
+                ctx.fillStyle = '#ff0055'; ctx.fillRect(-65, -15, 15, 30);
+                ctx.fillStyle = '#00ff88'; ctx.beginPath(); ctx.arc(12, -58, 4, 0, Math.PI*2); ctx.fill();
+            } else if(sv.type === 'jet') {
+                ctx.fillStyle = '#445566';
+                ctx.beginPath(); ctx.moveTo(50, 0); ctx.lineTo(-40, -30); ctx.lineTo(-25, 0); ctx.lineTo(-40, 30); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = '#ffaa00'; ctx.fillRect(-35, -5, 8, 10);
+            } else {
+                ctx.fillStyle = '#223344'; ctx.beginPath(); ctx.ellipse(0, 0, 28, 14, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillRect(-45, -3, 30, 6);
+                ctx.fillStyle = '#aaa'; ctx.fillRect(-48, -10, 4, 20);
+                ctx.save(); ctx.rotate(rotorAngle);
+                ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(-50, 0); ctx.lineTo(50, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -50); ctx.lineTo(0, 50); ctx.stroke();
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+
         function draw() {
-            ctx.fillStyle = '#1e3820'; // Pasto/Tierra de fondo
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0c140d'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
             ctx.translate(canvas.width/2 - player.x, canvas.height/2 - player.y);
 
-            // TERRENO & PISTAS
-            ctx.fillStyle = '#1b2d18'; ctx.fillRect(-1000, -1000, 4000, 4000);
+            if(currentInterior) {
+                const data = interiors[currentInterior];
+                ctx.fillStyle = '#111622'; ctx.fillRect(0, 0, data.w, data.h);
+                ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, data.w, data.h);
 
-            // Pista Aeropuerto
-            ctx.fillStyle = '#222'; ctx.fillRect(1250, 950, 400, 120);
-            ctx.strokeStyle = '#fff'; ctx.setLineDash([15, 15]); ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(1260, 1010); ctx.lineTo(1640, 1010); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = '#00ff88'; ctx.fillRect(data.exitDoor.x - 25, data.exitDoor.y - 10, 50, 20);
 
-            // Helipuerto
-            ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(1450, 1050, 35, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = '#ffee00'; ctx.lineWidth = 4; ctx.stroke();
-            ctx.fillStyle = '#ffee00'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('H', 1450, 1058);
+                data.furniture.forEach(f => {
+                    ctx.fillStyle = f.color;
+                    ctx.fillRect(f.x, f.y, f.w, f.h);
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(f.x, f.y, f.w, f.h);
+                });
 
-            // CALLES & ACERAS
-            roads.forEach(r => {
-                // Acera / Vereda
-                ctx.fillStyle = '#555'; ctx.fillRect(r.x - 6, r.y - 6, r.w + 12, r.h + 12);
-                // Asfalto
-                ctx.fillStyle = '#282830'; ctx.fillRect(r.x, r.y, r.w, r.h);
+                drawHuman(player.x, player.y, player.angle, player.clothColor);
 
-                // Líneas Punteadas
-                ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.setLineDash([20, 15]);
-                ctx.beginPath();
-                if(r.w > r.h) { ctx.moveTo(r.x, r.y + r.h/2); ctx.lineTo(r.x + r.w, r.y + r.h/2); }
-                else { ctx.moveTo(r.x + r.w/2, r.y); ctx.lineTo(r.x + r.w/2, r.y + r.h); }
-                ctx.stroke(); ctx.setLineDash([]);
-            });
+            } else {
+                ctx.fillStyle = '#162816'; ctx.fillRect(-1000, -1000, 7000, 7000);
 
-            // EDIFICIOS DETALLADOS
-            buildings.forEach(b => {
-                // Sombra Proyectada
-                ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(b.x + 10, b.y + 10, b.w, b.h);
-                // Estructura Base
-                ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.w, b.h);
-                // Techo
-                ctx.fillStyle = b.roof; ctx.fillRect(b.x + 10, b.y + 10, b.w - 20, b.h - 20);
-                ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, b.w, b.h);
+                ctx.fillStyle = '#222'; ctx.fillRect(3200, 2900, 600, 160);
+                ctx.strokeStyle = '#fff'; ctx.setLineDash([20, 15]); ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(3210, 2980); ctx.lineTo(3790, 2980); ctx.stroke(); ctx.setLineDash([]);
 
-                // Entrada / Alfombra
-                ctx.fillStyle = '#ffee00'; ctx.fillRect(b.doorX - 15, b.doorY - 8, 30, 10);
+                roads.forEach(r => {
+                    ctx.fillStyle = '#444'; ctx.fillRect(r.x - 8, r.y - 8, r.w + 16, r.h + 16);
+                    ctx.fillStyle = '#22222b'; ctx.fillRect(r.x, r.y, r.w, r.h);
+                    ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.setLineDash([20, 15]);
+                    ctx.beginPath();
+                    if(r.w > r.h) { ctx.moveTo(r.x, r.y + r.h/2); ctx.lineTo(r.x + r.w, r.y + r.h/2); }
+                    else { ctx.moveTo(r.x + r.w/2, r.y); ctx.lineTo(r.x + r.w/2, r.y + r.h); }
+                    ctx.stroke(); ctx.setLineDash([]);
+                });
 
-                // Etiqueta Neón
-                ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(b.label, b.x + b.w/2, b.y + 30);
-            });
+                buildings.forEach(b => {
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(b.x + 12, b.y + 12, b.w, b.h);
+                    ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.w, b.h);
+                    ctx.fillStyle = b.roof; ctx.fillRect(b.x + 12, b.y + 12, b.w - 24, b.h - 24);
+                    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, b.w, b.h);
+                    ctx.fillStyle = '#ffee00'; ctx.fillRect(b.doorX - 15, b.doorY - 8, 30, 10);
+                    ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(b.label, b.x + b.w/2, b.y + 28);
+                });
 
-            // ÁRBOLES Y PALMERAS
-            trees.forEach(t => {
-                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(t.x+4, t.y+4, 20, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#115522'; ctx.beginPath(); ctx.arc(t.x, t.y, 20, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#228833'; ctx.beginPath(); ctx.arc(t.x-3, t.y-3, 14, 0, Math.PI*2); ctx.fill();
-            });
+                loot.forEach(l => { ctx.fillStyle = '#00ff88'; ctx.fillRect(l.x - 6, l.y - 5, 12, 10); });
 
-            // RECOMPENSAS
-            loot.forEach(l => { ctx.fillStyle = '#00ff88'; ctx.fillRect(l.x - 6, l.y - 5, 12, 10); });
+                npcs.forEach(npc => {
+                    if(npc.alive) {
+                        let col = npc.role === 'police' ? '#0055ff' : (npc.role === 'gangster' ? '#ff0055' : '#eedd00');
+                        drawHuman(npc.x, npc.y, npc.angle, col);
+                    }
+                });
 
-            // NPCS
-            npcs.forEach(npc => {
-                if(npc.alive) {
-                    let col = npc.role === 'police' ? '#0055ff' : (npc.role === 'gangster' ? '#ff0055' : '#eedd00');
-                    drawHuman(npc.x, npc.y, npc.angle, col);
-                }
-            });
+                cars.forEach(c => {
+                    if(c.health <= 0) return;
+                    ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.angle);
+                    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(-c.w/2+3, -c.h/2+3, c.w, c.h);
+                    ctx.fillStyle = c.color; ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
 
-            // VEHÍCULOS DETALLADOS
-            cars.forEach(c => {
-                if(c.health <= 0) return;
-                ctx.save();
-                ctx.translate(c.x, c.y); ctx.rotate(c.angle);
-
-                // Sombra
-                ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(-c.w/2+3, -c.h/2+3, c.w, c.h);
-
-                // Carrocería
-                ctx.fillStyle = c.color; ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-
-                if(c.type === 'heli') {
-                    // Cuerpo Helicóptero
-                    ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
-                    // Aspas Giratorias
-                    ctx.save(); ctx.rotate(rotorAngle);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
-                    ctx.beginPath(); ctx.moveTo(-35, 0); ctx.lineTo(35, 0); ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(0, -35); ctx.lineTo(0, 35); ctx.stroke();
+                    if(c.type === 'heli') {
+                        ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fill();
+                        ctx.save(); ctx.rotate(rotorAngle);
+                        ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
+                        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(40, 0); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(0, -40); ctx.lineTo(0, 40); ctx.stroke();
+                        ctx.restore();
+                    } else {
+                        ctx.fillStyle = '#111'; ctx.fillRect(-c.w/6, -c.h/2+3, c.w/3, c.h-6);
+                        ctx.fillStyle = '#ffffaa'; ctx.fillRect(c.w/2-3, -c.h/2+2, 3, 4); ctx.fillRect(c.w/2-3, c.h/2-6, 3, 4);
+                    }
                     ctx.restore();
-                } else {
-                    // Parabrisas / Detalle Auto
-                    ctx.fillStyle = '#111'; ctx.fillRect(-c.w/6, -c.h/2+3, c.w/3, c.h-6);
-                    // Faros
-                    ctx.fillStyle = '#ffffaa'; ctx.fillRect(c.w/2-3, -c.h/2+2, 3, 4); ctx.fillRect(c.w/2-3, c.h/2-6, 3, 4);
-                }
+                });
 
-                ctx.restore();
-            });
+                bullets.forEach(b => {
+                    ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI*2); ctx.fill();
+                });
 
-            // AVIONES / HELICÓPTEROS EN CIELO
-            skyVehicles.forEach(sv => {
-                ctx.save();
-                ctx.translate(sv.x, sv.y);
-                // Sombra lejana
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.fillRect(-15, 40, 30, 6);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                if(sv.type === 'plane') {
-                    ctx.fillRect(-22, -4, 44, 8); ctx.fillRect(-6, -24, 12, 48);
-                } else {
-                    ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI*2); ctx.fill();
-                }
-                ctx.restore();
-            });
+                if(!player.inCar) drawHuman(player.x, player.y, player.angle, player.clothColor);
 
-            // BALAS
-            bullets.forEach(b => {
-                ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI*2); ctx.fill();
-            });
-
-            // JUGADOR
-            if(!player.inCar) drawHuman(player.x, player.y, player.angle, player.clothColor);
+                skyVehicles.forEach(sv => drawAircraft(sv));
+            }
 
             ctx.restore();
             drawMinimap();
         }
 
         function drawMinimap() {
-            mCtx.fillStyle = '#0a0a10'; mCtx.fillRect(0, 0, 96, 96);
-            mCtx.save(); mCtx.translate(48, 48);
-            const scale = 0.045;
+            mCtx.fillStyle = '#05050a'; mCtx.fillRect(0, 0, 100, 100);
+            if(currentInterior) return;
+            mCtx.save(); mCtx.translate(50, 50);
+            const scale = 0.018;
 
             roads.forEach(r => {
                 mCtx.fillStyle = '#333';
@@ -604,11 +579,11 @@
             });
 
             buildings.forEach(b => {
-                mCtx.fillStyle = b.id === 'home' ? '#00f0ff' : '#666';
+                mCtx.fillStyle = b.id === 'home' ? '#00f0ff' : '#777';
                 mCtx.fillRect((b.x - player.x)*scale, (b.y - player.y)*scale, b.w*scale, b.h*scale);
             });
 
-            mCtx.fillStyle = player.clothColor; mCtx.beginPath(); mCtx.arc(0, 0, 3.5, 0, Math.PI*2); mCtx.fill();
+            mCtx.fillStyle = player.clothColor; mCtx.beginPath(); mCtx.arc(0, 0, 4, 0, Math.PI*2); mCtx.fill();
             mCtx.restore();
         }
 
