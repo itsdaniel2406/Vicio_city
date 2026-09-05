@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vicio City v3.0.0 - Edición Completa</title>
+  <title>Vicio City v3.1.0 - Cámara y Detalles Interiores</title>
   <style>
     * {
       box-sizing: border-box;
@@ -26,7 +26,7 @@
       position: relative;
       width: 100%;
       height: 100%;
-      background-color: #121826;
+      background-color: #0f1420;
       overflow: hidden;
     }
 
@@ -34,10 +34,9 @@
       display: block;
       width: 100%;
       height: 100%;
-      background-color: #151c28;
     }
 
-    /* Advertencia de Giro */
+    /* Advertencia Vertical */
     #rotate-warning {
       display: none;
       position: fixed;
@@ -58,13 +57,13 @@
       #rotate-warning { display: flex; }
     }
 
-    /* --- HUD TOP LEFT --- */
+    /* --- HUD IZQUIERDO --- */
     .hud-panel {
       position: absolute;
       top: 10px;
       left: 10px;
-      width: clamp(180px, 25vw, 240px);
-      background: rgba(10, 15, 26, 0.9);
+      width: clamp(180px, 24vw, 230px);
+      background: rgba(10, 15, 26, 0.92);
       border: 2px solid #ff007f;
       border-radius: 8px;
       padding: 8px 10px;
@@ -102,7 +101,7 @@
       cursor: pointer;
     }
 
-    /* --- HUD TOP RIGHT --- */
+    /* --- HUD DERECHO --- */
     .top-right-panel {
       position: absolute;
       top: 10px;
@@ -136,8 +135,8 @@
     }
 
     .minimap-container {
-      width: clamp(80px, 16vw, 110px);
-      height: clamp(80px, 16vw, 110px);
+      width: clamp(80px, 15vw, 110px);
+      height: clamp(80px, 15vw, 110px);
       border: 2px solid #ff007f;
       border-radius: 50%;
       overflow: hidden;
@@ -150,7 +149,7 @@
       height: 100%;
     }
 
-    /* --- PANEL CONTROLES INFERIOR DERECHO --- */
+    /* --- BOTONES DE ACCIÓN --- */
     .action-buttons-container {
       position: absolute;
       bottom: 15px;
@@ -186,14 +185,8 @@
       box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
     }
 
-    .btn-car:active {
-      background: #00f0ff;
-    }
-
-    /* --- MENÚ DESPLEGABLE DE ARMAS --- */
-    .weapon-selector-container {
-      position: relative;
-    }
+    /* --- MENÚ DE ARMAS --- */
+    .weapon-selector-container { position: relative; }
 
     .weapon-dropdown {
       display: none;
@@ -259,7 +252,7 @@
     .dpad-left  { top: 33px; left: 0; }
     .dpad-right { top: 33px; right: 0; }
 
-    /* --- MODAL DE MISIONES --- */
+    /* MODAL MISIONES */
     #missions-modal {
       display: none;
       position: absolute;
@@ -276,13 +269,6 @@
       box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
     }
 
-    #missions-modal h3 {
-      color: #00f0ff;
-      margin-bottom: 10px;
-      font-size: 14px;
-      text-transform: uppercase;
-    }
-
     .mission-item {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid #333;
@@ -291,8 +277,6 @@
       border-radius: 5px;
       font-size: 11px;
     }
-
-    .mission-item h4 { color: #ffea79; margin-bottom: 3px; }
 
     .btn-close-modal {
       background: #ff007f;
@@ -320,14 +304,14 @@
 
     <!-- HUD Izquierdo -->
     <div class="hud-panel">
-      <div class="hud-header">VICIO CITY v3.0.0</div>
+      <div class="hud-header">VICIO CITY v3.1.0</div>
       <div class="stat-row"><span>LVL: 1</span> <span>XP: 95/100</span></div>
       <div class="stat-row"><span>HP: 100/100</span> <span>CASH: $960</span></div>
       <div class="stat-row"><span>WANTED:</span> <span style="color: #ffcc00;">★☆☆☆☆</span></div>
       <div class="mission-box" onclick="toggleMissionsModal()">
         🎯 <b>MISIÓN ACTIVA:</b><br>
         Elimina 3 Pandilleros en la ciudad (0/3)<br>
-        <span style="font-size:8px; color:#00f0ff;">[Toca para ver menú de misiones]</span>
+        <span style="font-size:8px; color:#00f0ff;">[Toca para menú de misiones]</span>
       </div>
     </div>
 
@@ -343,11 +327,10 @@
       </div>
     </div>
 
-    <!-- Acciones Inferior Derecho (Disparo, Auto y Selección de Arma) -->
+    <!-- Acciones Inferior Derecho -->
     <div class="action-buttons-container">
       <button class="btn-action btn-car" id="btnCar" onclick="toggleEntrarAuto()">🚗</button>
       <button class="btn-action" id="btnShoot" onclick="disparar()">💥</button>
-      
       <div class="weapon-selector-container">
         <div class="weapon-dropdown" id="weaponDropdown"></div>
         <button class="btn-action" id="btnWeaponActive" style="border-color:#00f0ff;" onclick="toggleWeaponMenu()">🔫</button>
@@ -364,15 +347,15 @@
 
     <!-- Modal Misiones -->
     <div id="missions-modal">
-      <h3>📜 Centro de Misiones</h3>
+      <h3 style="color:#00f0ff; margin-bottom:10px;">📜 Centro de Misiones</h3>
       <div class="mission-item">
-        <h4>1. Limpieza de Calle (Principal)</h4>
+        <h4 style="color:#ffea79;">1. Limpieza de Calle (Principal)</h4>
         <p>Elimina a 3 pandilleros rivales en la zona este de la ciudad.</p>
         <p style="color:#00f0ff; margin-top:3px;">Recompensa: $500 + 50 XP</p>
       </div>
       <div class="mission-item">
-        <h4>2. Robo Express (Secundaria)</h4>
-        <p>Subete a un vehículo rápido y conduce a 80km/h por la avenida principal.</p>
+        <h4 style="color:#ffea79;">2. Robo Express (Secundaria)</h4>
+        <p>Entra a un auto y conduce a alta velocidad por la calzada principal.</p>
         <p style="color:#00f0ff; margin-top:3px;">Recompensa: $300</p>
       </div>
       <button class="btn-close-modal" onclick="toggleMissionsModal()">CERRAR</button>
@@ -385,9 +368,6 @@
     const minimapCanvas = document.getElementById('minimap');
     const minimapCtx = minimapCanvas.getContext('2d');
 
-    // Zoom alejado de cámara (Escala 0.7x para ver más mapa)
-    const CAMERA_ZOOM = 0.7;
-
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -395,7 +375,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Pantalla Completa + Orientación
+    // Fullscreen
     document.getElementById('btnFull').addEventListener('click', async () => {
       try {
         if (!document.fullscreenElement) {
@@ -409,6 +389,9 @@
       } catch (e) {}
     });
 
+    // --- SISTEMA DE CÁMARA DINÁMICA ---
+    const camara = { x: 0, y: 0 };
+
     // --- ARMAS ---
     const armas = [
       { id: 'pistola', nombre: 'Pistola 9mm', icono: '🔫', daño: 25 },
@@ -417,39 +400,73 @@
     ];
     let armaEquipada = armas[0];
 
-    // --- ENTIDADES ---
+    // --- JUGADOR ---
     const jugador = {
-      x: 350,
-      y: 280,
+      x: 500,
+      y: 500,
       angulo: 0,
       radio: 12,
       colorPiel: '#f1c27d',
       colorRopa: '#ff007f',
-      velocidad: 3.5,
+      velocidad: 3.8,
       enAuto: false,
       autoActual: null
     };
 
+    // --- EDIFICIOS E INTERIORES ---
     const edificaciones = [
-      { x: 80, y: 60, w: 260, h: 140, color: '#101726', borde: '#00f0ff', titulo: 'BANCO' },
-      { x: 400, y: 60, w: 300, h: 140, color: '#101726', borde: '#ff007f', titulo: 'CLUB NIGHT' },
-      { x: 780, y: 60, w: 280, h: 160, color: '#101726', borde: '#00f0ff', titulo: 'AMMU-NATION' }
+      {
+        id: 'banco',
+        x: 100, y: 100, w: 320, h: 220,
+        color: '#101726', borde: '#00f0ff', titulo: 'BANCO CENTRAL',
+        puerta: { x: 230, y: 320, w: 60, h: 10 },
+        muebles: [
+          { x: 120, y: 140, w: 280, h: 20, tipo: 'mostrador', color: '#1a2942' },
+          { x: 150, y: 180, w: 80, h: 60, tipo: 'caja_fuerte', color: '#334155' },
+          { x: 260, y: 220, w: 40, h: 40, tipo: 'escritorio', color: '#475569' }
+        ]
+      },
+      {
+        id: 'club',
+        x: 500, y: 100, w: 360, h: 220,
+        color: '#101726', borde: '#ff007f', titulo: 'CLUB NIGHT VIBES',
+        puerta: { x: 650, y: 320, w: 60, h: 10 },
+        muebles: [
+          { x: 520, y: 130, w: 320, h: 25, tipo: 'barra', color: '#ff007f' },
+          { x: 550, y: 180, w: 100, h: 80, tipo: 'pista_baile', color: '#00f0ff' },
+          { x: 700, y: 200, w: 120, h: 30, tipo: 'sillones', color: '#701a75' }
+        ]
+      },
+      {
+        id: 'ammunation',
+        x: 940, y: 100, w: 300, h: 220,
+        color: '#101726', borde: '#ffcc00', titulo: 'AMMU-NATION',
+        puerta: { x: 1060, y: 320, w: 60, h: 10 },
+        muebles: [
+          { x: 960, y: 140, w: 260, h: 18, tipo: 'vitrina', color: '#b45309' },
+          { x: 1000, y: 170, w: 180, h: 12, tipo: 'estante_armas', color: '#78350f' },
+          { x: 1160, y: 220, w: 50, h: 50, tipo: 'diana', color: '#ef4444' }
+        ]
+      }
     ];
 
+    // --- ÁRBOLES DETALLADOS ---
     const arboles = [
-      { x: 120, y: 280, r: 28 }, { x: 180, y: 300, r: 24 }, { x: 80, y: 340, r: 30 },
-      { x: 750, y: 280, r: 26 }, { x: 820, y: 250, r: 32 }, { x: 890, y: 300, r: 25 },
-      { x: 300, y: 620, r: 28 }, { x: 370, y: 650, r: 26 }
+      { x: 120, y: 400, r: 28 }, { x: 200, y: 420, r: 24 }, { x: 80, y: 470, r: 30 },
+      { x: 880, y: 400, r: 26 }, { x: 960, y: 420, r: 32 }, { x: 1040, y: 390, r: 25 },
+      { x: 300, y: 750, r: 28 }, { x: 380, y: 780, r: 26 }
     ];
 
+    // --- VEHÍCULOS ---
     const autos = [
-      { x: 600, y: 440, w: 55, h: 28, color: '#ff0055', vx: -1.5, angulo: 0 },
-      { x: 200, y: 475, w: 55, h: 28, color: '#00ccff', vx: 1.8, angulo: 0 }
+      { x: 700, y: 535, w: 58, h: 30, color: '#ff0055', vx: -1.5, angulo: 0 },
+      { x: 250, y: 575, w: 58, h: 30, color: '#00ccff', vx: 1.8, angulo: 0 }
     ];
 
+    // --- NPCS ---
     const npcs = [
-      { x: 450, y: 320, angulo: 0, vx: 0.7, vy: 0, colorPiel: '#f1c27d', colorRopa: '#00f0ff', tipo: 'peaton' },
-      { x: 850, y: 340, angulo: 0, vx: -0.6, vy: 0, colorPiel: '#e0a080', colorRopa: '#ff3366', tipo: 'pandillero' }
+      { x: 550, y: 420, angulo: 0, vx: 0.7, vy: 0, colorPiel: '#f1c27d', colorRopa: '#00f0ff', tipo: 'peaton' },
+      { x: 1020, y: 430, angulo: 0, vx: -0.6, vy: 0, colorPiel: '#e0a080', colorRopa: '#ff3366', tipo: 'pandillero' }
     ];
 
     const proyectiles = [];
@@ -486,24 +503,22 @@
       proyectiles.push({
         x: jugador.x + Math.cos(jugador.angulo) * 15,
         y: jugador.y + Math.sin(jugador.angulo) * 15,
-        vx: Math.cos(jugador.angulo) * 10,
-        vy: Math.sin(jugador.angulo) * 10,
-        vida: 40
+        vx: Math.cos(jugador.angulo) * 11,
+        vy: Math.sin(jugador.angulo) * 11,
+        vida: 45
       });
     }
 
     function toggleEntrarAuto() {
       if (jugador.enAuto) {
-        // Bajarse del auto
         jugador.enAuto = false;
-        jugador.x = jugador.autoActual.x - 20;
+        jugador.x = jugador.autoActual.x - 25;
         jugador.y = jugador.autoActual.y;
         jugador.autoActual = null;
       } else {
-        // Buscar auto cercano
         autos.forEach(a => {
           const dist = Math.hypot(jugador.x - a.x, jugador.y - a.y);
-          if (dist < 45) {
+          if (dist < 50) {
             jugador.enAuto = true;
             jugador.autoActual = a;
           }
@@ -562,14 +577,17 @@
           jugador.x += Math.cos(ang) * jugador.velocidad;
           jugador.y += Math.sin(ang) * jugador.velocidad;
         } else {
-          // Conducir Auto
-          jugador.autoActual.x += Math.cos(ang) * 5;
-          jugador.autoActual.y += Math.sin(ang) * 5;
+          jugador.autoActual.x += Math.cos(ang) * 6;
+          jugador.autoActual.y += Math.sin(ang) * 6;
           jugador.autoActual.angulo = ang;
           jugador.x = jugador.autoActual.x;
           jugador.y = jugador.autoActual.y;
         }
       }
+
+      // Seguir al personaje con la cámara en tiempo real
+      camara.x = jugador.x - canvas.width / 2;
+      camara.y = jugador.y - canvas.height / 2;
 
       // Proyectiles
       proyectiles.forEach((p, idx) => {
@@ -583,13 +601,13 @@
       autos.forEach(auto => {
         if (auto !== jugador.autoActual) {
           auto.x += auto.vx;
-          if (auto.x < -60) auto.x = 1200;
-          if (auto.x > 1200) auto.x = -60;
+          if (auto.x < -100) auto.x = 1600;
+          if (auto.x > 1600) auto.x = -100;
         }
       });
     }
 
-    // --- DIBUJO CON DETALLE DE PERSONAJES Y ÁRBOLES ---
+    // DIBUJO DE DETALLES
     function dibujarPersonaje(x, y, angulo, colorPiel, colorRopa, esJugador) {
       ctx.save();
       ctx.translate(x, y);
@@ -607,14 +625,14 @@
       ctx.roundRect(-8, -10, 16, 20, 4);
       ctx.fill();
 
-      // Manos / Brazos
+      // Manos
       ctx.fillStyle = colorPiel;
       ctx.beginPath();
-      ctx.arc(8, -8, 3.5, 0, Math.PI * 2); // Mano derecha
-      ctx.arc(8, 8, 3.5, 0, Math.PI * 2);  // Mano izquierda
+      ctx.arc(8, -8, 3.5, 0, Math.PI * 2);
+      ctx.arc(8, 8, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Arma
+      // Arma en mano
       ctx.fillStyle = '#222';
       ctx.fillRect(6, 4, 10, 3);
 
@@ -627,7 +645,6 @@
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Gorra / Pelo si es jugador
       if (esJugador) {
         ctx.fillStyle = '#ff007f';
         ctx.beginPath();
@@ -639,19 +656,16 @@
     }
 
     function dibujarArbolDetallado(a) {
-      // Sombra proyectada
       ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
       ctx.beginPath();
       ctx.ellipse(a.x + 8, a.y + 8, a.r * 1.1, a.r * 0.8, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Tronco central
       ctx.fillStyle = '#5d4037';
       ctx.beginPath();
       ctx.arc(a.x, a.y, a.r * 0.25, 0, Math.PI * 2);
       ctx.fill();
 
-      // Capas de follaje
       const grad = ctx.createRadialGradient(a.x - 5, a.y - 5, 2, a.x, a.y, a.r);
       grad.addColorStop(0, '#4caf50');
       grad.addColorStop(0.7, '#2e7d32');
@@ -666,49 +680,67 @@
       ctx.stroke();
     }
 
-    // RENDERIZADO PRINCIPAL
+    // RENDERIZADO CON MATRIZ DE CÁMARA
     function renderizar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.save();
-      // Aplicar alejamieto de cámara (Zoom 0.7x)
-      ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
+      // Traslación de Cámara Centrada en el Personaje
+      ctx.translate(-camara.x, -camara.y);
 
-      const calleY = 420;
-      const calleAltura = 100;
+      const calleY = 510;
+      const calleAltura = 110;
 
-      // Edificios
+      // Fondo Terreno Urbanizado
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(-500, -500, 2500, 2000);
+
+      // Edificios con Interiores y Muebles
       edificaciones.forEach(b => {
+        // Estructura Exterior
         ctx.fillStyle = b.color;
         ctx.fillRect(b.x, b.y, b.w, b.h);
         ctx.strokeStyle = b.borde;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.strokeRect(b.x, b.y, b.w, b.h);
 
+        // Muebles e Interiores
+        b.muebles.forEach(m => {
+          ctx.fillStyle = m.color;
+          ctx.fillRect(m.x, m.y, m.w, m.h);
+          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+          ctx.strokeRect(m.x, m.y, m.w, m.h);
+        });
+
+        // Puerta de Entrada (Apertura Neón)
         ctx.fillStyle = b.borde;
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(b.titulo, b.x + 10, b.y + 25);
+        ctx.fillRect(b.puerta.x, b.puerta.y, b.puerta.w, b.puerta.h);
+
+        // Cartel Neón Superior
+        ctx.fillStyle = b.borde;
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText(b.titulo, b.x + 15, b.y + 25);
       });
 
       // Vereda
       ctx.fillStyle = '#2b3548';
-      ctx.fillRect(0, calleY - 15, 1400, calleAltura + 30);
+      ctx.fillRect(-500, calleY - 18, 2500, calleAltura + 36);
 
       // Calzada
       ctx.fillStyle = '#1e2533';
-      ctx.fillRect(0, calleY, 1400, calleAltura);
+      ctx.fillRect(-500, calleY, 2500, calleAltura);
 
       // Línea divisoria amarilla
       ctx.strokeStyle = '#ffcc00';
       ctx.lineWidth = 3;
       ctx.setLineDash([20, 15]);
       ctx.beginPath();
-      ctx.moveTo(0, calleY + calleAltura / 2);
-      ctx.lineTo(1400, calleY + calleAltura / 2);
+      ctx.moveTo(-500, calleY + calleAltura / 2);
+      ctx.lineTo(2000, calleY + calleAltura / 2);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Árboles con textura
+      // Árboles
       arboles.forEach(a => dibujarArbolDetallado(a));
 
       // Vehículos
@@ -722,9 +754,12 @@
         ctx.lineWidth = 2;
         ctx.strokeRect(-auto.w / 2, -auto.h / 2, auto.w, auto.h);
 
-        // Parabrisas
+        // Parabrisas y Luces
         ctx.fillStyle = '#111';
         ctx.fillRect(-auto.w / 4, -auto.h / 2 + 3, 12, auto.h - 6);
+        ctx.fillStyle = '#ffea79';
+        ctx.fillRect(auto.w / 2 - 2, -auto.h / 2 + 2, 3, 5);
+        ctx.fillRect(auto.w / 2 - 2, auto.h / 2 - 7, 3, 5);
         ctx.restore();
       });
 
@@ -751,7 +786,7 @@
       renderizarMinimapa();
     }
 
-    // MINIMAPA DETALLADO
+    // MINIMAPA
     function renderizarMinimapa() {
       const mw = minimapCanvas.width;
       const mh = minimapCanvas.height;
@@ -759,8 +794,8 @@
       minimapCtx.fillStyle = '#0a0f1a';
       minimapCtx.fillRect(0, 0, mw, mh);
 
-      const ex = mw / (1400 * CAMERA_ZOOM);
-      const ey = mh / (800 * CAMERA_ZOOM);
+      const ex = mw / 1800;
+      const ey = mh / 1200;
 
       // Edificios
       edificaciones.forEach(b => {
@@ -770,15 +805,9 @@
 
       // Calle
       minimapCtx.fillStyle = '#223344';
-      minimapCtx.fillRect(0, 420 * ey, mw, 100 * ey);
+      minimapCtx.fillRect(0, 510 * ey, mw, 110 * ey);
 
-      // NPCs
-      npcs.forEach(npc => {
-        minimapCtx.fillStyle = npc.tipo === 'pandillero' ? '#ff3333' : '#00ccff';
-        minimapCtx.fillRect(npc.x * ex - 1, npc.y * ey - 1, 3, 3);
-      });
-
-      // Jugador
+      // Jugador (Neón)
       minimapCtx.fillStyle = '#ff007f';
       minimapCtx.beginPath();
       minimapCtx.arc(jugador.x * ex, jugador.y * ey, 3.5, 0, Math.PI * 2);
