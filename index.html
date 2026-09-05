@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vicio City by Dani - v2.7</title>
+    <title>Vicio City by Dani - v2.8</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
         body, html { width: 100vw; height: 100vh; overflow: hidden; background: #05050a; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; }
@@ -13,61 +13,74 @@
         #orient-warning { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #05050a; color: #ff007f; z-index: 1000; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; text-align: center; padding: 20px; }
         @media (orientation: portrait) { #orient-warning { display: flex; } }
 
-        /* HUD - Izquierda */
-        .hud-left { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; pointer-events: none; }
-        .hud-title { background: linear-gradient(135deg, #ff007f, #00f0ff); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 900; text-align: center; box-shadow: 0 0 10px rgba(255,0,127,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
-        .hud-card { background: rgba(10, 15, 30, 0.88); border: 1.5px solid #00f0ff; padding: 5px 12px; border-radius: 8px; color: #fff; font-size: 11px; font-weight: bold; box-shadow: 0 0 10px rgba(0,240,255,0.25); text-shadow: 0 0 4px #000; }
-        .mission-card { border-color: #ffee00; color: #ffee00; background: rgba(25, 20, 5, 0.9); }
+        /* HUD DESPLEGABLE - Izquierda */
+        .hud-wrapper { position: absolute; top: 10px; left: 10px; z-index: 30; pointer-events: auto; }
+        .hud-toggle-btn { background: rgba(10, 15, 30, 0.9); border: 1.5px solid #ff007f; color: #ff007f; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 0 10px rgba(255,0,127,0.4); }
+        .hud-left { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 500px; opacity: 1; overflow: hidden; }
+        .hud-left.collapsed { max-height: 0; opacity: 0; pointer-events: none; }
+        
+        .hud-title { background: linear-gradient(135deg, #ff007f, #00f0ff); padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; text-align: center; box-shadow: 0 0 8px rgba(255,0,127,0.5); text-transform: uppercase; }
+        .hud-card { background: rgba(10, 15, 30, 0.88); border: 1px solid #00f0ff; padding: 3px 8px; border-radius: 6px; color: #fff; font-size: 10px; font-weight: bold; box-shadow: 0 0 6px rgba(0,240,255,0.2); text-shadow: 0 0 3px #000; }
+        .mission-card { border-color: #ffee00; color: #ffee00; background: rgba(25, 20, 5, 0.9); max-width: 200px; font-size: 9.5px; }
 
-        /* Top Right */
-        .top-right-container { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 20; }
-        .save-load-btns { display: flex; gap: 6px; }
-        .btn-small-sys { background: rgba(5,5,15,0.9); border: 1.5px solid #00f0ff; color: #00f0ff; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; pointer-events: auto; }
+        /* Top Right (System Controls + Minimap) */
+        .top-right-container { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 30; }
+        .sys-btns { display: flex; gap: 5px; }
+        .btn-small-sys { background: rgba(5,5,15,0.9); border: 1.5px solid #00f0ff; color: #00f0ff; padding: 5px 9px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; pointer-events: auto; }
         .btn-small-sys:active { background: #00f0ff; color: #000; }
         
-        #minimap-container { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
+        #minimap-container { width: 95px; height: 95px; border-radius: 50%; border: 2.5px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 10px rgba(255,0,127,0.5); }
         #minimap { width: 100%; height: 100%; }
 
         /* Botón Interacción Contextual */
-        #interact-btn { display: none; position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffee00, #ff8800); color: #000; font-size: 13px; font-weight: 900; padding: 12px 22px; border-radius: 25px; border: 2px solid #fff; box-shadow: 0 0 20px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 0.8s infinite alternate; }
-        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.08); } }
+        #interact-btn { display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffee00, #ff8800); color: #000; font-size: 12px; font-weight: 900; padding: 10px 18px; border-radius: 20px; border: 2px solid #fff; box-shadow: 0 0 18px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 0.8s infinite alternate; }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.06); } }
 
         /* Cuadro de Diálogo NPC */
-        #dialog-box { display: none; position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 500px; background: rgba(10, 15, 30, 0.95); border: 2px solid #00f0ff; border-radius: 12px; padding: 12px 18px; z-index: 90; box-shadow: 0 0 15px rgba(0,240,255,0.4); text-align: center; }
-        #dialog-title { color: #ff007f; font-weight: 900; font-size: 14px; margin-bottom: 4px; text-transform: uppercase; }
-        #dialog-text { color: #fff; font-size: 13px; margin-bottom: 8px; }
+        #dialog-box { display: none; position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 450px; background: rgba(10, 15, 30, 0.95); border: 2px solid #00f0ff; border-radius: 10px; padding: 10px 15px; z-index: 90; box-shadow: 0 0 15px rgba(0,240,255,0.4); text-align: center; }
+        #dialog-title { color: #ff007f; font-weight: 900; font-size: 13px; margin-bottom: 3px; text-transform: uppercase; }
+        #dialog-text { color: #fff; font-size: 12px; margin-bottom: 5px; }
 
-        /* NUEVA CRUCIETA REUBICADA Y ERGONÓMICA */
-        .dpad-container { position: absolute; bottom: 35px; left: 35px; pointer-events: auto; z-index: 20; }
-        .dpad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px; }
-        .btn { background: rgba(10, 20, 35, 0.85); border: 2px solid #00f0ff; border-radius: 14px; color: #00f0ff; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,240,255,0.3); transition: background 0.1s, transform 0.1s; }
-        .btn:active, .btn.pressed { background: rgba(0, 240, 255, 0.5); transform: scale(0.92); color: #fff; box-shadow: 0 0 20px #00f0ff; }
+        /* CRUCIETA MÁS CHICA Y COMPACTA */
+        .dpad-container { position: absolute; bottom: 15px; left: 15px; pointer-events: auto; z-index: 20; }
+        .dpad { display: grid; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); gap: 4px; }
+        .btn { background: rgba(10, 20, 35, 0.8); border: 1.5px solid #00f0ff; border-radius: 10px; color: #00f0ff; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,240,255,0.25); transition: background 0.1s, transform 0.1s; }
+        .btn:active, .btn.pressed { background: rgba(0, 240, 255, 0.5); transform: scale(0.90); color: #fff; box-shadow: 0 0 15px #00f0ff; }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
         
-        /* Controles Derecha */
-        .controls-right { position: absolute; bottom: 35px; right: 35px; display: flex; gap: 12px; align-items: flex-end; z-index: 20; pointer-events: auto; }
-        .btn-act { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 20px; background: rgba(15,5,20,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(255,0,127,0.4); transition: transform 0.1s; }
-        .btn-act:active { background: rgba(255, 0, 127, 0.5); transform: scale(0.92); }
+        /* CONTROLES DERECHA - ESTILO SHOOTER MODERNO */
+        .controls-right { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 14px; align-items: center; z-index: 20; pointer-events: auto; }
+        .btn-car { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00f0ff; color: #00f0ff; font-size: 20px; background: rgba(5,20,35,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(0,240,255,0.3); }
+        .btn-car:active { background: rgba(0,240,255,0.4); transform: scale(0.92); }
+        
+        .btn-shoot { width: 64px; height: 64px; border-radius: 50%; border: 3px solid #ff0055; color: #fff; font-size: 26px; background: radial-gradient(circle, rgba(255,0,85,0.9) 0%, rgba(120,0,40,0.85) 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(255,0,85,0.6); }
+        .btn-shoot:active { transform: scale(0.88); background: #ff0055; box-shadow: 0 0 25px #ff0055; }
     </style>
 </head>
 <body>
 
     <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
 
-    <div class="hud-left">
-        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.7</span></div>
-        <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
-        <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
-        <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$100</span></div>
-        <div class="hud-card">BUSCADO: <span id="wanted-val" style="color:#ffcc00">☆☆☆☆☆</span></div>
-        <div class="hud-card mission-card">🎯 MISIÓN: <span id="mission-val">Cargando...</span></div>
+    <!-- MENU IZQUIERDO DESPLEGABLE -->
+    <div class="hud-wrapper">
+        <button class="hud-toggle-btn" onclick="toggleHUD()">📊 HUD</button>
+        <div class="hud-left" id="hud-content">
+            <div class="hud-title">Vicio City <span style="font-size:8px; color:#fff;">v2.8</span></div>
+            <div class="hud-card">LVL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
+            <div class="hud-card">HP: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
+            <div class="hud-card">CASH: <span id="m-val" style="color:#00f0ff">$100</span></div>
+            <div class="hud-card">WANTED: <span id="wanted-val" style="color:#ffcc00">☆☆☆☆☆</span></div>
+            <div class="hud-card mission-card">🎯 MISIÓN: <span id="mission-val">Cargando...</span></div>
+        </div>
     </div>
 
+    <!-- CONTROLES SUPERIOR DERECHA -->
     <div class="top-right-container">
-        <div class="save-load-btns">
+        <div class="sys-btns">
+            <button class="btn-small-sys" onclick="toggleFullscreen()">🖥️ FULL</button>
             <button class="btn-small-sys" onclick="saveGame()">💾 GUARDAR</button>
             <button class="btn-small-sys" onclick="loadGame()">📂 CARGAR</button>
         </div>
@@ -85,6 +98,7 @@
 
     <canvas id="game"></canvas>
 
+    <!-- CRUCIETA COMPACTA -->
     <div class="dpad-container">
         <div class="dpad">
             <div class="btn btn-up" id="b-up">▲</div>
@@ -94,14 +108,14 @@
         </div>
     </div>
 
+    <!-- BOTONES ESTILO SHOOTER -->
     <div class="controls-right">
-        <div class="btn-act" onclick="toggleFullscreen()">🖥️</div>
-        <div class="btn-act" id="b-enter">🚗</div>
-        <div class="btn-act" id="b-shoot" style="border-color:#ff0055; color:#ff0055;">🔫</div>
+        <div class="btn-car" id="b-enter">🚗</div>
+        <div class="btn-shoot" id="b-shoot">🎯</div>
     </div>
 
     <script>
-        const GAME_VERSION = "v2.7";
+        const GAME_VERSION = "v2.8";
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const mCanvas = document.getElementById('minimap');
@@ -110,10 +124,14 @@
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            mCanvas.width = 110; mCanvas.height = 110;
+            mCanvas.width = 95; mCanvas.height = 95;
         }
         window.addEventListener('resize', resize);
         resize();
+
+        function toggleHUD() {
+            document.getElementById('hud-content').classList.toggle('collapsed');
+        }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
@@ -162,74 +180,62 @@
             { id: 'bank', x: 400, y: 1400, w: 320, h: 280, color: '#2a2238', roof: '#171221', label: '🏦 BANCO CENTRAL', doorX: 560, doorY: 1680 },
             { id: 'police', x: 1500, y: 1400, w: 340, h: 280, color: '#162b4c', roof: '#0d1a30', label: '🚔 COMISARÍA CENTRAL', doorX: 1670, doorY: 1680 },
             { id: 'airport', x: 3200, y: 2800, w: 800, h: 500, color: '#2b2b2b', roof: '#1f1f1f', label: '✈️ AEROPUERTO INTERNACIONAL', doorX: 3600, doorY: 3300 },
-            { id: 'casino', x: 3000, y: 800, w: 380, h: 300, color: '#4a1232', roof: '#2b0a1c', label: '🎰 CASINO NEÓN', doorX: 3190, doorY: 1100 },
-            { id: 'dealership', x: 4600, y: 800, w: 360, h: 280, color: '#12384a', roof: '#0b202b', label: '🏎️ CONCESIONARIA', doorX: 4780, doorY: 1080 },
-            { id: 'hospital', x: 600, y: 2700, w: 350, h: 300, color: '#3a1616', roof: '#210d0d', label: '🚑 HOSPITAL GENERAL', doorX: 775, doorY: 3000 }
+            { id: 'casino', x: 3000, y: 800, w: 380, h: 300, color: '#4a1232', roof: '#2b0a1c', label: '🎰 CASINO NEÓN', doorX: 3190, doorY: 1100 }
         ];
 
-        // INTERIORES DETALLADOS Y MUEBLES CON TEXTURA HD
+        // INTERIORES CON MUEBLES DETALLADOS
         const interiors = {
             'home': {
                 name: 'Mi Casa', w: 600, h: 500,
                 furniture: [
-                    { id: 'bed', type: 'bed', name: 'Cama Comfort', x: 80, y: 80, w: 90, h: 130, color: '#00f0ff', action: 'rest_heal' },
-                    { id: 'tv', type: 'tv', name: 'TV Smart HD', x: 260, y: 50, w: 110, h: 25, color: '#ff007f' },
-                    { id: 'sofa', type: 'sofa', name: 'Sofá Cuero', x: 250, y: 140, w: 130, h: 55, color: '#334455' },
-                    { id: 'wardrobe', type: 'wardrobe', name: 'Armario de Ropa', x: 470, y: 80, w: 80, h: 110, color: '#ffee00', action: 'change_cloth' }
+                    { id: 'bed', type: 'bed', name: 'Cama Comfort', x: 80, y: 80, w: 100, h: 140, action: 'rest_heal' },
+                    { id: 'tv', type: 'tv', name: 'TV Smart HD', x: 260, y: 40, w: 120, h: 30 },
+                    { id: 'sofa', type: 'sofa', name: 'Sofá VIP', x: 250, y: 140, w: 140, h: 60 },
+                    { id: 'wardrobe', type: 'wardrobe', name: 'Armario de Ropa', x: 460, y: 70, w: 90, h: 120, action: 'change_cloth' }
                 ],
                 exitDoor: { x: 300, y: 470 }
             },
             'pharma': {
                 name: 'Farmacia & Botica', w: 600, h: 500,
                 furniture: [
-                    { id: 'counter', type: 'counter', name: 'Mostrador Médico ($50)', x: 150, y: 160, w: 300, h: 45, color: '#00ff88', action: 'buy_heal' },
-                    { id: 'shelf', type: 'shelf', name: 'Estante de Remedios', x: 80, y: 60, w: 440, h: 35, color: '#115522' },
-                    { id: 'bed', type: 'bed', name: 'Camilla de Urgencia', x: 80, y: 310, w: 70, h: 110, color: '#ffffff' }
+                    { id: 'counter', type: 'counter', name: 'Mostrador Médico ($50)', x: 140, y: 160, w: 320, h: 50, action: 'buy_heal' },
+                    { id: 'shelf', type: 'shelf', name: 'Estante de Remedios', x: 80, y: 50, w: 440, h: 40 },
+                    { id: 'bed', type: 'bed', name: 'Camilla de Urgencia', x: 80, y: 310, w: 80, h: 120 }
                 ],
                 exitDoor: { x: 300, y: 470 }
             },
             'bank': {
                 name: 'Bóveda y Banco', w: 700, h: 550,
                 furniture: [
-                    { id: 'vault', type: 'vault', name: 'Caja Fuerte Principal', x: 280, y: 80, w: 140, h: 100, color: '#ffcc00', action: 'rob_vault' },
-                    { id: 'counter', type: 'counter', name: 'Ventanilla Atención', x: 150, y: 260, w: 400, h: 40, color: '#333' }
+                    { id: 'vault', type: 'vault', name: 'Caja Fuerte Principal', x: 270, y: 70, w: 160, h: 110, action: 'rob_vault' },
+                    { id: 'counter', type: 'counter', name: 'Ventanilla Atención', x: 150, y: 260, w: 400, h: 45 }
                 ],
                 exitDoor: { x: 350, y: 520 }
             },
             'casino': {
                 name: 'Casino Neón VIP', w: 750, h: 550,
                 furniture: [
-                    { id: 'roulette', type: 'roulette', name: 'Mesa de Ruleta VIP ($100)', x: 120, y: 120, w: 160, h: 90, color: '#0a3818', action: 'gamble' },
-                    { id: 'slots', type: 'slots', name: 'Tragamonedas Neón', x: 380, y: 80, w: 260, h: 45, color: '#ff007f', action: 'gamble' },
-                    { id: 'bar', type: 'counter', name: 'Barra del Casino', x: 200, y: 320, w: 350, h: 50, color: '#4a1232' }
+                    { id: 'roulette', type: 'roulette', name: 'Ruleta VIP ($100)', x: 110, y: 110, w: 180, h: 100, action: 'gamble' },
+                    { id: 'slots', type: 'slots', name: 'Tragamonedas Neón', x: 380, y: 70, w: 270, h: 50, action: 'gamble' },
+                    { id: 'bar', type: 'counter', name: 'Barra del Casino', x: 200, y: 320, w: 350, h: 50 }
                 ],
                 exitDoor: { x: 375, y: 520 }
-            },
-            'airport': {
-                name: 'Terminal de Aeropuerto', w: 900, h: 700,
-                furniture: [
-                    { id: 'seats', type: 'seats', name: 'Asientos Salón', x: 150, y: 200, w: 200, h: 40, color: '#444' },
-                    { id: 'scanner', type: 'scanner', name: 'Escaner Rayos X', x: 450, y: 150, w: 60, h: 120, color: '#ffee00' }
-                ],
-                exitDoor: { x: 450, y: 670 }
             }
         };
 
         const cars = [
             { x: 750, y: 1060, angle: 0, speed: 5.5, health: 100, w: 46, h: 22, color: '#ff0055', type: 'sports' },
             { x: 1700, y: 1720, angle: 0, speed: 5.0, health: 120, w: 48, h: 22, color: '#0055ff', type: 'police' },
-            { x: 3600, y: 3100, angle: 0, speed: 5.2, health: 160, w: 50, h: 50, color: '#00ff88', type: 'heli' },
-            { x: 4800, y: 1120, angle: 0, speed: 7.2, health: 100, w: 48, h: 22, color: '#ffee00', type: 'hypercar' }
+            { x: 3600, y: 3100, angle: 0, speed: 5.2, health: 160, w: 50, h: 50, color: '#00ff88', type: 'heli' }
         ];
 
-        // DIÁLOGOS Y NPCS
         const npcQuotes = {
-            civilian: ["¡Qué lindo día en Vicio City!", "¿Has visto el casino?", "¡Cuidado con los pandilleros!", "Tengo prisa, lo siento.", "¡El alcalde debería reparar las calles!"],
-            police: ["Circule, no hay nada que ver.", "Mantén las manos donde pueda verlas.", "Si buscas problemas, me encontrarás a mí.", "Todo en orden por aquí."],
-            gangster: ["¿Qué miras, novato?", "¡Dame tu dinero o habrá problemas!", "Esta zona es nuestra.", "¿Tienes cigarrillos?"]
+            civilian: ["¡Qué lindo día en Vicio City!", "¿Has visto el casino?", "¡Cuidado con los pandilleros!", "Tengo prisa, lo siento."],
+            police: ["Circule, no hay nada que ver.", "Mantén las manos donde pueda verlas.", "Todo en orden por aquí."],
+            gangster: ["¿Qué miras, novato?", "¡Dame tu dinero!", "Esta zona es nuestra."]
         };
 
-        for(let i=0; i<60; i++) {
+        for(let i=0; i<50; i++) {
             npcs.push({ 
                 id: i,
                 x: Math.random()*4800 + 200, y: Math.random()*4000 + 200, 
@@ -238,12 +244,9 @@
             });
         }
 
-        // LISTA DE MISIOMES CON PUNTOS DE DESTINO PARA SEGUIMIENTO (DIAMANTE EN MINIMAPA)
         const missionList = [
             { text: "Visita el Banco Central y entra a la bóveda", type: "bank", targetX: 560, targetY: 1680 },
             { text: "Elimina 3 Pandilleros en la ciudad", type: "kills", target: 3, current: 0, targetX: 2000, targetY: 2000 },
-            { text: "Pilota un Helicóptero en el Aeropuerto", type: "heli", targetX: 3600, targetY: 3100 },
-            { text: "Entra a la Farmacia a sanarte", type: "pharma", targetX: 1630, targetY: 1020 },
             { text: "Prueba tu suerte en el Casino Neón", type: "casino", targetX: 3190, targetY: 1100 }
         ];
         let currentMission = missionList[0];
@@ -278,7 +281,6 @@
             dialogTimeout = setTimeout(() => { box.style.display = 'none'; }, 4000);
         }
 
-        // BIND TOUCH PARA CRUCIETA ERGONÓMICA
         function bindTouch(id, key) {
             const el = document.getElementById(id);
             const start = (e) => { e.preventDefault(); keys[key] = true; el.classList.add('pressed'); };
@@ -329,83 +331,53 @@
         updateHUD();
 
         function triggerContextInteraction() {
-            // 1. Hablar con NPC cercano
             if(activeNpcTalk) {
                 const quotes = npcQuotes[activeNpcTalk.role];
                 const text = quotes[Math.floor(Math.random()*quotes.length)];
-                let title = "CIUDADANO";
-                if(activeNpcTalk.role === 'police') title = "POLICÍA";
-                if(activeNpcTalk.role === 'gangster') title = "PANDILLERO";
+                let title = activeNpcTalk.role === 'police' ? "POLICÍA" : (activeNpcTalk.role === 'gangster' ? "PANDILLERO" : "CIUDADANO");
                 showDialog(title, text);
                 return;
             }
 
-            // 2. Muebles de interior
             if(currentInterior && activeFurniture) {
                 if(activeFurniture.action === 'change_cloth') {
                     currentClothIndex = (currentClothIndex + 1) % clothesPalette.length;
                     player.clothColor = clothesPalette[currentClothIndex];
-                    showDialog("ARMARIO", "🎨 Te has cambiado de ropa. ¡Nuevo estilo!");
+                    showDialog("ARMARIO", "🎨 Te has cambiado de ropa.");
                 } else if(activeFurniture.action === 'buy_heal') {
                     if(player.money >= 50) {
-                        player.money -= 50;
-                        player.health = player.maxHealth;
-                        updateHUD();
+                        player.money -= 50; player.health = player.maxHealth; updateHUD();
                         showDialog("FARMACIA", "💉 Salud restaurada al máximo por $50.");
-                        checkMissionProgress('pharma');
-                    } else {
-                        showDialog("FARMACIA", "❌ No tienes suficiente dinero ($50 requerido).");
-                    }
+                    } else { showDialog("FARMACIA", "❌ Te faltan fondos ($50)."); }
                 } else if(activeFurniture.action === 'rest_heal') {
-                    player.health = player.maxHealth;
-                    updateHUD();
-                    showDialog("CASA", "😴 Descansaste en tu cama. Salud restaurada.");
+                    player.health = player.maxHealth; updateHUD();
+                    showDialog("CASA", "😴 Descansaste. Salud recuperada.");
                 } else if(activeFurniture.action === 'rob_vault') {
-                    player.money += 300;
-                    player.wanted = Math.min(5, player.wanted + 2);
-                    updateHUD();
-                    showDialog("ALERTA BANCO", "💰 ¡Robaste la Bóveda! +$300 (Buscado Nivel " + player.wanted + ")");
+                    player.money += 300; player.wanted = Math.min(5, player.wanted + 2); updateHUD();
+                    showDialog("ALERTA BANCO", "💰 ¡Robaste la Bóveda! +$300");
                     checkMissionProgress('bank');
                 } else if(activeFurniture.action === 'gamble') {
                     if(player.money >= 50) {
                         player.money -= 50;
-                        const win = Math.random() > 0.45;
-                        if(win) {
-                            player.money += 120;
-                            showDialog("CASINO NEÓN", "🎰 ¡GANASTE! Recibes $120.");
-                        } else {
-                            showDialog("CASINO NEÓN", "💸 Mala suerte, perdiste $50. ¡Intenta de nuevo!");
-                        }
-                        updateHUD();
-                        checkMissionProgress('casino');
-                    } else {
-                        showDialog("CASINO NEÓN", "❌ Necesitas al menos $50 para jugar.");
-                    }
+                        if(Math.random() > 0.45) { player.money += 120; showDialog("CASINO", "🎰 ¡GANASTE! +$120."); }
+                        else { showDialog("CASINO", "💸 Perdiste $50."); }
+                        updateHUD(); checkMissionProgress('casino');
+                    } else showDialog("CASINO", "❌ Necesitas $50.");
                 }
                 return;
             }
 
-            // 3. Entrar / Salir de Edificios
             if(currentInterior) {
-                player.x = player.savedExteriorX;
-                player.y = player.savedExteriorY;
+                player.x = player.savedExteriorX; player.y = player.savedExteriorY;
                 currentInterior = null;
-                showDialog("CIUDAD", "Regresaste a las calles de Vicio City.");
+                showDialog("CIUDAD", "Saliste a la calle.");
             } else if(activeDoorBuilding) {
-                player.savedExteriorX = activeDoorBuilding.doorX;
-                player.savedExteriorY = activeDoorBuilding.doorY + 40;
+                player.savedExteriorX = activeDoorBuilding.doorX; player.savedExteriorY = activeDoorBuilding.doorY + 40;
                 currentInterior = activeDoorBuilding.id;
-                
                 const targetInt = interiors[currentInterior];
-                if(targetInt) {
-                    player.x = targetInt.exitDoor.x;
-                    player.y = targetInt.exitDoor.y - 40;
-                } else {
-                    player.x = 200; player.y = 200;
-                }
-                
+                player.x = targetInt ? targetInt.exitDoor.x : 200;
+                player.y = targetInt ? targetInt.exitDoor.y - 40 : 200;
                 showDialog("INTERIOR", "Entraste a: " + activeDoorBuilding.label);
-                checkMissionProgress(currentInterior);
             }
         }
 
@@ -419,7 +391,6 @@
                 cars.forEach(c => {
                     if(c.health > 0 && Math.hypot(c.x - player.x, c.y - player.y) < 50) {
                         player.inCar = true; player.carRef = c;
-                        if(c.type === 'heli') checkMissionProgress('heli');
                     }
                 });
             }
@@ -431,25 +402,21 @@
             const py = player.inCar ? player.carRef.y : player.y;
 
             bullets.push({
-                x: px + Math.cos(angle) * 24,
-                y: py + Math.sin(angle) * 24,
-                vx: Math.cos(angle) * 14,
-                vy: Math.sin(angle) * 14,
-                life: 40
+                x: px + Math.cos(angle) * 24, y: py + Math.sin(angle) * 24,
+                vx: Math.cos(angle) * 14, vy: Math.sin(angle) * 14, life: 40
             });
         }
 
         function saveGame() {
             localStorage.setItem('vicio_city_by_dani_save', JSON.stringify({ player, GAME_VERSION }));
-            showDialog("SISTEMA", "💾 Progreso Guardado correctamente.");
+            showDialog("SISTEMA", "💾 Juego Guardado.");
         }
 
         function loadGame() {
             const data = localStorage.getItem('vicio_city_by_dani_save');
             if(data) {
                 Object.assign(player, JSON.parse(data).player);
-                updateHUD(); 
-                showDialog("SISTEMA", "📂 Progreso Cargado.");
+                updateHUD(); showDialog("SISTEMA", "📂 Juego Cargado.");
             }
         }
 
@@ -463,7 +430,6 @@
 
         function update() {
             rotorAngle += 0.35;
-
             skyVehicles.forEach(sv => {
                 sv.x += sv.vx; sv.y += sv.vy;
                 if(sv.x > 5500) sv.x = -600;
@@ -490,59 +456,37 @@
 
             if(player.inCar) { player.x = player.carRef.x; player.y = player.carRef.y; }
 
-            // DETECCIÓN DE INTERACCIÓN
-            activeDoorBuilding = null;
-            activeFurniture = null;
-            activeNpcTalk = null;
+            activeDoorBuilding = null; activeFurniture = null; activeNpcTalk = null;
             const btn = document.getElementById('interact-btn');
 
             if(currentInterior) {
                 const data = interiors[currentInterior];
                 if(data) {
                     data.furniture.forEach(f => {
-                        const cx = f.x + f.w/2; const cy = f.y + f.h/2;
-                        if(Math.hypot(player.x - cx, player.y - cy) < 65) {
-                            activeFurniture = f;
-                        }
+                        if(Math.hypot(player.x - (f.x + f.w/2), player.y - (f.y + f.h/2)) < 65) activeFurniture = f;
                     });
 
-                    const door = data.exitDoor;
-                    if(Math.hypot(player.x - door.x, player.y - door.y) < 45) {
-                        btn.style.display = 'block';
-                        btn.innerText = "🚪 SALIR A LA CIUDAD";
+                    if(Math.hypot(player.x - data.exitDoor.x, player.y - data.exitDoor.y) < 45) {
+                        btn.style.display = 'block'; btn.innerText = "🚪 SALIR A LA CIUDAD";
                     } else if(activeFurniture) {
-                        btn.style.display = 'block';
-                        btn.innerText = "⚡ " + activeFurniture.name;
-                    } else {
-                        btn.style.display = 'none';
-                    }
+                        btn.style.display = 'block'; btn.innerText = "⚡ " + activeFurniture.name;
+                    } else btn.style.display = 'none';
                 }
-
             } else {
                 if(!player.inCar) {
                     buildings.forEach(b => {
                         if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 45) activeDoorBuilding = b;
                     });
-
                     npcs.forEach(npc => {
-                        if(npc.alive && Math.hypot(player.x - npc.x, player.y - npc.y) < 35) {
-                            activeNpcTalk = npc;
-                        }
+                        if(npc.alive && Math.hypot(player.x - npc.x, player.y - npc.y) < 35) activeNpcTalk = npc;
                     });
                 }
 
-                if(activeNpcTalk) {
-                    btn.style.display = 'block';
-                    btn.innerText = "💬 HABLAR CON NPC";
-                } else if(activeDoorBuilding) {
-                    btn.style.display = 'block';
-                    btn.innerText = `🚪 ENTRAR A ${activeDoorBuilding.label}`;
-                } else {
-                    btn.style.display = 'none';
-                }
+                if(activeNpcTalk) { btn.style.display = 'block'; btn.innerText = "💬 HABLAR CON NPC"; }
+                else if(activeDoorBuilding) { btn.style.display = 'block'; btn.innerText = `🚪 ENTRAR A ${activeDoorBuilding.label}`; }
+                else btn.style.display = 'none';
             }
 
-            // PROCESAR BALAS
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; b.life--;
                 npcs.forEach(npc => {
@@ -581,53 +525,73 @@
             ctx.restore();
         }
 
-        // RENDERIZADO HD Y TEXTURIZADO DE MUEBLES
+        // RENDERIZADO HD DETALLADO DE MUEBLES CON TEXTURAS MEJORADAS
         function drawFurnitureModel(f) {
             ctx.save();
             ctx.translate(f.x, f.y);
 
             // Sombra
-            ctx.fillStyle = 'rgba(0,0,0,0.35)';
-            ctx.fillRect(5, 5, f.w, f.h);
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(6, 6, f.w, f.h);
 
             if(f.type === 'roulette') {
-                // Mesa Ruleta Neón HD
-                let grad = ctx.createLinearGradient(0, 0, f.w, f.h);
-                grad.addColorStop(0, '#0a3818'); grad.addColorStop(0.5, '#125c28'); grad.addColorStop(1, '#0a3818');
-                ctx.fillStyle = grad; ctx.fillRect(0, 0, f.w, f.h);
-                
-                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 3; ctx.shadowColor = '#ff007f'; ctx.shadowBlur = 8;
-                ctx.strokeRect(0, 0, f.w, f.h); ctx.shadowBlur = 0;
+                // Mesa Ruleta
+                ctx.fillStyle = '#5a3010'; ctx.fillRect(0, 0, f.w, f.h); // Borde Madera
+                ctx.fillStyle = '#0d5e2a'; ctx.fillRect(8, 8, f.w - 16, f.h - 16); // Paño Verde
 
-                // Rueda Ruleta
-                ctx.fillStyle = '#ccaa00'; ctx.beginPath(); ctx.arc(f.w/4, f.h/2, 18, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(f.w/4, f.h/2, 10, 0, Math.PI*2); ctx.fill();
-            } else if(f.type === 'slots') {
-                // Tragamonedas HD
-                ctx.fillStyle = '#222'; ctx.fillRect(0, 0, f.w, f.h);
+                // Cuadrícula Apuestas
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+                ctx.strokeRect(f.w/2 - 10, 12, f.w/2 - 5, f.h - 24);
+
+                // Rueda Dorada
+                ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(35, f.h/2, 20, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(35, f.h/2, 12, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(35, f.h/2, 5, 0, Math.PI*2); ctx.fill();
+                
                 ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
+
+            } else if(f.type === 'slots') {
+                // Tragamonedas
+                ctx.fillStyle = '#111122'; ctx.fillRect(0, 0, f.w, f.h);
                 for(let i=0; i<4; i++) {
-                    ctx.fillStyle = '#ff007f'; ctx.fillRect(15 + i*60, 8, 35, 28);
-                    ctx.fillStyle = '#fff'; ctx.font = 'bold 10px monospace'; ctx.fillText("777", 22 + i*60, 25);
+                    let slotX = 10 + i*65;
+                    ctx.fillStyle = '#222'; ctx.fillRect(slotX, 6, 55, f.h - 12);
+                    ctx.fillStyle = '#ff0055'; ctx.fillRect(slotX + 5, 10, 45, 20);
+                    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px monospace'; ctx.fillText("777", slotX + 14, 25);
                 }
+                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
+
             } else if(f.type === 'bed') {
-                ctx.fillStyle = '#4a2e18'; ctx.fillRect(0, 0, f.w, f.h);
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(4, 15, f.w - 8, f.h - 20);
-                ctx.fillStyle = f.color; ctx.fillRect(4, 4, f.w - 8, 20);
+                // Cama HD
+                ctx.fillStyle = '#3d2314'; ctx.fillRect(0, 0, f.w, f.h); // Cabecera Madera
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(6, 25, f.w - 12, f.h - 32); // Sábana Base
+                ctx.fillStyle = '#00f0ff'; ctx.fillRect(6, 50, f.w - 12, f.h - 57); // Edredón
+                // Almohadas
+                ctx.fillStyle = '#e6e6e6'; ctx.fillRect(12, 8, f.w/2 - 16, 15); ctx.fillRect(f.w/2 + 4, 8, f.w/2 - 16, 15);
+
             } else if(f.type === 'wardrobe') {
-                ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
-                ctx.fillStyle = '#111'; ctx.fillRect(2, 2, f.w/2 - 3, f.h - 4); ctx.fillRect(f.w/2 + 1, 2, f.w/2 - 3, f.h - 4);
-                ctx.fillStyle = '#fff'; ctx.fillRect(f.w/2 - 4, f.h/2 - 4, 3, 8); ctx.fillRect(f.w/2 + 1, f.h/2 - 4, 3, 8);
-            } else if(f.type === 'tv') {
-                ctx.fillStyle = '#111'; ctx.fillRect(0, 0, f.w, f.h);
-                ctx.fillStyle = f.color; ctx.fillRect(3, 3, f.w - 6, f.h - 6);
+                // Armario Madera con Tiradores
+                ctx.fillStyle = '#4a2c11'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.strokeStyle = '#2b1808'; ctx.lineWidth = 3; ctx.strokeRect(2, 2, f.w - 4, f.h - 4);
+                ctx.beginPath(); ctx.moveTo(f.w/2, 2); ctx.lineTo(f.w/2, f.h - 2); ctx.stroke();
+                // Tiradores Metal
+                ctx.fillStyle = '#ffd700'; ctx.fillRect(f.w/2 - 5, f.h/2 - 6, 3, 12); ctx.fillRect(f.w/2 + 2, f.h/2 - 6, 3, 12);
+
             } else if(f.type === 'vault') {
-                ctx.fillStyle = '#555566'; ctx.fillRect(0, 0, f.w, f.h);
-                ctx.strokeStyle = '#ffee00'; ctx.lineWidth = 3; ctx.strokeRect(4, 4, f.w - 8, f.h - 8);
-                ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(f.w/2, f.h/2, 16, 0, Math.PI*2); ctx.fill();
+                // Bóveda de Banco Acorazada
+                ctx.fillStyle = '#3a3d40'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.fillStyle = '#55595e'; ctx.fillRect(6, 6, f.w - 12, f.h - 12);
+                // Remaches
+                ctx.fillStyle = '#111';
+                ctx.fillRect(8, 8, 4, 4); ctx.fillRect(f.w-12, 8, 4, 4);
+                ctx.fillRect(8, f.h-12, 4, 4); ctx.fillRect(f.w-12, f.h-12, 4, 4);
+                // Timón Giratorio
+                ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(f.w/2, f.h/2, 22, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(f.w/2, f.h/2, 12, 0, Math.PI*2); ctx.fill();
+
             } else {
-                ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
-                ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
+                ctx.fillStyle = '#223344'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, f.w, f.h);
             }
 
             // Etiqueta Nombre
@@ -681,10 +645,6 @@
                 }
             } else {
                 ctx.fillStyle = '#162816'; ctx.fillRect(-1000, -1000, 7000, 7000);
-
-                ctx.fillStyle = '#222'; ctx.fillRect(3200, 2900, 600, 160);
-                ctx.strokeStyle = '#fff'; ctx.setLineDash([20, 15]); ctx.lineWidth = 4;
-                ctx.beginPath(); ctx.moveTo(3210, 2980); ctx.lineTo(3790, 2980); ctx.stroke(); ctx.setLineDash([]);
 
                 roads.forEach(r => {
                     ctx.fillStyle = '#444'; ctx.fillRect(r.x - 8, r.y - 8, r.w + 16, r.h + 16);
@@ -747,14 +707,13 @@
             drawMinimap();
         }
 
-        // MINIMAPA DIBUJADO CON DIAMANTE PARA SEGUIMIENTO DE MISIÓN
         function drawMinimap() {
-            mCtx.fillStyle = '#05050a'; mCtx.fillRect(0, 0, 110, 110);
+            mCtx.fillStyle = '#05050a'; mCtx.fillRect(0, 0, 95, 95);
             if(currentInterior) return;
 
             mCtx.save(); 
-            mCtx.translate(55, 55);
-            const scale = 0.018;
+            mCtx.translate(47.5, 47.5);
+            const scale = 0.016;
 
             roads.forEach(r => {
                 mCtx.fillStyle = '#333';
@@ -766,28 +725,19 @@
                 mCtx.fillRect((b.x - player.x)*scale, (b.y - player.y)*scale, b.w*scale, b.h*scale);
             });
 
-            // MARCADOR DE MISIÓN ACTIVA: DIAMANTE (💎)
             if(currentMission && currentMission.targetX && currentMission.targetY) {
                 let mx = (currentMission.targetX - player.x) * scale;
                 let my = (currentMission.targetY - player.y) * scale;
 
-                mCtx.fillStyle = '#00ffff';
-                mCtx.strokeStyle = '#ffffff';
-                mCtx.lineWidth = 1.5;
-
+                mCtx.fillStyle = '#00ffff'; mCtx.strokeStyle = '#ffffff'; mCtx.lineWidth = 1;
                 mCtx.beginPath();
-                mCtx.moveTo(mx, my - 7);
-                mCtx.lineTo(mx + 6, my);
-                mCtx.lineTo(mx, my + 7);
-                mCtx.lineTo(mx - 6, my);
-                mCtx.closePath();
-                mCtx.fill();
-                mCtx.stroke();
+                mCtx.moveTo(mx, my - 6); mCtx.lineTo(mx + 5, my);
+                mCtx.lineTo(mx, my + 6); mCtx.lineTo(mx - 5, my);
+                mCtx.closePath(); mCtx.fill(); mCtx.stroke();
             }
 
-            // Jugador
             mCtx.fillStyle = player.clothColor; 
-            mCtx.beginPath(); mCtx.arc(0, 0, 4, 0, Math.PI*2); mCtx.fill();
+            mCtx.beginPath(); mCtx.arc(0, 0, 3.5, 0, Math.PI*2); mCtx.fill();
             mCtx.restore();
         }
 
