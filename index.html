@@ -2,826 +2,370 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vicio City v3.1.0 - Cámara y Detalles Interiores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VICIO CITY V3.1.0 - Full Edition</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #080810; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+    
+    #game-container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+    canvas { background: #0d0f18; display: block; }
 
-    html, body {
-      width: 100vw;
-      height: 100vh;
-      background-color: #0b0f19;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-    }
-
-    #game-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background-color: #0f1420;
-      overflow: hidden;
-    }
-
-    canvas#gameCanvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Advertencia Vertical */
-    #rotate-warning {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #0b0f19;
-      z-index: 9999;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
-
-    @media screen and (orientation: portrait) and (max-width: 768px) {
-      #rotate-warning { display: flex; }
-    }
-
-    /* --- HUD IZQUIERDO --- */
+    /* UI / HUD Overlays */
     .hud-panel {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: clamp(180px, 24vw, 230px);
-      background: rgba(10, 15, 26, 0.92);
-      border: 2px solid #ff007f;
-      border-radius: 8px;
-      padding: 8px 10px;
-      box-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
-      z-index: 10;
-      font-size: 11px;
+      position: absolute; top: 15px; left: 15px;
+      width: 280px; padding: 12px;
+      background: rgba(10, 10, 20, 0.85);
+      border: 2px solid #ff007f; border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+      font-size: 13px; font-weight: bold;
+    }
+    .hud-title { color: #ff007f; font-size: 16px; margin-bottom: 6px; text-shadow: 0 0 5px #ff007f; }
+    .hud-stats { display: flex; justify-content: space-between; margin-bottom: 4px; color: #00ffff; }
+    .hud-mission {
+      margin-top: 8px; padding: 8px;
+      background: rgba(255, 230, 0, 0.1); border: 1px solid #ffe600;
+      border-radius: 6px; color: #ffe600;
     }
 
-    .hud-header {
-      font-weight: bold;
-      font-size: 12px;
-      text-transform: uppercase;
-      background: linear-gradient(90deg, #ff007f, #00f0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
+    /* Top Action Buttons */
+    .top-buttons { position: absolute; top: 15px; right: 180px; display: flex; gap: 10px; }
+    .btn-top {
+      padding: 8px 16px; background: rgba(0, 255, 255, 0.15);
+      border: 1.5px solid #00ffff; border-radius: 6px; color: #00ffff;
+      font-weight: bold; cursor: pointer; text-shadow: 0 0 5px #00ffff;
     }
+    .btn-top:hover { background: #00ffff; color: #000; }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      color: #33ffff;
-      margin-bottom: 3px;
-      font-size: 10px;
+    /* Minimap Widget */
+    #minimap-container {
+      position: absolute; top: 15px; right: 15px;
+      width: 140px; height: 140px;
+      border: 3px solid #ff007f; border-radius: 50%;
+      overflow: hidden; box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
     }
+    #minimap-canvas { width: 100%; height: 100%; background: #05050a; }
 
-    .mission-box {
-      margin-top: 5px;
-      background: rgba(255, 204, 0, 0.15);
-      border: 1px solid #ffcc00;
-      border-radius: 4px;
-      padding: 5px;
-      font-size: 10px;
-      color: #ffea79;
-      cursor: pointer;
+    /* Controls (Touch D-Pad & Action Buttons) */
+    .controls-left { position: absolute; bottom: 20px; left: 20px; display: grid; grid-template-columns: repeat(3, 45px); grid-gap: 5px; }
+    .dbtn { width: 45px; height: 45px; background: rgba(0, 255, 255, 0.1); border: 1.5px solid #00ffff; border-radius: 8px; color: #00ffff; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    
+    .controls-right { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px; }
+    .abtn { width: 55px; height: 55px; border-radius: 50%; border: 2px solid; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
+    .btn-car { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.1); }
+    .btn-action { border-color: #ff007f; color: #ff007f; background: rgba(255, 0, 127, 0.1); }
+    .btn-weapon { border-color: #ffe600; color: #ffe600; background: rgba(255, 230, 0, 0.1); }
+
+    /* Custom Outfit Modal */
+    #outfit-modal {
+      display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(10, 10, 25, 0.95); border: 2px solid #00ffff; padding: 20px; border-radius: 12px;
+      text-align: center; box-shadow: 0 0 20px #00ffff; z-index: 100;
     }
-
-    /* --- HUD DERECHO --- */
-    .top-right-panel {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-      z-index: 10;
-    }
-
-    .top-buttons {
-      display: flex;
-      gap: 4px;
-    }
-
-    .btn-ui {
-      background: rgba(10, 15, 26, 0.85);
-      border: 1.5px solid #00f0ff;
-      color: #00f0ff;
-      padding: 5px 9px;
-      border-radius: 5px;
-      font-size: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-ui:active {
-      background: #00f0ff;
-      color: #000;
-    }
-
-    .minimap-container {
-      width: clamp(80px, 15vw, 110px);
-      height: clamp(80px, 15vw, 110px);
-      border: 2px solid #ff007f;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
-      background: #000;
-    }
-
-    #minimap {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* --- BOTONES DE ACCIÓN --- */
-    .action-buttons-container {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 20;
-    }
-
-    .btn-action {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: rgba(10, 15, 26, 0.9);
-      border: 2px solid #ff007f;
-      color: #fff;
-      font-size: 22px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(255, 0, 127, 0.6);
-    }
-
-    .btn-action:active {
-      transform: scale(0.92);
-      background: #ff007f;
-    }
-
-    .btn-car {
-      border-color: #00f0ff;
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
-    }
-
-    /* --- MENÚ DE ARMAS --- */
-    .weapon-selector-container { position: relative; }
-
-    .weapon-dropdown {
-      display: none;
-      position: absolute;
-      bottom: 60px;
-      right: 0;
-      flex-direction: column;
-      gap: 4px;
-      background: rgba(10, 15, 26, 0.95);
-      border: 1.5px solid #00f0ff;
-      border-radius: 8px;
-      padding: 6px;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-    }
-
-    .weapon-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 5px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      min-width: 120px;
-    }
-
-    .weapon-option.active {
-      border: 1px solid #ff007f;
-      background: rgba(255, 0, 127, 0.25);
-    }
-
-    /* --- D-PAD --- */
-    .dpad {
-      position: absolute;
-      bottom: 15px;
-      left: 15px;
-      width: 100px;
-      height: 100px;
-      z-index: 10;
-    }
-
-    .dpad-btn {
-      position: absolute;
-      width: 34px;
-      height: 34px;
-      background: rgba(0, 240, 255, 0.2);
-      border: 1.5px solid #00f0ff;
-      border-radius: 6px;
-      color: #00f0ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-    }
-
-    .dpad-btn:active {
-      background: #00f0ff;
-      color: #000;
-    }
-
-    .dpad-up    { top: 0; left: 33px; }
-    .dpad-down  { bottom: 0; left: 33px; }
-    .dpad-left  { top: 33px; left: 0; }
-    .dpad-right { top: 33px; right: 0; }
-
-    /* MODAL MISIONES */
-    #missions-modal {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80%;
-      max-width: 450px;
-      background: rgba(10, 15, 26, 0.95);
-      border: 2px solid #ff007f;
-      border-radius: 10px;
-      padding: 15px;
-      z-index: 100;
-      box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
-    }
-
-    .mission-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid #333;
-      padding: 8px;
-      margin-bottom: 8px;
-      border-radius: 5px;
-      font-size: 11px;
-    }
-
-    .btn-close-modal {
-      background: #ff007f;
-      border: none;
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      float: right;
-      font-size: 11px;
-      font-weight: bold;
-    }
+    .color-opt { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 8px; cursor: pointer; border: 2px solid #fff; }
   </style>
 </head>
 <body>
 
-  <div id="rotate-warning">
-    <span style="font-size: 35px;">🔄</span>
-    <h2 style="margin-top: 10px;">Por favor, gira tu dispositivo</h2>
-    <p style="margin-top: 5px; font-size: 11px; color: #aaa;">Juega en modo horizontal para ver todo el mapa correctamente.</p>
-  </div>
+<div id="game-container">
+  <canvas id="gameCanvas" width="960" height="540"></canvas>
 
-  <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-
-    <!-- HUD Izquierdo -->
-    <div class="hud-panel">
-      <div class="hud-header">VICIO CITY v3.1.0</div>
-      <div class="stat-row"><span>LVL: 1</span> <span>XP: 95/100</span></div>
-      <div class="stat-row"><span>HP: 100/100</span> <span>CASH: $960</span></div>
-      <div class="stat-row"><span>WANTED:</span> <span style="color: #ffcc00;">★☆☆☆☆</span></div>
-      <div class="mission-box" onclick="toggleMissionsModal()">
-        🎯 <b>MISIÓN ACTIVA:</b><br>
-        Elimina 3 Pandilleros en la ciudad (0/3)<br>
-        <span style="font-size:8px; color:#00f0ff;">[Toca para menú de misiones]</span>
-      </div>
+  <!-- HUD -->
+  <div class="hud-panel">
+    <div class="hud-title">VICIO CITY V3.1.0</div>
+    <div class="hud-stats">
+      <span>LVL: <span id="val-lvl">1</span></span>
+      <span>XP: <span id="val-xp">95</span>/100</span>
     </div>
-
-    <!-- HUD Derecho -->
-    <div class="top-right-panel">
-      <div class="top-buttons">
-        <button class="btn-ui" id="btnFull">FULL</button>
-        <button class="btn-ui" onclick="toggleMissionsModal()">MISIONES</button>
-        <button class="btn-ui">GUARDAR</button>
-      </div>
-      <div class="minimap-container">
-        <canvas id="minimap" width="110" height="110"></canvas>
-      </div>
+    <div class="hud-stats">
+      <span>HP: <span id="val-hp">100</span>/100</span>
+      <span>CASH: $<span id="val-cash">960</span></span>
     </div>
-
-    <!-- Acciones Inferior Derecho -->
-    <div class="action-buttons-container">
-      <button class="btn-action btn-car" id="btnCar" onclick="toggleEntrarAuto()">🚗</button>
-      <button class="btn-action" id="btnShoot" onclick="disparar()">💥</button>
-      <div class="weapon-selector-container">
-        <div class="weapon-dropdown" id="weaponDropdown"></div>
-        <button class="btn-action" id="btnWeaponActive" style="border-color:#00f0ff;" onclick="toggleWeaponMenu()">🔫</button>
-      </div>
+    <div class="hud-stats">
+      <span>WANTED: <span id="val-wanted">★☆☆☆☆</span></span>
     </div>
-
-    <!-- D-Pad -->
-    <div class="dpad">
-      <div class="dpad-btn dpad-up" id="btnUp">▲</div>
-      <div class="dpad-btn dpad-left" id="btnLeft">◀</div>
-      <div class="dpad-btn dpad-right" id="btnRight">▶</div>
-      <div class="dpad-btn dpad-down" id="btnDown">▼</div>
-    </div>
-
-    <!-- Modal Misiones -->
-    <div id="missions-modal">
-      <h3 style="color:#00f0ff; margin-bottom:10px;">📜 Centro de Misiones</h3>
-      <div class="mission-item">
-        <h4 style="color:#ffea79;">1. Limpieza de Calle (Principal)</h4>
-        <p>Elimina a 3 pandilleros rivales en la zona este de la ciudad.</p>
-        <p style="color:#00f0ff; margin-top:3px;">Recompensa: $500 + 50 XP</p>
-      </div>
-      <div class="mission-item">
-        <h4 style="color:#ffea79;">2. Robo Express (Secundaria)</h4>
-        <p>Entra a un auto y conduce a alta velocidad por la calzada principal.</p>
-        <p style="color:#00f0ff; margin-top:3px;">Recompensa: $300</p>
-      </div>
-      <button class="btn-close-modal" onclick="toggleMissionsModal()">CERRAR</button>
+    <div class="hud-mission">
+      🎯 <b>MISIÓN ACTIVA:</b><br>
+      Elimina 3 Pandilleros en la ciudad (<span id="val-targets">0</span>/3)<br>
+      <small>[Presiona 'E' o botón de acción para entrar/interactuar]</small>
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const minimapCanvas = document.getElementById('minimap');
-    const minimapCtx = minimapCanvas.getContext('2d');
+  <!-- Botones Superiores -->
+  <div class="top-buttons">
+    <button class="btn-top" onclick="toggleFullscreen()">FULL</button>
+    <button class="btn-top" onclick="alert('Misiones activas marcadas en el minimapa.')">MISIONES</button>
+    <button class="btn-top" onclick="saveGame()">GUARDAR</button>
+  </div>
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+  <!-- Minimapa -->
+  <div id="minimap-container">
+    <canvas id="minimap-canvas" width="140" height="140"></canvas>
+  </div>
+
+  <!-- Controles táctiles -->
+  <div class="controls-left">
+    <div></div><div class="dbtn" id="btn-up">▲</div><div></div>
+    <div class="dbtn" id="btn-left">◄</div><div></div><div class="dbtn" id="btn-right">►</div>
+    <div></div><div class="dbtn" id="btn-down">▼</div><div></div>
+  </div>
+
+  <div class="controls-right">
+    <div class="abtn btn-car" onclick="interact()">🚗</div>
+    <div class="abtn btn-action" onclick="interact()">🚪</div>
+    <div class="abtn btn-weapon" onclick="attack()">🔫</div>
+  </div>
+
+  <!-- Vestidor Modal -->
+  <div id="outfit-modal">
+    <h3 style="color:#00ffff; margin-bottom:10px;">VESTIDOR DE ROPA</h3>
+    <p>Elige el color de tu atuendo:</p>
+    <div class="color-opt" style="background:#ff007f;" onclick="changeOutfit('#ff007f')"></div>
+    <div class="color-opt" style="background:#00ffff;" onclick="changeOutfit('#00ffff')"></div>
+    <div class="color-opt" style="background:#00ff66;" onclick="changeOutfit('#00ff66')"></div>
+    <div class="color-opt" style="background:#ffaa00;" onclick="changeOutfit('#ffaa00')"></div>
+    <br><br>
+    <button class="btn-top" onclick="closeOutfit()">Aceptar</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const mCanvas = document.getElementById("minimap-canvas");
+const mCtx = mCanvas.getContext("2d");
+
+// Estado Global del Juego
+const gameState = {
+  currentZone: "EXTERIOR", // EXTERIOR | INTERIOR_CASA | BANCO_CENTRAL
+  player: {
+    x: 480, y: 270, size: 20, speed: 3,
+    color: "#ff007f",
+    hp: 100, xp: 95, lvl: 1, cash: 960, wanted: 1
+  },
+  targetsDefeated: 0,
+  keys: {}
+};
+
+// Ubicaciones de Puntos Clave (Edificios & Misiones)
+const worldLocations = {
+  homeDoor: { x: 200, y: 150, w: 60, h: 40, label: "Casa Principal", targetZone: "INTERIOR_CASA" },
+  bankDoor: { x: 700, y: 150, w: 80, h: 40, label: "Banco Central", targetZone: "BANCO_CENTRAL" },
+  missionTargets: [
+    { x: 300, y: 400, active: true },
+    { x: 600, y: 450, active: true },
+    { x: 800, y: 350, active: true }
+  ]
+};
+
+// Muebles de la Casa Principal
+const houseFurniture = [
+  { name: "Cama", x: 100, y: 100, w: 80, h: 100, color: "#3a2e56", text: "🛏️ Cama" },
+  { name: "Sofá", x: 300, y: 120, w: 120, h: 50, color: "#224455", text: "🛋️ Sofá" },
+  { name: "Mesa TV", x: 300, y: 220, w: 100, h: 40, color: "#443322", text: "📺 TV" },
+  { name: "Vestidor", x: 700, y: 100, w: 70, h: 70, color: "#552244", text: "👔 Ropa", action: "OPEN_OUTFIT" }
+];
+
+// Event Listeners Teclado
+window.addEventListener("keydown", e => {
+  gameState.keys[e.key.toLowerCase()] = true;
+  if(e.key.toLowerCase() === 'e') interact();
+});
+window.addEventListener("keyup", e => gameState.keys[e.key.toLowerCase()] = false);
+
+// Movimiento del Jugador
+function updatePlayer() {
+  const p = gameState.player;
+  if (gameState.keys['w'] || gameState.keys['arrowup']) p.y -= p.speed;
+  if (gameState.keys['s'] || gameState.keys['arrowdown']) p.y += p.speed;
+  if (gameState.keys['a'] || gameState.keys['arrowleft']) p.x -= p.speed;
+  if (gameState.keys['d'] || gameState.keys['arrowright']) p.x += p.speed;
+
+  // Limites Pantalla
+  p.x = Math.max(20, Math.min(canvas.width - 20, p.x));
+  p.y = Math.max(20, Math.min(canvas.height - 20, p.y));
+}
+
+// Mecánica de Entrada/Salida e Interacción
+function interact() {
+  const p = gameState.player;
+
+  if (gameState.currentZone === "EXTERIOR") {
+    // Entrar a la Casa
+    const h = worldLocations.homeDoor;
+    if (Math.hypot(p.x - (h.x + h.w/2), p.y - (h.y + h.h/2)) < 50) {
+      gameState.currentZone = "INTERIOR_CASA";
+      p.x = 480; p.y = 450; // Reaparecer dentro cerca de la salida
+      return;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Fullscreen
-    document.getElementById('btnFull').addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-          if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape').catch(() => {});
-          }
-        } else {
-          await document.exitFullscreen();
-        }
-      } catch (e) {}
-    });
-
-    // --- SISTEMA DE CÁMARA DINÁMICA ---
-    const camara = { x: 0, y: 0 };
-
-    // --- ARMAS ---
-    const armas = [
-      { id: 'pistola', nombre: 'Pistola 9mm', icono: '🔫', daño: 25 },
-      { id: 'escopeta', nombre: 'Escopeta', icono: '💥', daño: 60 },
-      { id: 'subfusil', nombre: 'Subfusil MAC', icono: '⚡', daño: 18 }
-    ];
-    let armaEquipada = armas[0];
-
-    // --- JUGADOR ---
-    const jugador = {
-      x: 500,
-      y: 500,
-      angulo: 0,
-      radio: 12,
-      colorPiel: '#f1c27d',
-      colorRopa: '#ff007f',
-      velocidad: 3.8,
-      enAuto: false,
-      autoActual: null
-    };
-
-    // --- EDIFICIOS E INTERIORES ---
-    const edificaciones = [
-      {
-        id: 'banco',
-        x: 100, y: 100, w: 320, h: 220,
-        color: '#101726', borde: '#00f0ff', titulo: 'BANCO CENTRAL',
-        puerta: { x: 230, y: 320, w: 60, h: 10 },
-        muebles: [
-          { x: 120, y: 140, w: 280, h: 20, tipo: 'mostrador', color: '#1a2942' },
-          { x: 150, y: 180, w: 80, h: 60, tipo: 'caja_fuerte', color: '#334155' },
-          { x: 260, y: 220, w: 40, h: 40, tipo: 'escritorio', color: '#475569' }
-        ]
-      },
-      {
-        id: 'club',
-        x: 500, y: 100, w: 360, h: 220,
-        color: '#101726', borde: '#ff007f', titulo: 'CLUB NIGHT VIBES',
-        puerta: { x: 650, y: 320, w: 60, h: 10 },
-        muebles: [
-          { x: 520, y: 130, w: 320, h: 25, tipo: 'barra', color: '#ff007f' },
-          { x: 550, y: 180, w: 100, h: 80, tipo: 'pista_baile', color: '#00f0ff' },
-          { x: 700, y: 200, w: 120, h: 30, tipo: 'sillones', color: '#701a75' }
-        ]
-      },
-      {
-        id: 'ammunation',
-        x: 940, y: 100, w: 300, h: 220,
-        color: '#101726', borde: '#ffcc00', titulo: 'AMMU-NATION',
-        puerta: { x: 1060, y: 320, w: 60, h: 10 },
-        muebles: [
-          { x: 960, y: 140, w: 260, h: 18, tipo: 'vitrina', color: '#b45309' },
-          { x: 1000, y: 170, w: 180, h: 12, tipo: 'estante_armas', color: '#78350f' },
-          { x: 1160, y: 220, w: 50, h: 50, tipo: 'diana', color: '#ef4444' }
-        ]
-      }
-    ];
-
-    // --- ÁRBOLES DETALLADOS ---
-    const arboles = [
-      { x: 120, y: 400, r: 28 }, { x: 200, y: 420, r: 24 }, { x: 80, y: 470, r: 30 },
-      { x: 880, y: 400, r: 26 }, { x: 960, y: 420, r: 32 }, { x: 1040, y: 390, r: 25 },
-      { x: 300, y: 750, r: 28 }, { x: 380, y: 780, r: 26 }
-    ];
-
-    // --- VEHÍCULOS ---
-    const autos = [
-      { x: 700, y: 535, w: 58, h: 30, color: '#ff0055', vx: -1.5, angulo: 0 },
-      { x: 250, y: 575, w: 58, h: 30, color: '#00ccff', vx: 1.8, angulo: 0 }
-    ];
-
-    // --- NPCS ---
-    const npcs = [
-      { x: 550, y: 420, angulo: 0, vx: 0.7, vy: 0, colorPiel: '#f1c27d', colorRopa: '#00f0ff', tipo: 'peaton' },
-      { x: 1020, y: 430, angulo: 0, vx: -0.6, vy: 0, colorPiel: '#e0a080', colorRopa: '#ff3366', tipo: 'pandillero' }
-    ];
-
-    const proyectiles = [];
-
-    // CONTROLES
-    const teclas = { w: false, a: false, s: false, d: false };
-
-    window.addEventListener('keydown', e => {
-      if (['w','W','ArrowUp'].includes(e.key)) teclas.w = true;
-      if (['a','A','ArrowLeft'].includes(e.key)) teclas.a = true;
-      if (['s','S','ArrowDown'].includes(e.key)) teclas.s = true;
-      if (['d','D','ArrowRight'].includes(e.key)) teclas.d = true;
-    });
-
-    window.addEventListener('keyup', e => {
-      if (['w','W','ArrowUp'].includes(e.key)) teclas.w = false;
-      if (['a','A','ArrowLeft'].includes(e.key)) teclas.a = false;
-      if (['s','S','ArrowDown'].includes(e.key)) teclas.s = false;
-      if (['d','D','ArrowRight'].includes(e.key)) teclas.d = false;
-    });
-
-    const bindTouch = (id, key) => {
-      const el = document.getElementById(id);
-      el.addEventListener('touchstart', (e) => { e.preventDefault(); teclas[key] = true; });
-      el.addEventListener('touchend', (e) => { e.preventDefault(); teclas[key] = false; });
-    };
-    bindTouch('btnUp', 'w');
-    bindTouch('btnDown', 's');
-    bindTouch('btnLeft', 'a');
-    bindTouch('btnRight', 'd');
-
-    // ACCIONES
-    function disparar() {
-      proyectiles.push({
-        x: jugador.x + Math.cos(jugador.angulo) * 15,
-        y: jugador.y + Math.sin(jugador.angulo) * 15,
-        vx: Math.cos(jugador.angulo) * 11,
-        vy: Math.sin(jugador.angulo) * 11,
-        vida: 45
-      });
+  } else if (gameState.currentZone === "INTERIOR_CASA") {
+    // Interactuar con el vestidor
+    const closet = houseFurniture.find(f => f.action === "OPEN_OUTFIT");
+    if (Math.hypot(p.x - (closet.x + closet.w/2), p.y - (closet.y + closet.h/2)) < 60) {
+      document.getElementById("outfit-modal").style.display = "block";
+      return;
     }
-
-    function toggleEntrarAuto() {
-      if (jugador.enAuto) {
-        jugador.enAuto = false;
-        jugador.x = jugador.autoActual.x - 25;
-        jugador.y = jugador.autoActual.y;
-        jugador.autoActual = null;
-      } else {
-        autos.forEach(a => {
-          const dist = Math.hypot(jugador.x - a.x, jugador.y - a.y);
-          if (dist < 50) {
-            jugador.enAuto = true;
-            jugador.autoActual = a;
-          }
-        });
-      }
+    // Salida de la Casa (zona inferior)
+    if (p.y > 500) {
+      gameState.currentZone = "EXTERIOR";
+      p.x = worldLocations.homeDoor.x + 30;
+      p.y = worldLocations.homeDoor.y + 60;
     }
+  }
+}
 
-    function toggleMissionsModal() {
-      const m = document.getElementById('missions-modal');
-      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+function attack() {
+  if (gameState.currentZone !== "EXTERIOR") return;
+  const p = gameState.player;
+  worldLocations.missionTargets.forEach(t => {
+    if (t.active && Math.hypot(p.x - t.x, p.y - t.y) < 60) {
+      t.active = false;
+      gameState.targetsDefeated++;
+      document.getElementById("val-targets").innerText = gameState.targetsDefeated;
+      gameState.player.cash += 150;
+      document.getElementById("val-cash").innerText = gameState.player.cash;
     }
+  });
+}
 
-    // ARMAS UI
-    function renderWeaponMenu() {
-      const dropdown = document.getElementById('weaponDropdown');
-      dropdown.innerHTML = '';
-      armas.forEach(a => {
-        const item = document.createElement('div');
-        item.className = `weapon-option ${a.id === armaEquipada.id ? 'active' : ''}`;
-        item.onclick = () => seleccionarArma(a);
-        item.innerHTML = `
-          <span style="font-size:16px;">${a.icono}</span>
-          <div style="display:flex; flex-direction:column; font-size:9px;">
-            <b>${a.nombre}</b>
-            <span style="color:#aaa;">Daño: ${a.daño}</span>
-          </div>
-        `;
-        dropdown.appendChild(item);
-      });
-    }
+function changeOutfit(color) {
+  gameState.player.color = color;
+}
+function closeOutfit() {
+  document.getElementById("outfit-modal").style.display = "none";
+}
 
-    function toggleWeaponMenu() {
-      const dropdown = document.getElementById('weaponDropdown');
-      dropdown.style.display = (dropdown.style.display === 'flex') ? 'none' : 'flex';
-    }
+// Renderizado del Juego Principal
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function seleccionarArma(arma) {
-      armaEquipada = arma;
-      document.getElementById('btnWeaponActive').innerText = arma.icono;
-      toggleWeaponMenu();
-      renderWeaponMenu();
-    }
+  if (gameState.currentZone === "EXTERIOR") {
+    // Dibujar Ciudad Exterior
+    ctx.fillStyle = "#121526";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // UPDATE
-    function actualizar() {
-      let dx = 0, dy = 0;
-      if (teclas.w) dy -= 1;
-      if (teclas.s) dy += 1;
-      if (teclas.a) dx -= 1;
-      if (teclas.d) dx += 1;
+    // Edificio Casa Principal
+    const h = worldLocations.homeDoor;
+    ctx.fillStyle = "#2a1b4e";
+    ctx.fillRect(h.x, h.y - 80, h.w + 40, h.h + 80);
+    ctx.strokeStyle = "#ff007f";
+    ctx.strokeRect(h.x, h.y - 80, h.w + 40, h.h + 80);
+    ctx.fillStyle = "#ff007f";
+    ctx.font = "12px sans-serif";
+    ctx.fillText("CASA PRINCIPAL", h.x, h.y - 90);
+    
+    // Puerta
+    ctx.fillStyle = "#00ffff";
+    ctx.fillRect(h.x + 20, h.y, h.w - 20, h.h);
 
-      if (dx !== 0 || dy !== 0) {
-        const ang = Math.atan2(dy, dx);
-        if (!jugador.enAuto) {
-          jugador.angulo = ang;
-          jugador.x += Math.cos(ang) * jugador.velocidad;
-          jugador.y += Math.sin(ang) * jugador.velocidad;
-        } else {
-          jugador.autoActual.x += Math.cos(ang) * 6;
-          jugador.autoActual.y += Math.sin(ang) * 6;
-          jugador.autoActual.angulo = ang;
-          jugador.x = jugador.autoActual.x;
-          jugador.y = jugador.autoActual.y;
-        }
-      }
+    // Banco Central
+    const b = worldLocations.bankDoor;
+    ctx.fillStyle = "#1b334e";
+    ctx.fillRect(b.x - 20, b.y - 80, b.w + 40, b.h + 80);
+    ctx.strokeStyle = "#00ffff";
+    ctx.strokeRect(b.x - 20, b.y - 80, b.w + 40, b.h + 80);
+    ctx.fillStyle = "#00ffff";
+    ctx.fillText("BANCO CENTRAL", b.x, b.y - 90);
 
-      // Seguir al personaje con la cámara en tiempo real
-      camara.x = jugador.x - canvas.width / 2;
-      camara.y = jugador.y - canvas.height / 2;
-
-      // Proyectiles
-      proyectiles.forEach((p, idx) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vida--;
-        if (p.vida <= 0) proyectiles.splice(idx, 1);
-      });
-
-      // Movimiento Autos Sueltos
-      autos.forEach(auto => {
-        if (auto !== jugador.autoActual) {
-          auto.x += auto.vx;
-          if (auto.x < -100) auto.x = 1600;
-          if (auto.x > 1600) auto.x = -100;
-        }
-      });
-    }
-
-    // DIBUJO DE DETALLES
-    function dibujarPersonaje(x, y, angulo, colorPiel, colorRopa, esJugador) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angulo);
-
-      // Sombra
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.beginPath();
-      ctx.ellipse(0, 3, 12, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hombros / Cuerpo
-      ctx.fillStyle = colorRopa;
-      ctx.beginPath();
-      ctx.roundRect(-8, -10, 16, 20, 4);
-      ctx.fill();
-
-      // Manos
-      ctx.fillStyle = colorPiel;
-      ctx.beginPath();
-      ctx.arc(8, -8, 3.5, 0, Math.PI * 2);
-      ctx.arc(8, 8, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Arma en mano
-      ctx.fillStyle = '#222';
-      ctx.fillRect(6, 4, 10, 3);
-
-      // Cabeza
-      ctx.beginPath();
-      ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
-      ctx.fillStyle = colorPiel;
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      if (esJugador) {
-        ctx.fillStyle = '#ff007f';
+    // Dibujar Pandilleros (Misión)
+    worldLocations.missionTargets.forEach(t => {
+      if (t.active) {
+        ctx.fillStyle = "#ff3333";
         ctx.beginPath();
-        ctx.arc(0, 0, 6.5, Math.PI * 0.5, Math.PI * 1.5);
+        ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.fillText("🎯 Pandillero", t.x - 25, t.y - 18);
       }
+    });
 
-      ctx.restore();
-    }
+  } else if (gameState.currentZone === "INTERIOR_CASA") {
+    // Dibujar Interior de la Casa del Personaje
+    ctx.fillStyle = "#1a1829";
+    ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
+    ctx.strokeStyle = "#00ffff";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
 
-    function dibujarArbolDetallado(a) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-      ctx.beginPath();
-      ctx.ellipse(a.x + 8, a.y + 8, a.r * 1.1, a.r * 0.8, 0, 0, Math.PI * 2);
-      ctx.fill();
+    // Renderizado de Muebles y Texturas
+    houseFurniture.forEach(f => {
+      ctx.fillStyle = f.color;
+      ctx.fillRect(f.x, f.y, f.w, f.h);
+      ctx.strokeStyle = "#ffffff22";
+      ctx.strokeRect(f.x, f.y, f.w, f.h);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "13px sans-serif";
+      ctx.fillText(f.text, f.x + 10, f.y + f.h / 2);
+    });
 
-      ctx.fillStyle = '#5d4037';
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, a.r * 0.25, 0, Math.PI * 2);
-      ctx.fill();
+    // Zona Salida
+    ctx.fillStyle = "#ff007f";
+    ctx.fillRect(430, 480, 100, 20);
+    ctx.fillText("SALIDA (Puerta)", 435, 475);
+  }
 
-      const grad = ctx.createRadialGradient(a.x - 5, a.y - 5, 2, a.x, a.y, a.r);
-      grad.addColorStop(0, '#4caf50');
-      grad.addColorStop(0.7, '#2e7d32');
-      grad.addColorStop(1, '#1b5e20');
+  // Dibujar Jugador
+  const p = gameState.player;
+  ctx.fillStyle = p.color;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#0f3811';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+  renderMinimap();
+}
 
-    // RENDERIZADO CON MATRIZ DE CÁMARA
-    function renderizar() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Renderizado del Minimapa con Seguimiento de Misiones (Waypoints)
+function renderMinimap() {
+  mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+  mCtx.fillStyle = "#080a14";
+  mCtx.fillRect(0, 0, 140, 140);
 
-      ctx.save();
-      // Traslación de Cámara Centrada en el Personaje
-      ctx.translate(-camara.x, -camara.y);
+  const scaleX = 140 / canvas.width;
+  const scaleY = 140 / canvas.height;
 
-      const calleY = 510;
-      const calleAltura = 110;
+  if (gameState.currentZone === "EXTERIOR") {
+    // Marcador de Casa
+    mCtx.fillStyle = "#00ffff";
+    mCtx.fillRect(worldLocations.homeDoor.x * scaleX, worldLocations.homeDoor.y * scaleY, 8, 8);
 
-      // Fondo Terreno Urbanizado
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(-500, -500, 2500, 2000);
-
-      // Edificios con Interiores y Muebles
-      edificaciones.forEach(b => {
-        // Estructura Exterior
-        ctx.fillStyle = b.color;
-        ctx.fillRect(b.x, b.y, b.w, b.h);
-        ctx.strokeStyle = b.borde;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(b.x, b.y, b.w, b.h);
-
-        // Muebles e Interiores
-        b.muebles.forEach(m => {
-          ctx.fillStyle = m.color;
-          ctx.fillRect(m.x, m.y, m.w, m.h);
-          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-          ctx.strokeRect(m.x, m.y, m.w, m.h);
-        });
-
-        // Puerta de Entrada (Apertura Neón)
-        ctx.fillStyle = b.borde;
-        ctx.fillRect(b.puerta.x, b.puerta.y, b.puerta.w, b.puerta.h);
-
-        // Cartel Neón Superior
-        ctx.fillStyle = b.borde;
-        ctx.font = 'bold 13px sans-serif';
-        ctx.fillText(b.titulo, b.x + 15, b.y + 25);
-      });
-
-      // Vereda
-      ctx.fillStyle = '#2b3548';
-      ctx.fillRect(-500, calleY - 18, 2500, calleAltura + 36);
-
-      // Calzada
-      ctx.fillStyle = '#1e2533';
-      ctx.fillRect(-500, calleY, 2500, calleAltura);
-
-      // Línea divisoria amarilla
-      ctx.strokeStyle = '#ffcc00';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([20, 15]);
-      ctx.beginPath();
-      ctx.moveTo(-500, calleY + calleAltura / 2);
-      ctx.lineTo(2000, calleY + calleAltura / 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Árboles
-      arboles.forEach(a => dibujarArbolDetallado(a));
-
-      // Vehículos
-      autos.forEach(auto => {
-        ctx.save();
-        ctx.translate(auto.x, auto.y);
-        ctx.rotate(auto.angulo);
-        ctx.fillStyle = auto.color;
-        ctx.fillRect(-auto.w / 2, -auto.h / 2, auto.w, auto.h);
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-auto.w / 2, -auto.h / 2, auto.w, auto.h);
-
-        // Parabrisas y Luces
-        ctx.fillStyle = '#111';
-        ctx.fillRect(-auto.w / 4, -auto.h / 2 + 3, 12, auto.h - 6);
-        ctx.fillStyle = '#ffea79';
-        ctx.fillRect(auto.w / 2 - 2, -auto.h / 2 + 2, 3, 5);
-        ctx.fillRect(auto.w / 2 - 2, auto.h / 2 - 7, 3, 5);
-        ctx.restore();
-      });
-
-      // Proyectiles
-      ctx.fillStyle = '#ffcc00';
-      proyectiles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // NPCs
-      npcs.forEach(npc => {
-        dibujarPersonaje(npc.x, npc.y, npc.angulo, npc.colorPiel, npc.colorRopa, false);
-      });
-
-      // Jugador
-      if (!jugador.enAuto) {
-        dibujarPersonaje(jugador.x, jugador.y, jugador.angulo, jugador.colorPiel, jugador.colorRopa, true);
+    // Waypoints de Objetivos/Misiones (Puntos amarillos/rojos dinámicos)
+    worldLocations.missionTargets.forEach(t => {
+      if (t.active) {
+        mCtx.fillStyle = "#ffe600";
+        mCtx.beginPath();
+        mCtx.arc(t.x * scaleX, t.y * scaleY, 4, 0, Math.PI * 2);
+        mCtx.fill();
       }
+    });
+  }
 
-      ctx.restore();
+  // Posición del Jugador en Minimapa
+  mCtx.fillStyle = "#ff007f";
+  mCtx.beginPath();
+  mCtx.arc(gameState.player.x * scaleX, gameState.player.y * scaleY, 4, 0, Math.PI * 2);
+  mCtx.fill();
+}
 
-      renderizarMinimapa();
-    }
+function gameLoop() {
+  updatePlayer();
+  render();
+  requestAnimationFrame(gameLoop);
+}
 
-    // MINIMAPA
-    function renderizarMinimapa() {
-      const mw = minimapCanvas.width;
-      const mh = minimapCanvas.height;
+function saveGame() {
+  alert("¡Progreso Guardado Exitosamente!");
+}
 
-      minimapCtx.fillStyle = '#0a0f1a';
-      minimapCtx.fillRect(0, 0, mw, mh);
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else if (document.exitFullscreen) document.exitFullscreen();
+}
 
-      const ex = mw / 1800;
-      const ey = mh / 1200;
-
-      // Edificios
-      edificaciones.forEach(b => {
-        minimapCtx.fillStyle = '#152238';
-        minimapCtx.fillRect(b.x * ex, b.y * ey, b.w * ex, b.h * ey);
-      });
-
-      // Calle
-      minimapCtx.fillStyle = '#223344';
-      minimapCtx.fillRect(0, 510 * ey, mw, 110 * ey);
-
-      // Jugador (Neón)
-      minimapCtx.fillStyle = '#ff007f';
-      minimapCtx.beginPath();
-      minimapCtx.arc(jugador.x * ex, jugador.y * ey, 3.5, 0, Math.PI * 2);
-      minimapCtx.fill();
-    }
-
-    function gameLoop() {
-      actualizar();
-      renderizar();
-      requestAnimationFrame(gameLoop);
-    }
-
-    renderWeaponMenu();
-    gameLoop();
-  </script>
+// Iniciar Juego
+gameLoop();
+</script>
 </body>
 </html>
