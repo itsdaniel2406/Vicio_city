@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vice City 2.5D Retro</title>
+    <title>Vice City 2D Mobile</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
-        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #05000a; font-family: monospace; color: #fff; }
-        canvas { display: block; width: 100vw; height: 100vh; background: #110022; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #111; font-family: sans-serif; color: #fff; }
+        canvas { display: block; width: 100vw; height: 100vh; background: #222; }
 
         #orient-warning { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #ff00ff; z-index: 1000; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; }
         @media (orientation: portrait) { #orient-warning { display: flex; } }
 
-        .hud { position: absolute; top: 12px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 10; font-size: 14px; font-weight: bold; text-shadow: 0 0 5px #00ffff; pointer-events: none; }
-        .hud-item { background: rgba(0,0,0,0.7); border: 1px solid #ff00ff; padding: 5px 10px; border-radius: 5px; color: #00ffff; }
-        #mission-banner { position: absolute; top: 50px; left: 15px; background: rgba(0,0,0,0.8); border-left: 3px solid #ffff00; padding: 6px 12px; font-size: 12px; color: #fff; z-index: 10; max-width: 280px; }
+        /* HUD */
+        .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 10; font-size: 13px; font-weight: bold; pointer-events: none; }
+        .hud-card { background: rgba(0,0,0,0.85); border: 1px solid #00ffff; padding: 6px 10px; border-radius: 6px; color: #fff; }
+        #mission-banner { position: absolute; top: 48px; left: 10px; background: rgba(0,0,0,0.85); border-left: 4px solid #ffff00; padding: 6px 10px; font-size: 11px; color: #fff; z-index: 10; max-width: 260px; pointer-events: none; }
 
+        /* Pantalla de Arrestado */
+        #game-over { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,0,0,0.7); z-index: 100; justify-content: center; align-items: center; flex-direction: column; font-size: 30px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #000; }
+
+        /* Controles */
         .controls { position: absolute; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 10; pointer-events: none; }
         .dpad, .actions { pointer-events: auto; display: grid; gap: 5px; }
         .dpad { grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); }
-        .btn { background: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; border-radius: 10px; color: #fff; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-shadow: 0 0 5px #ff00ff; }
-        .btn:active { background: rgba(255, 0, 255, 0.6); }
+        .btn { background: rgba(0, 0, 0, 0.6); border: 2px solid #00ffff; border-radius: 10px; color: #00ffff; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .btn:active { background: rgba(0, 255, 255, 0.4); }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
         .actions { display: flex; gap: 12px; align-items: flex-end; }
-        .btn-act { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #00ffff; color: #00ffff; font-size: 20px; box-shadow: 0 0 8px #00ffff; }
+        .btn-act { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #ff00ff; color: #ff00ff; font-size: 22px; background: rgba(0,0,0,0.6); }
+        .btn-act:active { background: rgba(255, 0, 255, 0.4); }
     </style>
 </head>
 <body>
 
     <div id="orient-warning">Gira tu dispositivo a HORIZONTAL 🔄</div>
+    <div id="game-over">¡ARRESTADO POR LA POLICÍA!</div>
 
     <div class="hud">
-        <div class="hud-item">SALUD: <span id="h-val" style="color:#ff00ff">100</span></div>
-        <div class="hud-item">WANTED: <span id="w-val" style="color:#ffff00">⭐ 0</span></div>
-        <div class="hud-item">DINERO: <span id="m-val" style="color:#00ff00">$0</span></div>
+        <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff00">100</span></div>
+        <div class="hud-card">WANTED: <span id="w-val" style="color:#ffff00">⭐ 0</span></div>
+        <div class="hud-card">DINERO: <span id="m-val" style="color:#00ffff">$0</span></div>
     </div>
 
-    <div id="mission-banner"><b>MISIÓN:</b> <span id="m-text">Ve al marcador amarillo en el mapa.</span></div>
+    <div id="mission-banner"><b>MISIÓN:</b> <span id="m-text">Súbete al auto deportivo o ve al punto amarillo.</span></div>
 
     <canvas id="game"></canvas>
 
@@ -52,7 +59,7 @@
         </div>
         <div class="actions">
             <div class="btn btn-act" id="b-enter">🚗</div>
-            <div class="btn btn-act" id="b-shoot" style="border-color:#ff007f; color:#ff007f;">🔫</div>
+            <div class="btn btn-act" id="b-shoot" style="border-color:#ff0000; color:#ff0000;">🔫</div>
         </div>
     </div>
 
@@ -60,46 +67,48 @@
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
         window.addEventListener('resize', resize);
         resize();
 
-        // --- ESTADO DEL JUEGO ---
-        const player = { x: 500, y: 500, angle: 0, speed: 0, inCar: false, health: 100, money: 0, wanted: 0 };
+        // --- ESTADO Y JUGADOR ---
+        const player = { x: 400, y: 400, angle: 0, speed: 0, inCar: false, health: 100, money: 0, wanted: 0, carRef: null };
         const keys = { up: false, down: false, left: false, right: false };
 
-        // Vehículos (Jugador y Policía)
+        // Autos
         const cars = [
-            { x: 550, y: 500, angle: 0, speed: 0, color: '#ff007f', isPolice: false },
-            { x: 100, y: 100, angle: 0, speed: 0, color: '#0022ff', isPolice: true }
+            { x: 450, y: 400, angle: 0, speed: 0, color: '#ff0055', isPolice: false },
+            { x: 100, y: 100, angle: 0, speed: 0, color: '#0033ff', isPolice: true }
         ];
 
-        // Edificios (Mapa 2.5D)
-        const buildings = [];
-        for(let i=0; i<30; i++) {
-            buildings.push({
-                x: Math.floor(Math.random()*18)*100 + 50,
-                y: Math.floor(Math.random()*18)*100 + 50,
-                w: 80, h: 80, h3d: 25, color: '#1a102f'
-            });
+        // Peatones (NPCs)
+        const npcs = [];
+        for(let i=0; i<20; i++) {
+            npcs.push({ x: Math.random()*1200 + 100, y: Math.random()*1200 + 100, angle: Math.random()*6, speed: 0.8, alive: true });
         }
 
-        // Peatones (IA)
-        const npcs = [];
-        for(let i=0; i<25; i++) {
-            npcs.push({ x: Math.random()*2000, y: Math.random()*2000, angle: Math.random()*6, speed: 1, state: 'walk' });
-        }
+        // Edificios
+        const buildings = [
+            { x: 150, y: 150, w: 180, h: 180, color: '#2a1b4e' },
+            { x: 500, y: 150, w: 220, h: 150, color: '#1b2a4e' },
+            { x: 150, y: 500, w: 200, h: 250, color: '#3e1b4e' },
+            { x: 550, y: 500, w: 200, h: 200, color: '#1b4e3e' }
+        ];
 
         // Misión
-        const mission = { x: 800, y: 800, step: 0 };
+        const mission = { x: 600, y: 250, active: true };
 
-        // --- CONTROLES ---
-        function setupBtn(id, key) {
+        // --- CONTROLES TÁCTILES Y TECLADO ---
+        function bindTouch(id, key) {
             const el = document.getElementById(id);
             el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
             el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
         }
-        setupBtn('b-up', 'up'); setupBtn('b-down', 'down'); setupBtn('b-left', 'left'); setupBtn('b-right', 'right');
+        bindTouch('b-up', 'up'); bindTouch('b-down', 'down');
+        bindTouch('b-left', 'left'); bindTouch('b-right', 'right');
 
         document.getElementById('b-enter').addEventListener('touchstart', (e) => { e.preventDefault(); toggleCar(); });
         document.getElementById('b-shoot').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
@@ -122,12 +131,14 @@
         function toggleCar() {
             if(player.inCar) {
                 player.inCar = false;
-                player.x += 30;
+                player.x = player.carRef.x + 30;
+                player.y = player.carRef.y;
+                player.carRef = null;
             } else {
                 cars.forEach(c => {
-                    if(Math.hypot(c.x - player.x, c.y - player.y) < 40) {
+                    if(Math.hypot(c.x - player.x, c.y - player.y) < 50) {
                         player.inCar = true;
-                        this.currentCar = c;
+                        player.carRef = c;
                     }
                 });
             }
@@ -138,9 +149,9 @@
             player.wanted = Math.min(5, player.wanted + 1);
             updateHUD();
 
-            npcs.forEach((npc, i) => {
-                if(Math.hypot(npc.x - player.x, npc.y - player.y) < 150) {
-                    npcs.splice(i, 1); // Eliminar NPC
+            npcs.forEach(npc => {
+                if(npc.alive && Math.hypot(npc.x - player.x, npc.y - player.y) < 120) {
+                    npc.alive = false;
                     player.money += 100;
                     updateHUD();
                 }
@@ -148,121 +159,185 @@
         }
 
         function updateHUD() {
-            document.getElementById('h-val').innerText = player.health;
+            document.getElementById('h-val').innerText = Math.max(0, Math.floor(player.health));
             document.getElementById('w-val').innerText = "⭐ " + player.wanted;
             document.getElementById('m-val').innerText = "$" + player.money;
         }
 
+        function respawn() {
+            document.getElementById('game-over').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('game-over').style.display = 'none';
+                player.health = 100;
+                player.wanted = 0;
+                player.x = 400; player.y = 400;
+                if(player.inCar) toggleCar();
+                updateHUD();
+            }, 2000);
+        }
+
         // --- BUCLE Y FÍSICAS ---
         function update() {
-            const active = player.inCar ? this.currentCar : player;
-            const maxSpd = player.inCar ? 7 : 2.5;
+            if(player.health <= 0) return;
 
-            if(keys.left) active.angle -= 0.06;
-            if(keys.right) active.angle += 0.06;
-            if(keys.up) active.speed = Math.min(active.speed + 0.2, maxSpd);
-            else if(keys.down) active.speed = Math.max(active.speed - 0.2, -maxSpd/2);
-            else active.speed *= 0.92;
+            const active = player.inCar ? player.carRef : player;
+            const maxSpd = player.inCar ? 6 : 2.2;
+            const rotSpd = player.inCar ? 0.05 : 0.07;
+
+            if(keys.left) active.angle -= rotSpd;
+            if(keys.right) active.angle += rotSpd;
+            if(keys.up) active.speed = Math.min(active.speed + 0.15, maxSpd);
+            else if(keys.down) active.speed = Math.max(active.speed - 0.15, -maxSpd/2);
+            else active.speed *= 0.90;
 
             active.x += Math.cos(active.angle) * active.speed;
             active.y += Math.sin(active.angle) * active.speed;
 
-            if(player.inCar) { player.x = this.currentCar.x; player.y = this.currentCar.y; }
+            if(player.inCar) {
+                player.x = player.carRef.x;
+                player.y = player.carRef.y;
+            }
 
             // IA Peatones
             npcs.forEach(npc => {
-                if(player.wanted > 0 && Math.hypot(npc.x - player.x, npc.y - player.y) < 120) {
-                    npc.angle = Math.atan2(npc.y - player.y, npc.x - player.x); // Huir
-                    npc.speed = 2;
+                if(npc.alive) {
+                    npc.x += Math.cos(npc.angle) * npc.speed;
+                    npc.y += Math.sin(npc.angle) * npc.speed;
+                    if(Math.random() < 0.02) npc.angle += (Math.random() - 0.5);
                 }
-                npc.x += Math.cos(npc.angle) * npc.speed;
-                npc.y += Math.sin(npc.angle) * npc.speed;
             });
 
             // IA Policía
             const cop = cars[1];
             if(player.wanted > 0) {
                 cop.angle = Math.atan2(player.y - cop.y, player.x - cop.x);
-                cop.speed = 4.5;
+                cop.speed = 3.5;
                 cop.x += Math.cos(cop.angle) * cop.speed;
                 cop.y += Math.sin(cop.angle) * cop.speed;
-                if(Math.hypot(cop.x - player.x, cop.y - player.y) < 30) {
-                    player.health = Math.max(0, player.health - 0.5);
+
+                if(Math.hypot(cop.x - player.x, cop.y - player.y) < 35) {
+                    player.health -= 0.8;
                     updateHUD();
+                    if(player.health <= 0) respawn();
                 }
             }
 
             // Misión
-            if(Math.hypot(mission.x - player.x, mission.y - player.y) < 40) {
-                if(mission.step === 0) {
-                    mission.step = 1;
-                    player.money += 500;
-                    mission.x = 200; mission.y = 1200;
-                    document.getElementById('m-text').innerText = "¡Misión 1 Éxito (+$500)! Ve al siguiente punto.";
-                    updateHUD();
-                }
+            if(mission.active && Math.hypot(mission.x - player.x, mission.y - player.y) < 40) {
+                mission.active = false;
+                player.money += 500;
+                document.getElementById('m-text').innerText = "¡Misión Completada (+$500)! Explora la ciudad.";
+                updateHUD();
             }
         }
 
-        // --- RENDERIZADO VISUAL ---
+        // --- RENDERIZADO VISUAL DIBUJADO ---
         function draw() {
-            ctx.fillStyle = '#0a0015';
+            ctx.fillStyle = '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            // Cámara centrada
+            // Cámara centrada en el jugador
             ctx.translate(canvas.width/2 - player.x, canvas.height/2 - player.y);
 
-            // 1. Asfalto / Rejilla
-            ctx.strokeStyle = '#220044';
-            ctx.lineWidth = 2;
-            for(let x=0; x<2000; x+=100) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,2000); ctx.stroke(); }
-            for(let y=0; y<2000; y+=100) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(2000,y); ctx.stroke(); }
+            // 1. Asfalto y Calles
+            ctx.fillStyle = '#222';
+            ctx.fillRect(-500, -500, 2500, 2500);
 
-            // 2. Marcador de Misión
-            ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
-            ctx.beginPath(); ctx.arc(mission.x, mission.y, 30, 0, Math.PI*2); ctx.fill();
-
-            // 3. Edificios 2.5D (Efecto de Proyección de Altura)
+            // Veredas
+            ctx.fillStyle = '#333';
             buildings.forEach(b => {
-                // Sombra
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(b.x + 10, b.y + 10, b.w, b.h);
-                // Base
+                ctx.fillRect(b.x - 15, b.y - 15, b.w + 30, b.h + 30);
+            });
+
+            // Líneas de calle
+            ctx.strokeStyle = '#ffaa00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([20, 20]);
+            ctx.beginPath();
+            ctx.moveTo(400, -500); ctx.lineTo(400, 2500);
+            ctx.moveTo(-500, 400); ctx.lineTo(2500, 400);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 2. Edificios
+            buildings.forEach(b => {
                 ctx.fillStyle = b.color;
                 ctx.fillRect(b.x, b.y, b.w, b.h);
-                // Techo 2.5D (Proyección hacia afuera)
-                const offX = (b.x - player.x) * 0.08;
-                const offY = (b.y - player.y) * 0.08;
-                ctx.fillStyle = '#00ffff';
-                ctx.strokeRect(b.x + offX, b.y + offY, b.w, b.h);
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
             });
 
-            // 4. Peatones
-            npcs.forEach(npc => {
+            // 3. Marcador Misión
+            if(mission.active) {
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
+                ctx.beginPath(); ctx.arc(mission.x, mission.y, 30, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#ffff00';
-                ctx.beginPath(); ctx.arc(npc.x, npc.y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(mission.x, mission.y, 10, 0, Math.PI*2); ctx.fill();
+            }
+
+            // 4. Peatones (Dibujados detallados)
+            npcs.forEach(npc => {
+                if(npc.alive) {
+                    ctx.save();
+                    ctx.translate(npc.x, npc.y);
+                    ctx.rotate(npc.angle);
+                    ctx.fillStyle = '#ffff00'; // Cuerpo
+                    ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#ffcc99'; // Cabeza
+                    ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, Math.PI*2); ctx.fill();
+                    ctx.restore();
+                }
             });
 
-            // 5. Vehículos
+            // 5. Autos (Dibujados con chasis y luces)
             cars.forEach(c => {
                 ctx.save();
                 ctx.translate(c.x, c.y);
                 ctx.rotate(c.angle);
+                
+                // Cuerpo del auto
                 ctx.fillStyle = c.color;
-                ctx.shadowColor = c.color; ctx.shadowBlur = 10;
-                ctx.fillRect(-15, -8, 30, 16);
+                ctx.fillRect(-18, -10, 36, 20);
+                
+                // Parabrisas
+                ctx.fillStyle = '#111';
+                ctx.fillRect(-4, -8, 10, 16);
+                
+                // Luces delanteras
+                ctx.fillStyle = '#ffffa0';
+                ctx.fillRect(16, -9, 3, 4);
+                ctx.fillRect(16, 5, 3, 4);
+
+                // Sirena Policía
+                if(c.isPolice && player.wanted > 0) {
+                    ctx.fillStyle = (Date.now() % 300 < 150) ? '#ff0000' : '#0000ff';
+                    ctx.fillRect(-2, -4, 5, 8);
+                }
+
                 ctx.restore();
             });
 
-            // 6. Jugador (si está a pie)
+            // 6. Jugador a pie (Dibujado)
             if(!player.inCar) {
                 ctx.save();
                 ctx.translate(player.x, player.y);
                 ctx.rotate(player.angle);
+                
+                // Manos
+                ctx.fillStyle = '#ffcc99';
+                ctx.beginPath(); ctx.arc(4, -6, 2.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(4, 6, 2.5, 0, Math.PI*2); ctx.fill();
+
+                // Cuerpo
                 ctx.fillStyle = '#00ffff';
-                ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 8;
                 ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI*2); ctx.fill();
+
+                // Cabeza
+                ctx.fillStyle = '#ffcc99';
+                ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+
                 ctx.restore();
             }
 
