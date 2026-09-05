@@ -2,67 +2,174 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VICIO CITY V3.1.0 - Full Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VICIO CITY V3.1.0 - Fixed</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { background: #080810; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    body {
+      background: #080810;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
     
-    #game-container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
-    canvas { background: #0d0f18; display: block; }
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
 
-    /* UI / HUD Overlays */
+    canvas {
+      background: #0d0f18;
+      display: block;
+    }
+
+    /* UI / HUD */
     .hud-panel {
-      position: absolute; top: 15px; left: 15px;
-      width: 280px; padding: 12px;
-      background: rgba(10, 10, 20, 0.85);
-      border: 2px solid #ff007f; border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
-      font-size: 13px; font-weight: bold;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 260px;
+      padding: 10px;
+      background: rgba(10, 10, 20, 0.9);
+      border: 2px solid #ff007f;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
+      font-size: 11px;
+      font-weight: bold;
+      z-index: 10;
     }
-    .hud-title { color: #ff007f; font-size: 16px; margin-bottom: 6px; text-shadow: 0 0 5px #ff007f; }
-    .hud-stats { display: flex; justify-content: space-between; margin-bottom: 4px; color: #00ffff; }
+    .hud-title { color: #ff007f; font-size: 14px; margin-bottom: 4px; }
+    .hud-stats { display: flex; justify-content: space-between; margin-bottom: 2px; color: #00ffff; }
     .hud-mission {
-      margin-top: 8px; padding: 8px;
-      background: rgba(255, 230, 0, 0.1); border: 1px solid #ffe600;
-      border-radius: 6px; color: #ffe600;
+      margin-top: 6px;
+      padding: 6px;
+      background: rgba(255, 230, 0, 0.15);
+      border: 1px solid #ffe600;
+      border-radius: 5px;
+      color: #ffe600;
     }
 
-    /* Top Action Buttons */
-    .top-buttons { position: absolute; top: 15px; right: 180px; display: flex; gap: 10px; }
+    /* Botones Superiores */
+    .top-buttons {
+      position: absolute;
+      top: 10px;
+      right: 160px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
     .btn-top {
-      padding: 8px 16px; background: rgba(0, 255, 255, 0.15);
-      border: 1.5px solid #00ffff; border-radius: 6px; color: #00ffff;
-      font-weight: bold; cursor: pointer; text-shadow: 0 0 5px #00ffff;
+      padding: 6px 12px;
+      background: rgba(0, 255, 255, 0.2);
+      border: 1.5px solid #00ffff;
+      border-radius: 5px;
+      color: #00ffff;
+      font-weight: bold;
+      font-size: 11px;
+      cursor: pointer;
     }
-    .btn-top:hover { background: #00ffff; color: #000; }
 
-    /* Minimap Widget */
+    /* Minimapa */
     #minimap-container {
-      position: absolute; top: 15px; right: 15px;
-      width: 140px; height: 140px;
-      border: 3px solid #ff007f; border-radius: 50%;
-      overflow: hidden; box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 120px;
+      height: 120px;
+      border: 2.5px solid #ff007f;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+      z-index: 10;
     }
     #minimap-canvas { width: 100%; height: 100%; background: #05050a; }
 
-    /* Controls (Touch D-Pad & Action Buttons) */
-    .controls-left { position: absolute; bottom: 20px; left: 20px; display: grid; grid-template-columns: repeat(3, 45px); grid-gap: 5px; }
-    .dbtn { width: 45px; height: 45px; background: rgba(0, 255, 255, 0.1); border: 1.5px solid #00ffff; border-radius: 8px; color: #00ffff; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-    
-    .controls-right { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px; }
-    .abtn { width: 55px; height: 55px; border-radius: 50%; border: 2px solid; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
-    .btn-car { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.1); }
-    .btn-action { border-color: #ff007f; color: #ff007f; background: rgba(255, 0, 127, 0.1); }
-    .btn-weapon { border-color: #ffe600; color: #ffe600; background: rgba(255, 230, 0, 0.1); }
-
-    /* Custom Outfit Modal */
-    #outfit-modal {
-      display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(10, 10, 25, 0.95); border: 2px solid #00ffff; padding: 20px; border-radius: 12px;
-      text-align: center; box-shadow: 0 0 20px #00ffff; z-index: 100;
+    /* D-Pad Táctil */
+    .controls-left {
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+      display: grid;
+      grid-template-columns: repeat(3, 42px);
+      grid-gap: 4px;
+      z-index: 20;
     }
-    .color-opt { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 8px; cursor: pointer; border: 2px solid #fff; }
+    .dbtn {
+      width: 42px;
+      height: 42px;
+      background: rgba(0, 255, 255, 0.25);
+      border: 1.5px solid #00ffff;
+      border-radius: 6px;
+      color: #00ffff;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .dbtn:active { background: #00ffff; color: #000; }
+    
+    /* Botones de Acción Táctiles */
+    .controls-right {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 20;
+    }
+    .abtn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .btn-car { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
+    .btn-action { border-color: #ff007f; color: #ff007f; background: rgba(255, 0, 127, 0.2); }
+    .btn-weapon { border-color: #ffe600; color: #ffe600; background: rgba(255, 230, 0, 0.2); }
+
+    /* Vestidor Modal */
+    #outfit-modal {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(10, 10, 25, 0.95);
+      border: 2px solid #00ffff;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      z-index: 100;
+    }
+    .color-opt {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 6px;
+      cursor: pointer;
+      border: 2px solid #fff;
+    }
   </style>
 </head>
 <body>
@@ -74,52 +181,53 @@
   <div class="hud-panel">
     <div class="hud-title">VICIO CITY V3.1.0</div>
     <div class="hud-stats">
-      <span>LVL: <span id="val-lvl">1</span></span>
-      <span>XP: <span id="val-xp">95</span>/100</span>
+      <span>LVL: 1</span>
+      <span>XP: 95/100</span>
     </div>
     <div class="hud-stats">
-      <span>HP: <span id="val-hp">100</span>/100</span>
+      <span>HP: 100/100</span>
       <span>CASH: $<span id="val-cash">960</span></span>
     </div>
     <div class="hud-stats">
-      <span>WANTED: <span id="val-wanted">★☆☆☆☆</span></span>
+      <span>WANTED: ★☆☆☆☆</span>
     </div>
     <div class="hud-mission">
       🎯 <b>MISIÓN ACTIVA:</b><br>
       Elimina 3 Pandilleros en la ciudad (<span id="val-targets">0</span>/3)<br>
-      <small>[Presiona 'E' o botón de acción para entrar/interactuar]</small>
+      <small>[Usa D-PAD o Teclas para moverte]</small>
     </div>
   </div>
 
   <!-- Botones Superiores -->
   <div class="top-buttons">
     <button class="btn-top" onclick="toggleFullscreen()">FULL</button>
-    <button class="btn-top" onclick="alert('Misiones activas marcadas en el minimapa.')">MISIONES</button>
-    <button class="btn-top" onclick="saveGame()">GUARDAR</button>
+    <button class="btn-top" onclick="alert('Puntos amarrillos en el minimapa = Objetivos')">MISIONES</button>
+    <button class="btn-top" onclick="alert('Progreso Guardado')">GUARDAR</button>
   </div>
 
   <!-- Minimapa -->
   <div id="minimap-container">
-    <canvas id="minimap-canvas" width="140" height="140"></canvas>
+    <canvas id="minimap-canvas" width="120" height="120"></canvas>
   </div>
 
-  <!-- Controles táctiles -->
+  <!-- Controles D-PAD Táctiles -->
   <div class="controls-left">
     <div></div><div class="dbtn" id="btn-up">▲</div><div></div>
-    <div class="dbtn" id="btn-left">◄</div><div></div><div class="dbtn" id="btn-right">►</div>
+    <div class="dbtn" id="btn-left">◀</div><div></div><div class="dbtn" id="btn-right">▶</div>
     <div></div><div class="dbtn" id="btn-down">▼</div><div></div>
   </div>
 
+  <!-- Botones de Acción -->
   <div class="controls-right">
-    <div class="abtn btn-car" onclick="interact()">🚗</div>
-    <div class="abtn btn-action" onclick="interact()">🚪</div>
-    <div class="abtn btn-weapon" onclick="attack()">🔫</div>
+    <div class="abtn btn-car" id="btn-car">🚗</div>
+    <div class="abtn btn-action" id="btn-door">🚪</div>
+    <div class="abtn btn-weapon" id="btn-shoot">🔫</div>
   </div>
 
   <!-- Vestidor Modal -->
   <div id="outfit-modal">
-    <h3 style="color:#00ffff; margin-bottom:10px;">VESTIDOR DE ROPA</h3>
-    <p>Elige el color de tu atuendo:</p>
+    <h3 style="color:#00ffff; margin-bottom:8px;">VESTIDOR DE ROPA</h3>
+    <p style="font-size:12px;">Selecciona un color:</p>
     <div class="color-opt" style="background:#ff007f;" onclick="changeOutfit('#ff007f')"></div>
     <div class="color-opt" style="background:#00ffff;" onclick="changeOutfit('#00ffff')"></div>
     <div class="color-opt" style="background:#00ff66;" onclick="changeOutfit('#00ff66')"></div>
@@ -135,30 +243,29 @@ const ctx = canvas.getContext("2d");
 const mCanvas = document.getElementById("minimap-canvas");
 const mCtx = mCanvas.getContext("2d");
 
-// Estado Global del Juego
+// Estado Principal
 const gameState = {
-  currentZone: "EXTERIOR", // EXTERIOR | INTERIOR_CASA | BANCO_CENTRAL
+  currentZone: "EXTERIOR",
   player: {
-    x: 480, y: 270, size: 20, speed: 3,
-    color: "#ff007f",
-    hp: 100, xp: 95, lvl: 1, cash: 960, wanted: 1
+    x: 480, y: 270, size: 16, speed: 3.5,
+    color: "#ff007f", cash: 960
   },
   targetsDefeated: 0,
-  keys: {}
+  keys: { up: false, down: false, left: false, right: false }
 };
 
-// Ubicaciones de Puntos Clave (Edificios & Misiones)
+// Edificios y Puntos
 const worldLocations = {
-  homeDoor: { x: 200, y: 150, w: 60, h: 40, label: "Casa Principal", targetZone: "INTERIOR_CASA" },
-  bankDoor: { x: 700, y: 150, w: 80, h: 40, label: "Banco Central", targetZone: "BANCO_CENTRAL" },
+  homeDoor: { x: 200, y: 150, w: 60, h: 40, label: "Casa Principal" },
+  bankDoor: { x: 700, y: 150, w: 80, h: 40, label: "Banco Central" },
   missionTargets: [
-    { x: 300, y: 400, active: true },
-    { x: 600, y: 450, active: true },
-    { x: 800, y: 350, active: true }
+    { x: 300, y: 420, active: true },
+    { x: 620, y: 460, active: true },
+    { x: 820, y: 380, active: true }
   ]
 };
 
-// Muebles de la Casa Principal
+// Muebles Casa
 const houseFurniture = [
   { name: "Cama", x: 100, y: 100, w: 80, h: 100, color: "#3a2e56", text: "🛏️ Cama" },
   { name: "Sofá", x: 300, y: 120, w: 120, h: 50, color: "#224455", text: "🛋️ Sofá" },
@@ -166,47 +273,79 @@ const houseFurniture = [
   { name: "Vestidor", x: 700, y: 100, w: 70, h: 70, color: "#552244", text: "👔 Ropa", action: "OPEN_OUTFIT" }
 ];
 
-// Event Listeners Teclado
+// Asignación Eventos de Entrada (Teclado y Táctil)
 window.addEventListener("keydown", e => {
-  gameState.keys[e.key.toLowerCase()] = true;
-  if(e.key.toLowerCase() === 'e') interact();
+  const k = e.key.toLowerCase();
+  if (k === 'w' || k === 'arrowup') gameState.keys.up = true;
+  if (k === 's' || k === 'arrowdown') gameState.keys.down = true;
+  if (k === 'a' || k === 'arrowleft') gameState.keys.left = true;
+  if (k === 'd' || k === 'arrowright') gameState.keys.right = true;
+  if (k === 'e') interact();
 });
-window.addEventListener("keyup", e => gameState.keys[e.key.toLowerCase()] = false);
 
-// Movimiento del Jugador
+window.addEventListener("keyup", e => {
+  const k = e.key.toLowerCase();
+  if (k === 'w' || k === 'arrowup') gameState.keys.up = false;
+  if (k === 's' || k === 'arrowdown') gameState.keys.down = false;
+  if (k === 'a' || k === 'arrowleft') gameState.keys.left = false;
+  if (k === 'd' || k === 'arrowright') gameState.keys.right = false;
+});
+
+// Función para vincular botones táctiles sin bloqueo
+function bindTouch(elementId, actionKey) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  
+  el.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (typeof actionKey === "string") gameState.keys[actionKey] = true;
+    else if (typeof actionKey === "function") actionKey();
+  }, { passive: false });
+
+  el.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    if (typeof actionKey === "string") gameState.keys[actionKey] = false;
+  }, { passive: false });
+}
+
+bindTouch("btn-up", "up");
+bindTouch("btn-down", "down");
+bindTouch("btn-left", "left");
+bindTouch("btn-right", "right");
+bindTouch("btn-door", interact);
+bindTouch("btn-shoot", attack);
+bindTouch("btn-car", interact);
+
+// Actualizar Posición
 function updatePlayer() {
   const p = gameState.player;
-  if (gameState.keys['w'] || gameState.keys['arrowup']) p.y -= p.speed;
-  if (gameState.keys['s'] || gameState.keys['arrowdown']) p.y += p.speed;
-  if (gameState.keys['a'] || gameState.keys['arrowleft']) p.x -= p.speed;
-  if (gameState.keys['d'] || gameState.keys['arrowright']) p.x += p.speed;
+  if (gameState.keys.up) p.y -= p.speed;
+  if (gameState.keys.down) p.y += p.speed;
+  if (gameState.keys.left) p.x -= p.speed;
+  if (gameState.keys.right) p.x += p.speed;
 
-  // Limites Pantalla
   p.x = Math.max(20, Math.min(canvas.width - 20, p.x));
   p.y = Math.max(20, Math.min(canvas.height - 20, p.y));
 }
 
-// Mecánica de Entrada/Salida e Interacción
+// Interacción Edificios & Vestidor
 function interact() {
   const p = gameState.player;
 
   if (gameState.currentZone === "EXTERIOR") {
-    // Entrar a la Casa
     const h = worldLocations.homeDoor;
-    if (Math.hypot(p.x - (h.x + h.w/2), p.y - (h.y + h.h/2)) < 50) {
+    if (Math.hypot(p.x - (h.x + h.w/2), p.y - (h.y + h.h/2)) < 60) {
       gameState.currentZone = "INTERIOR_CASA";
-      p.x = 480; p.y = 450; // Reaparecer dentro cerca de la salida
+      p.x = 480; p.y = 440;
       return;
     }
   } else if (gameState.currentZone === "INTERIOR_CASA") {
-    // Interactuar con el vestidor
     const closet = houseFurniture.find(f => f.action === "OPEN_OUTFIT");
     if (Math.hypot(p.x - (closet.x + closet.w/2), p.y - (closet.y + closet.h/2)) < 60) {
       document.getElementById("outfit-modal").style.display = "block";
       return;
     }
-    // Salida de la Casa (zona inferior)
-    if (p.y > 500) {
+    if (p.y > 480) {
       gameState.currentZone = "EXTERIOR";
       p.x = worldLocations.homeDoor.x + 30;
       p.y = worldLocations.homeDoor.y + 60;
@@ -235,39 +374,39 @@ function closeOutfit() {
   document.getElementById("outfit-modal").style.display = "none";
 }
 
-// Renderizado del Juego Principal
+// Renderizado General
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (gameState.currentZone === "EXTERIOR") {
-    // Dibujar Ciudad Exterior
     ctx.fillStyle = "#121526";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Edificio Casa Principal
+    // Casa Principal
     const h = worldLocations.homeDoor;
     ctx.fillStyle = "#2a1b4e";
-    ctx.fillRect(h.x, h.y - 80, h.w + 40, h.h + 80);
+    ctx.fillRect(h.x, h.y - 70, h.w + 40, h.h + 70);
     ctx.strokeStyle = "#ff007f";
-    ctx.strokeRect(h.x, h.y - 80, h.w + 40, h.h + 80);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(h.x, h.y - 70, h.w + 40, h.h + 70);
     ctx.fillStyle = "#ff007f";
     ctx.font = "12px sans-serif";
-    ctx.fillText("CASA PRINCIPAL", h.x, h.y - 90);
+    ctx.fillText("CASA PRINCIPAL", h.x, h.y - 78);
     
-    // Puerta
+    // Puerta Entrar
     ctx.fillStyle = "#00ffff";
     ctx.fillRect(h.x + 20, h.y, h.w - 20, h.h);
 
-    // Banco Central
+    // Banco
     const b = worldLocations.bankDoor;
     ctx.fillStyle = "#1b334e";
-    ctx.fillRect(b.x - 20, b.y - 80, b.w + 40, b.h + 80);
+    ctx.fillRect(b.x - 20, b.y - 70, b.w + 40, b.h + 70);
     ctx.strokeStyle = "#00ffff";
-    ctx.strokeRect(b.x - 20, b.y - 80, b.w + 40, b.h + 80);
+    ctx.strokeRect(b.x - 20, b.y - 70, b.w + 40, b.h + 70);
     ctx.fillStyle = "#00ffff";
-    ctx.fillText("BANCO CENTRAL", b.x, b.y - 90);
+    ctx.fillText("BANCO CENTRAL", b.x, b.y - 78);
 
-    // Dibujar Pandilleros (Misión)
+    // Pandilleros Misión
     worldLocations.missionTargets.forEach(t => {
       if (t.active) {
         ctx.fillStyle = "#ff3333";
@@ -275,36 +414,34 @@ function render() {
         ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#fff";
-        ctx.fillText("🎯 Pandillero", t.x - 25, t.y - 18);
+        ctx.font = "10px sans-serif";
+        ctx.fillText("🎯 Pandillero", t.x - 25, t.y - 15);
       }
     });
 
   } else if (gameState.currentZone === "INTERIOR_CASA") {
-    // Dibujar Interior de la Casa del Personaje
     ctx.fillStyle = "#1a1829";
-    ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
+    ctx.fillRect(50, 40, canvas.width - 100, canvas.height - 80);
     ctx.strokeStyle = "#00ffff";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
+    ctx.lineWidth = 3;
+    ctx.strokeRect(50, 40, canvas.width - 100, canvas.height - 80);
 
-    // Renderizado de Muebles y Texturas
     houseFurniture.forEach(f => {
       ctx.fillStyle = f.color;
       ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.strokeStyle = "#ffffff22";
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
       ctx.strokeRect(f.x, f.y, f.w, f.h);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "13px sans-serif";
-      ctx.fillText(f.text, f.x + 10, f.y + f.h / 2);
+      ctx.font = "12px sans-serif";
+      ctx.fillText(f.text, f.x + 8, f.y + f.h / 2);
     });
 
-    // Zona Salida
     ctx.fillStyle = "#ff007f";
-    ctx.fillRect(430, 480, 100, 20);
-    ctx.fillText("SALIDA (Puerta)", 435, 475);
+    ctx.fillRect(430, 470, 100, 15);
+    ctx.fillText("SALIDA", 460, 465);
   }
 
-  // Dibujar Jugador
+  // Jugador
   const p = gameState.player;
   ctx.fillStyle = p.color;
   ctx.beginPath();
@@ -317,54 +454,51 @@ function render() {
   renderMinimap();
 }
 
-// Renderizado del Minimapa con Seguimiento de Misiones (Waypoints)
+// Minimapa
 function renderMinimap() {
   mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
   mCtx.fillStyle = "#080a14";
-  mCtx.fillRect(0, 0, 140, 140);
+  mCtx.fillRect(0, 0, 120, 120);
 
-  const scaleX = 140 / canvas.width;
-  const scaleY = 140 / canvas.height;
+  const scaleX = 120 / canvas.width;
+  const scaleY = 120 / canvas.height;
 
   if (gameState.currentZone === "EXTERIOR") {
-    // Marcador de Casa
     mCtx.fillStyle = "#00ffff";
-    mCtx.fillRect(worldLocations.homeDoor.x * scaleX, worldLocations.homeDoor.y * scaleY, 8, 8);
+    mCtx.fillRect(worldLocations.homeDoor.x * scaleX, worldLocations.homeDoor.y * scaleY, 7, 7);
 
-    // Waypoints de Objetivos/Misiones (Puntos amarillos/rojos dinámicos)
     worldLocations.missionTargets.forEach(t => {
       if (t.active) {
         mCtx.fillStyle = "#ffe600";
         mCtx.beginPath();
-        mCtx.arc(t.x * scaleX, t.y * scaleY, 4, 0, Math.PI * 2);
+        mCtx.arc(t.x * scaleX, t.y * scaleY, 3.5, 0, Math.PI * 2);
         mCtx.fill();
       }
     });
   }
 
-  // Posición del Jugador en Minimapa
   mCtx.fillStyle = "#ff007f";
   mCtx.beginPath();
-  mCtx.arc(gameState.player.x * scaleX, gameState.player.y * scaleY, 4, 0, Math.PI * 2);
+  mCtx.arc(gameState.player.x * scaleX, gameState.player.y * scaleY, 3.5, 0, Math.PI * 2);
   mCtx.fill();
 }
 
 function gameLoop() {
-  updatePlayer();
-  render();
+  try {
+    updatePlayer();
+    render();
+  } catch(e) {
+    console.error("Error detectado en loop:", e);
+  }
   requestAnimationFrame(gameLoop);
 }
 
-function saveGame() {
-  alert("¡Progreso Guardado Exitosamente!");
-}
-
 function toggleFullscreen() {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
   else if (document.exitFullscreen) document.exitFullscreen();
 }
 
-// Iniciar Juego
+// Arrancar Bucle Seguro
 gameLoop();
 </script>
 </body>
