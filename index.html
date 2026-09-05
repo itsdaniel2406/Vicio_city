@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VICIO CITY V3.2.0 - Complete Build</title>
+  <title>VICIO CITY V3.3.0 - Ultimate Vehicle & Door Build</title>
   <style>
     * {
       box-sizing: border-box;
@@ -21,27 +21,22 @@
       width: 100vw;
       height: 100vh;
     }
-    
     #game-container {
       position: relative;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
     }
-
-    canvas {
-      display: block;
-      background: #0d0f18;
-    }
+    canvas { display: block; background: #0d0f18; }
 
     /* HUD */
     .hud-panel {
       position: absolute;
       top: 10px;
       left: 10px;
-      width: 250px;
+      width: 260px;
       padding: 10px;
-      background: rgba(10, 10, 20, 0.85);
+      background: rgba(10, 10, 20, 0.88);
       border: 2px solid #ff007f;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
@@ -97,7 +92,7 @@
     }
     #minimap-canvas { width: 100%; height: 100%; background: #05050a; }
 
-    /* D-Pad Táctil */
+    /* Controles Táctiles D-PAD y Botones */
     .controls-left {
       position: absolute;
       bottom: 15px;
@@ -120,8 +115,7 @@
       align-items: center;
       cursor: pointer;
     }
-    
-    /* Botones de Acción Táctiles */
+
     .controls-right {
       position: absolute;
       bottom: 15px;
@@ -145,7 +139,7 @@
     .btn-action { border-color: #ff007f; color: #ff007f; background: rgba(255, 0, 127, 0.2); }
     .btn-weapon { border-color: #ffe600; color: #ffe600; background: rgba(255, 230, 0, 0.2); }
 
-    /* Vestidor Modal */
+    /* Modal Vestidor */
     #outfit-modal {
       display: none;
       position: absolute;
@@ -176,20 +170,20 @@
   <canvas id="gameCanvas"></canvas>
 
   <div class="hud-panel">
-    <div class="hud-title">VICIO CITY V3.2.0</div>
+    <div class="hud-title">VICIO CITY V3.3.0</div>
     <div class="hud-stats"><span>LVL: 1</span><span>XP: 95/100</span></div>
     <div class="hud-stats"><span>HP: <span id="val-hp">100</span>/100</span><span>CASH: $<span id="val-cash">960</span></span></div>
-    <div class="hud-stats"><span>WANTED: ★☆☆☆☆</span></div>
+    <div class="hud-stats"><span>VEHÍCULO: <span id="val-veh" style="color:#ffe600;">A Pie</span></span></div>
     <div class="hud-mission">
       🎯 <b>MISIÓN ACTIVA:</b><br>
       Elimina 3 Pandilleros (<span id="val-targets">0</span>/3)<br>
-      <small>[Usa D-PAD / Flechas y 🔫 para disparar]</small>
+      <small>[Prueba el Tanque, Moto, Heli y Superdeportivo]</small>
     </div>
   </div>
 
   <div class="top-buttons">
     <button class="btn-top" onclick="toggleFullscreen()">FULL</button>
-    <button class="btn-top" onclick="alert('Llega a los puntos rojos en el minimapa y elimina a los pandilleros con el botón de disparo.')">MISIONES</button>
+    <button class="btn-top" onclick="alert('Usa los marcadores de las puertas para entrar a los edificios y busca los vehículos especiales por el mapa.')">INFO</button>
     <button class="btn-top" onclick="alert('Juego Guardado')">GUARDAR</button>
   </div>
 
@@ -227,7 +221,6 @@ const ctx = canvas.getContext("2d");
 const mCanvas = document.getElementById("minimap-canvas");
 const mCtx = mCanvas.getContext("2d");
 
-// Tamaño de Pantalla
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -235,51 +228,54 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// Configuración del Mundo
-const WORLD = { width: 2000, height: 2000 };
+const WORLD = { width: 2500, height: 2500 };
 const camera = { x: 0, y: 0 };
+let heliRotorAngle = 0;
 
 // Jugador
 const player = {
-  x: 1000, y: 1000,
-  speed: 4, angle: 0,
+  x: 1200, y: 1200, speed: 4, angle: 0,
   color: "#ff007f", cash: 960, hp: 100,
-  inVehicle: false,
-  dirX: 0, dirY: -1
+  vehicle: null, dirX: 0, dirY: -1
 };
 
-// Auto
-const vehicle = {
-  x: 1080, y: 1020, w: 40, h: 70, angle: 0, speed: 7, color: "#00ffff"
-};
-
-// Proyectiles y Pandilleros
-const bullets = [];
-const enemies = [
-  { x: 800, y: 1200, hp: 30, active: true, dirX: 1, dirY: 0 },
-  { x: 1300, y: 700, hp: 30, active: true, dirX: 0, dirY: 1 },
-  { x: 1500, y: 1400, hp: 30, active: true, dirX: -1, dirY: 0 }
+// Lista de Vehículos
+const vehicles = [
+  { id: 1, type: "CAR_SEDAN", name: "Sedán Urbano", x: 1280, y: 1220, w: 38, h: 65, speed: 6.5, color: "#00ffff", angle: 0 },
+  { id: 2, type: "CAR_SUPER", name: "Superdeportivo Neon", x: 1600, y: 1200, w: 42, h: 72, speed: 10, color: "#ff007f", angle: 0, neon: true },
+  { id: 3, type: "BIKE", name: "Moto Pista", x: 1100, y: 1300, w: 20, h: 45, speed: 8.5, color: "#ffe600", angle: 0 },
+  { id: 4, type: "HELI", name: "Helicóptero", x: 1800, y: 800, w: 50, h: 80, speed: 7.5, color: "#00ff66", angle: 0 },
+  { id: 5, type: "TANK", name: "Tanque Blindado", x: 600, y: 1600, w: 55, h: 75, speed: 3.5, color: "#445533", angle: 0 }
 ];
 
-// Puntos de Interés
-const locations = {
-  houseDoor: { x: 900, y: 850, w: 80, h: 50, label: "Casa Principal" },
-  bankDoor: { x: 1400, y: 850, w: 100, h: 50, label: "Banco Central" }
-};
+// Edificios y Puertas Interactivas
+const buildings = [
+  { id: "CASA", label: "Casa Principal", x: 1100, y: 1000, w: 140, h: 100, doorX: 1150, doorY: 1090, color: "#2a1b4e" },
+  { id: "BANCO", label: "Banco Central", x: 1500, y: 1000, w: 180, h: 110, doorX: 1570, doorY: 1100, color: "#1b334e" },
+  { id: "TALLER", label: "Taller Tuning", x: 800, y: 1400, w: 160, h: 120, doorX: 860, doorY: 1510, color: "#3a2a1e" }
+];
+
+const bullets = [];
+const enemies = [
+  { x: 900, y: 1300, hp: 30, active: true, dirX: 1, dirY: 0 },
+  { x: 1400, y: 800, hp: 30, active: true, dirX: 0, dirY: 1 },
+  { x: 1700, y: 1500, hp: 30, active: true, dirX: -1, dirY: 0 }
+];
 
 let targetsDefeated = 0;
 let currentZone = "EXTERIOR";
 const keys = { up: false, down: false, left: false, right: false };
 
-// Eventos de Controles
+// Controles Teclado y Táctiles
 window.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   if (k === 'w' || k === 'arrowup') keys.up = true;
   if (k === 's' || k === 'arrowdown') keys.down = true;
   if (k === 'a' || k === 'arrowleft') keys.left = true;
   if (k === 'd' || k === 'arrowright') keys.right = true;
-  if (k === ' ') shootBullet();
-  if (k === 'e') interact();
+  if (k === ' ') shoot();
+  if (k === 'e') interactVehicle();
+  if (k === 'f') interactDoor();
 });
 
 window.addEventListener("keyup", e => {
@@ -308,43 +304,56 @@ bindTouch("btn-up", "up");
 bindTouch("btn-down", "down");
 bindTouch("btn-left", "left");
 bindTouch("btn-right", "right");
-bindTouch("btn-shoot", shootBullet);
+bindTouch("btn-shoot", shoot);
 bindTouch("btn-car", interactVehicle);
-bindTouch("btn-door", interact);
+bindTouch("btn-door", interactDoor);
 
-function shootBullet() {
+function shoot() {
+  const isTank = player.vehicle && player.vehicle.type === "TANK";
   bullets.push({
     x: player.x,
     y: player.y,
-    vx: player.dirX * 12,
-    vy: player.dirY * 12,
+    vx: player.dirX * (isTank ? 15 : 12),
+    vy: player.dirY * (isTank ? 15 : 12),
+    isCannon: isTank,
     life: 50
   });
 }
 
 function interactVehicle() {
-  if (!player.inVehicle) {
-    if (Math.hypot(player.x - vehicle.x, player.y - vehicle.y) < 60) {
-      player.inVehicle = true;
+  if (!player.vehicle) {
+    let closest = null;
+    let minDist = 70;
+    vehicles.forEach(v => {
+      const d = Math.hypot(player.x - v.x, player.y - v.y);
+      if (d < minDist) { minDist = d; closest = v; }
+    });
+    if (closest) {
+      player.vehicle = closest;
+      document.getElementById("val-veh").innerText = closest.name;
     }
   } else {
-    player.inVehicle = false;
-    player.x = vehicle.x + 40;
+    player.x = player.vehicle.x + 45;
+    player.vehicle = null;
+    document.getElementById("val-veh").innerText = "A Pie";
   }
 }
 
-function interact() {
+function interactDoor() {
   if (currentZone === "EXTERIOR") {
-    const h = locations.houseDoor;
-    if (Math.hypot(player.x - (h.x + h.w/2), player.y - (h.y + h.h/2)) < 60) {
-      currentZone = "INTERIOR_CASA";
-      player.x = 400; player.y = 400;
-    }
-  } else if (currentZone === "INTERIOR_CASA") {
+    buildings.forEach(b => {
+      if (Math.hypot(player.x - b.doorX, player.y - b.doorY) < 50) {
+        currentZone = b.id;
+        player.x = 400; player.y = 400;
+        if (player.vehicle) interactVehicle(); // Desmontar al entrar
+      }
+    });
+  } else {
     if (player.y > 450) {
+      const b = buildings.find(item => item.id === currentZone);
       currentZone = "EXTERIOR";
-      player.x = locations.houseDoor.x + 40;
-      player.y = locations.houseDoor.y + 80;
+      player.x = b ? b.doorX : 1200;
+      player.y = b ? b.doorY + 40 : 1200;
     } else if (Math.hypot(player.x - 600, player.y - 150) < 60) {
       document.getElementById("outfit-modal").style.display = "block";
     }
@@ -357,7 +366,7 @@ function closeOutfit() { document.getElementById("outfit-modal").style.display =
 // Lógica de Movimiento
 function update() {
   let moveX = 0, moveY = 0;
-  const currentSpeed = player.inVehicle ? vehicle.speed : player.speed;
+  const activeSpeed = player.vehicle ? player.vehicle.speed : player.speed;
 
   if (keys.up) moveY -= 1;
   if (keys.down) moveY += 1;
@@ -370,17 +379,19 @@ function update() {
     player.dirY = moveY / len;
     player.angle = Math.atan2(player.dirY, player.dirX);
 
-    player.x += player.dirX * currentSpeed;
-    player.y += player.dirY * currentSpeed;
+    player.x += player.dirX * activeSpeed;
+    player.y += player.dirY * activeSpeed;
 
-    if (player.inVehicle) {
-      vehicle.x = player.x;
-      vehicle.y = player.y;
-      vehicle.angle = player.angle;
+    if (player.vehicle) {
+      player.vehicle.x = player.x;
+      player.vehicle.y = player.y;
+      player.vehicle.angle = player.angle;
     }
   }
 
-  // Actualizar Cámara centrada en Jugador
+  heliRotorAngle += 0.3;
+
+  // Cámara centrada
   if (currentZone === "EXTERIOR") {
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
@@ -388,17 +399,16 @@ function update() {
     camera.x = 0; camera.y = 0;
   }
 
-  // Actualizar Proyectiles
+  // Proyectiles
   for (let i = bullets.length - 1; i >= 0; i--) {
     const b = bullets[i];
     b.x += b.vx;
     b.y += b.vy;
     b.life--;
 
-    // Colisión con enemigos
     enemies.forEach(e => {
-      if (e.active && Math.hypot(b.x - e.x, b.y - e.y) < 20) {
-        e.hp -= 15;
+      if (e.active && Math.hypot(b.x - e.x, b.y - e.y) < (b.isCannon ? 35 : 20)) {
+        e.hp -= b.isCannon ? 40 : 15;
         b.life = 0;
         if (e.hp <= 0) {
           e.active = false;
@@ -413,7 +423,7 @@ function update() {
     if (b.life <= 0) bullets.splice(i, 1);
   }
 
-  // Movimiento Enemigos
+  // IA Enemigos
   enemies.forEach(e => {
     if (e.active) {
       e.x += e.dirX * 0.8;
@@ -426,45 +436,81 @@ function update() {
   });
 }
 
-// Renderizado de Personajes con Detalles
-function drawCharacter(x, y, angle, bodyColor, isEnemy = false) {
+// Dibujo Detallado de Vehículos
+function drawVehicle(v) {
+  ctx.save();
+  ctx.translate(v.x - camera.x, v.y - camera.y);
+  ctx.rotate(v.angle + Math.PI/2);
+
+  if (v.type === "CAR_SUPER") {
+    // Neón Inferior
+    ctx.shadowColor = "#ff007f";
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = v.color;
+    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
+    ctx.shadowBlur = 0;
+    // Chasis / Alerón
+    ctx.fillStyle = "#111";
+    ctx.fillRect(-v.w/2 - 2, v.h/2 - 6, v.w + 4, 6); // Alerón
+    ctx.fillStyle = "#222";
+    ctx.fillRect(-v.w/2 + 4, -v.h/2 + 15, v.w - 8, 25); // Parabrisas
+  } 
+  else if (v.type === "CAR_SEDAN") {
+    ctx.fillStyle = v.color;
+    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
+    ctx.fillStyle = "#111";
+    ctx.fillRect(-v.w/2 + 3, -v.h/2 + 12, v.w - 6, 18);
+  } 
+  else if (v.type === "BIKE") {
+    ctx.fillStyle = "#111";
+    ctx.fillRect(-3, -v.h/2, 6, 12); // Rueda delantera
+    ctx.fillRect(-3, v.h/2 - 12, 6, 12); // Rueda trasera
+    ctx.fillStyle = v.color;
+    ctx.fillRect(-v.w/2, -8, v.w, 20); // Cuerpo
+  } 
+  else if (v.type === "HELI") {
+    // Cuerpo
+    ctx.fillStyle = v.color;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, v.w/2, v.h/3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillRect(-4, v.h/3, 8, 30); // Cola
+    // Hélice Principal
+    ctx.save();
+    ctx.rotate(heliRotorAngle);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillRect(-50, -3, 100, 6);
+    ctx.restore();
+  } 
+  else if (v.type === "TANK") {
+    // Orugas
+    ctx.fillStyle = "#111";
+    ctx.fillRect(-v.w/2 - 4, -v.h/2, 8, v.h);
+    ctx.fillRect(v.w/2 - 4, -v.h/2, 8, v.h);
+    // Cuerpo
+    ctx.fillStyle = v.color;
+    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
+    // Torreta + Cañón
+    ctx.fillStyle = "#223311";
+    ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
+    ctx.fillRect(-4, -35, 8, 25); // Cañón
+  }
+
+  ctx.restore();
+}
+
+// Personaje
+function drawCharacter(x, y, angle, bodyColor) {
   ctx.save();
   ctx.translate(x - camera.x, y - camera.y);
   ctx.rotate(angle);
 
-  // Sombras
-  ctx.fillStyle = "rgba(0,0,0,0.3)";
-  ctx.beginPath();
-  ctx.arc(2, 2, 14, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Brazos / Armas
-  ctx.fillStyle = "#ffcc99";
-  ctx.fillRect(4, -10, 8, 5);
-  ctx.fillRect(4, 5, 8, 5);
-
-  if (isEnemy) {
-    ctx.fillStyle = "#333";
-    ctx.fillRect(8, 4, 12, 4); // Arma Pandillero
-  } else {
-    ctx.fillStyle = "#ffe600";
-    ctx.fillRect(8, 4, 10, 3); // Pistola Jugador
-  }
-
-  // Cuerpo
   ctx.fillStyle = bodyColor;
-  ctx.beginPath();
-  ctx.arc(0, 0, 12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
 
-  // Cabeza / Gorra
   ctx.fillStyle = "#ffcc99";
-  ctx.beginPath();
-  ctx.arc(0, 0, 7, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
 
   ctx.restore();
 }
@@ -473,65 +519,57 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (currentZone === "EXTERIOR") {
-    // Dibujar Calles y Fondo de Ciudad
+    // Ciudad y Calles
     ctx.fillStyle = "#151828";
     ctx.fillRect(-camera.x, -camera.y, WORLD.width, WORLD.height);
 
-    // Calles principales
+    // Red de Carreteras
     ctx.fillStyle = "#22263a";
-    ctx.fillRect(0 - camera.x, 950 - camera.y, WORLD.width, 100);
-    ctx.fillRect(950 - camera.x, 0 - camera.y, 100, WORLD.height);
+    ctx.fillRect(0 - camera.x, 1150 - camera.y, WORLD.width, 120);
+    ctx.fillRect(1150 - camera.x, 0 - camera.y, 120, WORLD.height);
 
-    // Líneas de calle
     ctx.strokeStyle = "#ffe600";
     ctx.setLineDash([20, 20]);
     ctx.beginPath();
-    ctx.moveTo(0 - camera.x, 1000 - camera.y);
-    ctx.lineTo(WORLD.width - camera.x, 1000 - camera.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.moveTo(0 - camera.x, 1210 - camera.y);
+    ctx.lineTo(WORLD.width - camera.x, 1210 - camera.y);
+    ctx.stroke(); ctx.setLineDash([]);
 
-    // Edificios
-    for (let key in locations) {
-      const loc = locations[key];
-      ctx.fillStyle = "#2a1b4e";
-      ctx.fillRect(loc.x - camera.x, loc.y - camera.y, loc.w, loc.h);
-      ctx.strokeStyle = "#ff007f";
+    // Edificios y Puertas
+    buildings.forEach(b => {
+      ctx.fillStyle = b.color;
+      ctx.fillRect(b.x - camera.x, b.y - camera.y, b.w, b.h);
+      ctx.strokeStyle = "#00ffff";
       ctx.lineWidth = 2;
-      ctx.strokeRect(loc.x - camera.x, loc.y - camera.y, loc.w, loc.h);
-      ctx.fillStyle = "#00ffff";
-      ctx.font = "11px sans-serif";
-      ctx.fillText(loc.label, loc.x - camera.x, loc.y - camera.y - 8);
-    }
+      ctx.strokeRect(b.x - camera.x, b.y - camera.y, b.w, b.h);
 
-    // Dibujar Vehículo
-    if (!player.inVehicle) {
-      ctx.save();
-      ctx.translate(vehicle.x - camera.x, vehicle.y - camera.y);
-      ctx.fillStyle = vehicle.color;
-      ctx.fillRect(-vehicle.w/2, -vehicle.h/2, vehicle.w, vehicle.h);
-      ctx.strokeStyle = "#fff";
-      ctx.strokeRect(-vehicle.w/2, -vehicle.h/2, vehicle.w, vehicle.h);
-      ctx.restore();
-    }
+      // Puerta Neón Interactiva
+      ctx.fillStyle = "#ff007f";
+      ctx.fillRect(b.doorX - camera.x - 15, b.doorY - camera.y - 10, 30, 10);
+      ctx.fillStyle = "#00ffff";
+      ctx.font = "10px sans-serif";
+      ctx.fillText("🚪 [ENTRAR]", b.doorX - camera.x - 22, b.doorY - camera.y - 15);
+      ctx.fillText(b.label, b.x - camera.x, b.y - camera.y - 8);
+    });
+
+    // Renderizar Vehículos
+    vehicles.forEach(v => drawVehicle(v));
 
     // Pandilleros
     enemies.forEach(e => {
-      if (e.active) {
-        drawCharacter(e.x, e.y, Math.atan2(e.dirY, e.dirX), "#ff3333", true);
-      }
+      if (e.active) drawCharacter(e.x, e.y, Math.atan2(e.dirY, e.dirX), "#ff3333");
     });
 
     // Balas
-    ctx.fillStyle = "#ffe600";
     bullets.forEach(b => {
+      ctx.fillStyle = b.isCannon ? "#ff5500" : "#ffe600";
       ctx.beginPath();
-      ctx.arc(b.x - camera.x, b.y - camera.y, 3, 0, Math.PI * 2);
+      ctx.arc(b.x - camera.x, b.y - camera.y, b.isCannon ? 6 : 3, 0, Math.PI * 2);
       ctx.fill();
     });
 
   } else {
-    // Interior Casa
+    // Interiores
     ctx.fillStyle = "#1a1829";
     ctx.fillRect(100, 50, canvas.width - 200, canvas.height - 100);
     ctx.strokeStyle = "#00ffff";
@@ -549,8 +587,8 @@ function render() {
     ctx.fillText("SALIDA", canvas.width / 2 - 20, canvas.height - 90);
   }
 
-  // Jugador
-  if (!player.inVehicle) {
+  // Jugador a pie
+  if (!player.vehicle) {
     drawCharacter(player.x, player.y, player.angle, player.color);
   }
 
@@ -565,6 +603,13 @@ function renderMinimap() {
   const scale = 110 / WORLD.width;
 
   if (currentZone === "EXTERIOR") {
+    // Vehículos en el mapa
+    vehicles.forEach(v => {
+      mCtx.fillStyle = v.type === "TANK" ? "#445533" : "#00ffff";
+      mCtx.fillRect(v.x * scale, v.y * scale, 3, 3);
+    });
+
+    // Enemigos
     enemies.forEach(e => {
       if (e.active) {
         mCtx.fillStyle = "#ff3333";
@@ -575,7 +620,7 @@ function renderMinimap() {
     });
   }
 
-  mCtx.fillStyle = "#00ffff";
+  mCtx.fillStyle = "#ff007f";
   mCtx.beginPath();
   mCtx.arc(player.x * scale, player.y * scale, 4, 0, Math.PI * 2);
   mCtx.fill();
