@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vicio City by Dani - v2.6</title>
+    <title>Vicio City by Dani - v2.7</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
         body, html { width: 100vw; height: 100vh; overflow: hidden; background: #05050a; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; }
@@ -25,7 +25,7 @@
         .btn-small-sys { background: rgba(5,5,15,0.9); border: 1.5px solid #00f0ff; color: #00f0ff; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; pointer-events: auto; }
         .btn-small-sys:active { background: #00f0ff; color: #000; }
         
-        #minimap-container { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
+        #minimap-container { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
         #minimap { width: 100%; height: 100%; }
 
         /* Botón Interacción Contextual */
@@ -33,24 +33,24 @@
         @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.08); } }
 
         /* Cuadro de Diálogo NPC */
-        #dialog-box { display: none; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 500px; background: rgba(10, 15, 30, 0.95); border: 2px solid #00f0ff; border-radius: 12px; padding: 12px 18px; z-index: 90; box-shadow: 0 0 15px rgba(0,240,255,0.4); text-align: center; }
+        #dialog-box { display: none; position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 500px; background: rgba(10, 15, 30, 0.95); border: 2px solid #00f0ff; border-radius: 12px; padding: 12px 18px; z-index: 90; box-shadow: 0 0 15px rgba(0,240,255,0.4); text-align: center; }
         #dialog-title { color: #ff007f; font-weight: 900; font-size: 14px; margin-bottom: 4px; text-transform: uppercase; }
         #dialog-text { color: #fff; font-size: 13px; margin-bottom: 8px; }
 
-        /* Controles - D-PAD */
-        .dpad-container { position: absolute; bottom: 15px; left: 15px; pointer-events: auto; z-index: 20; }
-        .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); gap: 4px; }
-        .btn { background: rgba(5, 10, 20, 0.85); border: 2px solid #00f0ff; border-radius: 10px; color: #00f0ff; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,240,255,0.3); }
-        .btn:active { background: rgba(0, 240, 255, 0.4); }
+        /* NUEVA CRUCIETA REUBICADA Y ERGONÓMICA */
+        .dpad-container { position: absolute; bottom: 35px; left: 35px; pointer-events: auto; z-index: 20; }
+        .dpad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px; }
+        .btn { background: rgba(10, 20, 35, 0.85); border: 2px solid #00f0ff; border-radius: 14px; color: #00f0ff; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,240,255,0.3); transition: background 0.1s, transform 0.1s; }
+        .btn:active, .btn.pressed { background: rgba(0, 240, 255, 0.5); transform: scale(0.92); color: #fff; box-shadow: 0 0 20px #00f0ff; }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
         
         /* Controles Derecha */
-        .controls-right { position: absolute; bottom: 15px; right: 15px; display: flex; gap: 8px; align-items: flex-end; z-index: 20; pointer-events: auto; }
-        .btn-act { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 18px; background: rgba(5,5,15,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,0,127,0.3); }
-        .btn-act:active { background: rgba(255, 0, 127, 0.4); }
+        .controls-right { position: absolute; bottom: 35px; right: 35px; display: flex; gap: 12px; align-items: flex-end; z-index: 20; pointer-events: auto; }
+        .btn-act { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 20px; background: rgba(15,5,20,0.85); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(255,0,127,0.4); transition: transform 0.1s; }
+        .btn-act:active { background: rgba(255, 0, 127, 0.5); transform: scale(0.92); }
     </style>
 </head>
 <body>
@@ -58,12 +58,12 @@
     <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
 
     <div class="hud-left">
-        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.6</span></div>
+        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.7</span></div>
         <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
         <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
         <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$100</span></div>
         <div class="hud-card">BUSCADO: <span id="wanted-val" style="color:#ffcc00">☆☆☆☆☆</span></div>
-        <div class="hud-card mission-card">🎯 MISIÓN: <span id="mission-val">Explora la ciudad</span></div>
+        <div class="hud-card mission-card">🎯 MISIÓN: <span id="mission-val">Cargando...</span></div>
     </div>
 
     <div class="top-right-container">
@@ -101,7 +101,7 @@
     </div>
 
     <script>
-        const GAME_VERSION = "v2.6";
+        const GAME_VERSION = "v2.7";
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const mCanvas = document.getElementById('minimap');
@@ -110,7 +110,7 @@
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            mCanvas.width = 100; mCanvas.height = 100;
+            mCanvas.width = 110; mCanvas.height = 110;
         }
         window.addEventListener('resize', resize);
         resize();
@@ -167,7 +167,7 @@
             { id: 'hospital', x: 600, y: 2700, w: 350, h: 300, color: '#3a1616', roof: '#210d0d', label: '🚑 HOSPITAL GENERAL', doorX: 775, doorY: 3000 }
         ];
 
-        // INTERIORES DETALLADOS
+        // INTERIORES DETALLADOS Y MUEBLES CON TEXTURA HD
         const interiors = {
             'home': {
                 name: 'Mi Casa', w: 600, h: 500,
@@ -196,6 +196,15 @@
                 ],
                 exitDoor: { x: 350, y: 520 }
             },
+            'casino': {
+                name: 'Casino Neón VIP', w: 750, h: 550,
+                furniture: [
+                    { id: 'roulette', type: 'roulette', name: 'Mesa de Ruleta VIP ($100)', x: 120, y: 120, w: 160, h: 90, color: '#0a3818', action: 'gamble' },
+                    { id: 'slots', type: 'slots', name: 'Tragamonedas Neón', x: 380, y: 80, w: 260, h: 45, color: '#ff007f', action: 'gamble' },
+                    { id: 'bar', type: 'counter', name: 'Barra del Casino', x: 200, y: 320, w: 350, h: 50, color: '#4a1232' }
+                ],
+                exitDoor: { x: 375, y: 520 }
+            },
             'airport': {
                 name: 'Terminal de Aeropuerto', w: 900, h: 700,
                 furniture: [
@@ -213,7 +222,7 @@
             { x: 4800, y: 1120, angle: 0, speed: 7.2, health: 100, w: 48, h: 22, color: '#ffee00', type: 'hypercar' }
         ];
 
-        // GENERAR NPCS Y SUS DIÁLOGOS
+        // DIÁLOGOS Y NPCS
         const npcQuotes = {
             civilian: ["¡Qué lindo día en Vicio City!", "¿Has visto el casino?", "¡Cuidado con los pandilleros!", "Tengo prisa, lo siento.", "¡El alcalde debería reparar las calles!"],
             police: ["Circule, no hay nada que ver.", "Mantén las manos donde pueda verlas.", "Si buscas problemas, me encontrarás a mí.", "Todo en orden por aquí."],
@@ -229,11 +238,13 @@
             });
         }
 
+        // LISTA DE MISIOMES CON PUNTOS DE DESTINO PARA SEGUIMIENTO (DIAMANTE EN MINIMAPA)
         const missionList = [
-            { text: "Visita el Banco Central y entra a la bóveda", type: "bank" },
-            { text: "Elimina 3 Pandilleros en la ciudad", type: "kills", target: 3, current: 0 },
-            { text: "Pilota un Helicóptero en el Aeropuerto", type: "heli" },
-            { text: "Entra a la Farmacia a sanarte", type: "pharma" }
+            { text: "Visita el Banco Central y entra a la bóveda", type: "bank", targetX: 560, targetY: 1680 },
+            { text: "Elimina 3 Pandilleros en la ciudad", type: "kills", target: 3, current: 0, targetX: 2000, targetY: 2000 },
+            { text: "Pilota un Helicóptero en el Aeropuerto", type: "heli", targetX: 3600, targetY: 3100 },
+            { text: "Entra a la Farmacia a sanarte", type: "pharma", targetX: 1630, targetY: 1020 },
+            { text: "Prueba tu suerte en el Casino Neón", type: "casino", targetX: 3190, targetY: 1100 }
         ];
         let currentMission = missionList[0];
 
@@ -267,10 +278,11 @@
             dialogTimeout = setTimeout(() => { box.style.display = 'none'; }, 4000);
         }
 
+        // BIND TOUCH PARA CRUCIETA ERGONÓMICA
         function bindTouch(id, key) {
             const el = document.getElementById(id);
-            const start = (e) => { e.preventDefault(); keys[key] = true; };
-            const end = (e) => { e.preventDefault(); keys[key] = false; };
+            const start = (e) => { e.preventDefault(); keys[key] = true; el.classList.add('pressed'); };
+            const end = (e) => { e.preventDefault(); keys[key] = false; el.classList.remove('pressed'); };
             el.addEventListener('touchstart', start); el.addEventListener('touchend', end);
             el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
         }
@@ -314,6 +326,7 @@
             document.getElementById('wanted-val').innerText = "★".repeat(player.wanted) + "☆".repeat(5 - player.wanted);
             document.getElementById('mission-val').innerText = currentMission.text + (currentMission.type==='kills'?` (${currentMission.current}/${currentMission.target})` : '');
         }
+        updateHUD();
 
         function triggerContextInteraction() {
             // 1. Hablar con NPC cercano
@@ -327,12 +340,12 @@
                 return;
             }
 
-            // 2. Interactuar con mueble de interior
+            // 2. Muebles de interior
             if(currentInterior && activeFurniture) {
                 if(activeFurniture.action === 'change_cloth') {
                     currentClothIndex = (currentClothIndex + 1) % clothesPalette.length;
                     player.clothColor = clothesPalette[currentClothIndex];
-                    showDialog("ARMARIO", "🎨 Te has cambiado de ropa. ¡Nuevo look!");
+                    showDialog("ARMARIO", "🎨 Te has cambiado de ropa. ¡Nuevo estilo!");
                 } else if(activeFurniture.action === 'buy_heal') {
                     if(player.money >= 50) {
                         player.money -= 50;
@@ -353,22 +366,44 @@
                     updateHUD();
                     showDialog("ALERTA BANCO", "💰 ¡Robaste la Bóveda! +$300 (Buscado Nivel " + player.wanted + ")");
                     checkMissionProgress('bank');
+                } else if(activeFurniture.action === 'gamble') {
+                    if(player.money >= 50) {
+                        player.money -= 50;
+                        const win = Math.random() > 0.45;
+                        if(win) {
+                            player.money += 120;
+                            showDialog("CASINO NEÓN", "🎰 ¡GANASTE! Recibes $120.");
+                        } else {
+                            showDialog("CASINO NEÓN", "💸 Mala suerte, perdiste $50. ¡Intenta de nuevo!");
+                        }
+                        updateHUD();
+                        checkMissionProgress('casino');
+                    } else {
+                        showDialog("CASINO NEÓN", "❌ Necesitas al menos $50 para jugar.");
+                    }
                 }
                 return;
             }
 
-            // 3. Entrar / Salir de edificios
+            // 3. Entrar / Salir de Edificios
             if(currentInterior) {
                 player.x = player.savedExteriorX;
                 player.y = player.savedExteriorY;
                 currentInterior = null;
                 showDialog("CIUDAD", "Regresaste a las calles de Vicio City.");
             } else if(activeDoorBuilding) {
-                player.savedExteriorX = player.x;
-                player.savedExteriorY = player.y + 30;
+                player.savedExteriorX = activeDoorBuilding.doorX;
+                player.savedExteriorY = activeDoorBuilding.doorY + 40;
                 currentInterior = activeDoorBuilding.id;
-                player.x = interiors[currentInterior] ? interiors[currentInterior].w / 2 : 200;
-                player.y = interiors[currentInterior] ? interiors[currentInterior].h - 80 : 200;
+                
+                const targetInt = interiors[currentInterior];
+                if(targetInt) {
+                    player.x = targetInt.exitDoor.x;
+                    player.y = targetInt.exitDoor.y - 40;
+                } else {
+                    player.x = 200; player.y = 200;
+                }
+                
                 showDialog("INTERIOR", "Entraste a: " + activeDoorBuilding.label);
                 checkMissionProgress(currentInterior);
             }
@@ -455,7 +490,7 @@
 
             if(player.inCar) { player.x = player.carRef.x; player.y = player.carRef.y; }
 
-            // DETECCIÓN DE INTERACCIONES CONTEXTUALES
+            // DETECCIÓN DE INTERACCIÓN
             activeDoorBuilding = null;
             activeFurniture = null;
             activeNpcTalk = null;
@@ -463,34 +498,32 @@
 
             if(currentInterior) {
                 const data = interiors[currentInterior];
-                // Chequear Muebles
-                data.furniture.forEach(f => {
-                    const cx = f.x + f.w/2; const cy = f.y + f.h/2;
-                    if(Math.hypot(player.x - cx, player.y - cy) < 65) {
-                        activeFurniture = f;
-                    }
-                });
+                if(data) {
+                    data.furniture.forEach(f => {
+                        const cx = f.x + f.w/2; const cy = f.y + f.h/2;
+                        if(Math.hypot(player.x - cx, player.y - cy) < 65) {
+                            activeFurniture = f;
+                        }
+                    });
 
-                // Chequear Puerta Salida
-                const door = data.exitDoor;
-                if(Math.hypot(player.x - door.x, player.y - door.y) < 40) {
-                    btn.style.display = 'block';
-                    btn.innerText = "🚪 SALIR A LA CIUDAD";
-                } else if(activeFurniture) {
-                    btn.style.display = 'block';
-                    btn.innerText = "⚡ " + activeFurniture.name;
-                } else {
-                    btn.style.display = 'none';
+                    const door = data.exitDoor;
+                    if(Math.hypot(player.x - door.x, player.y - door.y) < 45) {
+                        btn.style.display = 'block';
+                        btn.innerText = "🚪 SALIR A LA CIUDAD";
+                    } else if(activeFurniture) {
+                        btn.style.display = 'block';
+                        btn.innerText = "⚡ " + activeFurniture.name;
+                    } else {
+                        btn.style.display = 'none';
+                    }
                 }
 
             } else {
-                // Chequear Edificios
                 if(!player.inCar) {
                     buildings.forEach(b => {
                         if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 45) activeDoorBuilding = b;
                     });
 
-                    // Chequear NPCs para hablar
                     npcs.forEach(npc => {
                         if(npc.alive && Math.hypot(player.x - npc.x, player.y - npc.y) < 35) {
                             activeNpcTalk = npc;
@@ -509,7 +542,7 @@
                 }
             }
 
-            // PROCESAR BALAS Y COLISIONES
+            // PROCESAR BALAS
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; b.life--;
                 npcs.forEach(npc => {
@@ -548,40 +581,56 @@
             ctx.restore();
         }
 
+        // RENDERIZADO HD Y TEXTURIZADO DE MUEBLES
         function drawFurnitureModel(f) {
             ctx.save();
             ctx.translate(f.x, f.y);
 
-            // Sombra mueble
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.fillRect(4, 4, f.w, f.h);
+            // Sombra
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx.fillRect(5, 5, f.w, f.h);
 
-            if(f.type === 'bed') {
-                // Estructura Cama HD
-                ctx.fillStyle = '#4a2e18'; ctx.fillRect(0, 0, f.w, f.h); // Madera
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(4, 15, f.w - 8, f.h - 20); // Sábana
-                ctx.fillStyle = f.color; ctx.fillRect(4, 4, f.w - 8, 20); // Almohada
+            if(f.type === 'roulette') {
+                // Mesa Ruleta Neón HD
+                let grad = ctx.createLinearGradient(0, 0, f.w, f.h);
+                grad.addColorStop(0, '#0a3818'); grad.addColorStop(0.5, '#125c28'); grad.addColorStop(1, '#0a3818');
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, f.w, f.h);
+                
+                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 3; ctx.shadowColor = '#ff007f'; ctx.shadowBlur = 8;
+                ctx.strokeRect(0, 0, f.w, f.h); ctx.shadowBlur = 0;
+
+                // Rueda Ruleta
+                ctx.fillStyle = '#ccaa00'; ctx.beginPath(); ctx.arc(f.w/4, f.h/2, 18, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(f.w/4, f.h/2, 10, 0, Math.PI*2); ctx.fill();
+            } else if(f.type === 'slots') {
+                // Tragamonedas HD
+                ctx.fillStyle = '#222'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
+                for(let i=0; i<4; i++) {
+                    ctx.fillStyle = '#ff007f'; ctx.fillRect(15 + i*60, 8, 35, 28);
+                    ctx.fillStyle = '#fff'; ctx.font = 'bold 10px monospace'; ctx.fillText("777", 22 + i*60, 25);
+                }
+            } else if(f.type === 'bed') {
+                ctx.fillStyle = '#4a2e18'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(4, 15, f.w - 8, f.h - 20);
+                ctx.fillStyle = f.color; ctx.fillRect(4, 4, f.w - 8, 20);
             } else if(f.type === 'wardrobe') {
-                // Armario HD
                 ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
                 ctx.fillStyle = '#111'; ctx.fillRect(2, 2, f.w/2 - 3, f.h - 4); ctx.fillRect(f.w/2 + 1, 2, f.w/2 - 3, f.h - 4);
-                ctx.fillStyle = '#fff'; ctx.fillRect(f.w/2 - 4, f.h/2 - 4, 3, 8); ctx.fillRect(f.w/2 + 1, f.h/2 - 4, 3, 8); // Manijas
+                ctx.fillStyle = '#fff'; ctx.fillRect(f.w/2 - 4, f.h/2 - 4, 3, 8); ctx.fillRect(f.w/2 + 1, f.h/2 - 4, 3, 8);
             } else if(f.type === 'tv') {
-                // TV HD
                 ctx.fillStyle = '#111'; ctx.fillRect(0, 0, f.w, f.h);
                 ctx.fillStyle = f.color; ctx.fillRect(3, 3, f.w - 6, f.h - 6);
             } else if(f.type === 'vault') {
-                // Bóveda HD
                 ctx.fillStyle = '#555566'; ctx.fillRect(0, 0, f.w, f.h);
                 ctx.strokeStyle = '#ffee00'; ctx.lineWidth = 3; ctx.strokeRect(4, 4, f.w - 8, f.h - 8);
                 ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(f.w/2, f.h/2, 16, 0, Math.PI*2); ctx.fill();
             } else {
-                // Genérico (Mostrador / Estantes)
                 ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
                 ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
             }
 
-            // Etiqueta flotante con nombre
+            // Etiqueta Nombre
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(f.name, f.w/2, -6);
 
@@ -590,26 +639,18 @@
 
         function drawAircraft(sv) {
             ctx.save();
-            ctx.translate(sv.x, sv.y);
-            ctx.scale(sv.scale, sv.scale);
-
-            ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.beginPath(); ctx.ellipse(0, 80, 50, 12, 0, 0, Math.PI*2); ctx.fill();
+            ctx.translate(sv.x, sv.y); ctx.scale(sv.scale, sv.scale);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(0, 80, 50, 12, 0, 0, Math.PI*2); ctx.fill();
 
             if(sv.type === 'commercial_plane') {
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, 0, 70, 14, 0, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#dddddd'; ctx.fillRect(-15, -60, 30, 120);
-                ctx.fillStyle = '#333'; ctx.fillRect(-10, -35, 20, 8); ctx.fillRect(-10, 27, 20, 8);
-                ctx.fillStyle = '#ff0055'; ctx.fillRect(-65, -15, 15, 30);
-                ctx.fillStyle = '#00ff88'; ctx.beginPath(); ctx.arc(12, -58, 4, 0, Math.PI*2); ctx.fill();
             } else if(sv.type === 'jet') {
                 ctx.fillStyle = '#445566';
                 ctx.beginPath(); ctx.moveTo(50, 0); ctx.lineTo(-40, -30); ctx.lineTo(-25, 0); ctx.lineTo(-40, 30); ctx.closePath(); ctx.fill();
-                ctx.fillStyle = '#ffaa00'; ctx.fillRect(-35, -5, 8, 10);
             } else {
                 ctx.fillStyle = '#223344'; ctx.beginPath(); ctx.ellipse(0, 0, 28, 14, 0, 0, Math.PI*2); ctx.fill();
                 ctx.fillRect(-45, -3, 30, 6);
-                ctx.fillStyle = '#aaa'; ctx.fillRect(-48, -10, 4, 20);
                 ctx.save(); ctx.rotate(rotorAngle);
                 ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
                 ctx.beginPath(); ctx.moveTo(-50, 0); ctx.lineTo(50, 0); ctx.stroke();
@@ -627,21 +668,17 @@
 
             if(currentInterior) {
                 const data = interiors[currentInterior];
-                // Piso Interior
-                ctx.fillStyle = '#181e2b'; ctx.fillRect(0, 0, data.w, data.h);
-                ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, data.w, data.h);
+                if(data) {
+                    ctx.fillStyle = '#181e2b'; ctx.fillRect(0, 0, data.w, data.h);
+                    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, data.w, data.h);
 
-                // Puerta Salida
-                ctx.fillStyle = '#00ff88'; ctx.fillRect(data.exitDoor.x - 30, data.exitDoor.y - 10, 60, 20);
-                ctx.fillStyle = '#000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('SALIDA', data.exitDoor.x, data.exitDoor.y + 4);
+                    ctx.fillStyle = '#00ff88'; ctx.fillRect(data.exitDoor.x - 30, data.exitDoor.y - 10, 60, 20);
+                    ctx.fillStyle = '#000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText('SALIDA', data.exitDoor.x, data.exitDoor.y + 4);
 
-                // Dibujar Muebles HD
-                data.furniture.forEach(f => drawFurnitureModel(f));
-
-                // Jugador
-                drawHuman(player.x, player.y, player.angle, player.clothColor);
-
+                    data.furniture.forEach(f => drawFurnitureModel(f));
+                    drawHuman(player.x, player.y, player.angle, player.clothColor);
+                }
             } else {
                 ctx.fillStyle = '#162816'; ctx.fillRect(-1000, -1000, 7000, 7000);
 
@@ -703,7 +740,6 @@
                 });
 
                 if(!player.inCar) drawHuman(player.x, player.y, player.angle, player.clothColor);
-
                 skyVehicles.forEach(sv => drawAircraft(sv));
             }
 
@@ -711,10 +747,13 @@
             drawMinimap();
         }
 
+        // MINIMAPA DIBUJADO CON DIAMANTE PARA SEGUIMIENTO DE MISIÓN
         function drawMinimap() {
-            mCtx.fillStyle = '#05050a'; mCtx.fillRect(0, 0, 100, 100);
+            mCtx.fillStyle = '#05050a'; mCtx.fillRect(0, 0, 110, 110);
             if(currentInterior) return;
-            mCtx.save(); mCtx.translate(50, 50);
+
+            mCtx.save(); 
+            mCtx.translate(55, 55);
             const scale = 0.018;
 
             roads.forEach(r => {
@@ -723,11 +762,32 @@
             });
 
             buildings.forEach(b => {
-                mCtx.fillStyle = b.id === 'home' ? '#00f0ff' : '#777';
+                mCtx.fillStyle = b.id === 'home' ? '#00f0ff' : '#666';
                 mCtx.fillRect((b.x - player.x)*scale, (b.y - player.y)*scale, b.w*scale, b.h*scale);
             });
 
-            mCtx.fillStyle = player.clothColor; mCtx.beginPath(); mCtx.arc(0, 0, 4, 0, Math.PI*2); mCtx.fill();
+            // MARCADOR DE MISIÓN ACTIVA: DIAMANTE (💎)
+            if(currentMission && currentMission.targetX && currentMission.targetY) {
+                let mx = (currentMission.targetX - player.x) * scale;
+                let my = (currentMission.targetY - player.y) * scale;
+
+                mCtx.fillStyle = '#00ffff';
+                mCtx.strokeStyle = '#ffffff';
+                mCtx.lineWidth = 1.5;
+
+                mCtx.beginPath();
+                mCtx.moveTo(mx, my - 7);
+                mCtx.lineTo(mx + 6, my);
+                mCtx.lineTo(mx, my + 7);
+                mCtx.lineTo(mx - 6, my);
+                mCtx.closePath();
+                mCtx.fill();
+                mCtx.stroke();
+            }
+
+            // Jugador
+            mCtx.fillStyle = player.clothColor; 
+            mCtx.beginPath(); mCtx.arc(0, 0, 4, 0, Math.PI*2); mCtx.fill();
             mCtx.restore();
         }
 
