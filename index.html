@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vicio City by Dani - v2.5</title>
+    <title>Vicio City by Dani - v2.6</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
         body, html { width: 100vw; height: 100vh; overflow: hidden; background: #05050a; font-family: 'Segoe UI', Roboto, sans-serif; color: #fff; }
@@ -28,9 +28,14 @@
         #minimap-container { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(5,5,10,0.95); overflow: hidden; box-shadow: 0 0 12px rgba(255,0,127,0.6); }
         #minimap { width: 100%; height: 100%; }
 
-        /* Botón Interacción */
-        #enter-building-btn { display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffee00, #ff8800); color: #000; font-size: 13px; font-weight: 900; padding: 12px 22px; border-radius: 25px; border: 2px solid #fff; box-shadow: 0 0 20px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.06); } }
+        /* Botón Interacción Contextual */
+        #interact-btn { display: none; position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffee00, #ff8800); color: #000; font-size: 13px; font-weight: 900; padding: 12px 22px; border-radius: 25px; border: 2px solid #fff; box-shadow: 0 0 20px #ffee00; z-index: 95; cursor: pointer; pointer-events: auto; animation: pulse 0.8s infinite alternate; }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.08); } }
+
+        /* Cuadro de Diálogo NPC */
+        #dialog-box { display: none; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 500px; background: rgba(10, 15, 30, 0.95); border: 2px solid #00f0ff; border-radius: 12px; padding: 12px 18px; z-index: 90; box-shadow: 0 0 15px rgba(0,240,255,0.4); text-align: center; }
+        #dialog-title { color: #ff007f; font-weight: 900; font-size: 14px; margin-bottom: 4px; text-transform: uppercase; }
+        #dialog-text { color: #fff; font-size: 13px; margin-bottom: 8px; }
 
         /* Controles - D-PAD */
         .dpad-container { position: absolute; bottom: 15px; left: 15px; pointer-events: auto; z-index: 20; }
@@ -53,7 +58,7 @@
     <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
 
     <div class="hud-left">
-        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.5</span></div>
+        <div class="hud-title">Vicio City by Dani <span style="font-size:9px; color:#fff; font-weight:normal;">v2.6</span></div>
         <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
         <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
         <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$100</span></div>
@@ -71,7 +76,12 @@
         </div>
     </div>
 
-    <button id="enter-building-btn" onclick="interactBuilding()">🚪 ENTRAR</button>
+    <button id="interact-btn" onclick="triggerContextInteraction()">⚡ INTERACTUAR</button>
+
+    <div id="dialog-box">
+        <div id="dialog-title">NPC</div>
+        <div id="dialog-text">Hola, ¿qué tal?</div>
+    </div>
 
     <canvas id="game"></canvas>
 
@@ -91,7 +101,7 @@
     </div>
 
     <script>
-        const GAME_VERSION = "v2.5";
+        const GAME_VERSION = "v2.6";
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const mCanvas = document.getElementById('minimap');
@@ -110,14 +120,20 @@
             else document.exitFullscreen().catch(()=>{});
         }
 
-        let currentInterior = null; // null = Exterior (Ciudad)
+        let currentInterior = null; 
         let activeDoorBuilding = null;
+        let activeFurniture = null;
+        let activeNpcTalk = null;
         let rotorAngle = 0;
+        let dialogTimeout = null;
+
+        const clothesPalette = ['#00f0ff', '#ff007f', '#00ff88', '#ffee00', '#ff5500', '#ffffff', '#aa00ff'];
+        let currentClothIndex = 0;
 
         const player = { 
             x: 800, y: 1200, angle: 0, speed: 3.8, radius: 10, inCar: false, 
             health: 100, maxHealth: 100, money: 100, wanted: 0, level: 1, xp: 0, 
-            clothColor: '#00f0ff', carRef: null, savedExteriorX: 800, savedExteriorY: 1200
+            clothColor: clothesPalette[0], carRef: null, savedExteriorX: 800, savedExteriorY: 1200
         };
         const keys = { up: false, down: false, left: false, right: false };
 
@@ -125,24 +141,21 @@
         const npcs = [];
         const loot = [];
 
-        // AVIONES Y HELICÓPTEROS VOLANDO EN EL CIELO
         const skyVehicles = [
             { x: -500, y: 800, vx: 3.5, vy: 0.2, type: 'commercial_plane', scale: 1.2 },
             { x: 3000, y: 2000, vx: -4.5, vy: -0.5, type: 'jet', scale: 0.9 },
             { x: 1500, y: 500, vx: 2.0, vy: 0.8, type: 'police_heli', scale: 1.0 }
         ];
 
-        // RED VIAL EXTENDIDA
         const roads = [
-            { x: 200, y: 1100, w: 5000, h: 140 }, // Avenida Principal Horizontal
-            { x: 200, y: 2500, w: 5000, h: 140 }, // Avenida Sur
-            { x: 200, y: 4000, w: 5000, h: 140 }, // Autopista Inferior
-            { x: 1200, y: 200, w: 140, h: 4800 }, // Avenida Vertical 1
-            { x: 2800, y: 200, w: 140, h: 4800 }, // Avenida Vertical 2
-            { x: 4400, y: 200, w: 140, h: 4800 }  // Avenida Vertical 3
+            { x: 200, y: 1100, w: 5000, h: 140 },
+            { x: 200, y: 2500, w: 5000, h: 140 },
+            { x: 200, y: 4000, w: 5000, h: 140 },
+            { x: 1200, y: 200, w: 140, h: 4800 },
+            { x: 2800, y: 200, w: 140, h: 4800 },
+            { x: 4400, y: 200, w: 140, h: 4800 }
         ];
 
-        // EDIFICIOS EN EL MAPA EXTERIOR
         const buildings = [
             { id: 'home', x: 600, y: 800, w: 260, h: 220, color: '#1c2d42', roof: '#0f1b29', label: '🏠 MI CASA', doorX: 730, doorY: 1020 },
             { id: 'pharma', x: 1500, y: 800, w: 260, h: 220, color: '#133e2b', roof: '#0a2318', label: '🏥 FARMACIA', doorX: 1630, doorY: 1020 },
@@ -154,48 +167,45 @@
             { id: 'hospital', x: 600, y: 2700, w: 350, h: 300, color: '#3a1616', roof: '#210d0d', label: '🚑 HOSPITAL GENERAL', doorX: 775, doorY: 3000 }
         ];
 
-        // INTERIORES INTERACTIVOS DETALLADOS
+        // INTERIORES DETALLADOS
         const interiors = {
             'home': {
                 name: 'Mi Casa', w: 600, h: 500,
                 furniture: [
-                    { type: 'bed', x: 100, y: 100, w: 80, h: 120, color: '#00f0ff' },
-                    { type: 'tv', x: 260, y: 60, w: 100, h: 20, color: '#ff007f' },
-                    { type: 'sofa', x: 250, y: 140, w: 120, h: 50, color: '#333' },
-                    { type: 'wardrobe', x: 480, y: 80, w: 70, h: 100, color: '#ffee00', action: 'change_cloth' }
+                    { id: 'bed', type: 'bed', name: 'Cama Comfort', x: 80, y: 80, w: 90, h: 130, color: '#00f0ff', action: 'rest_heal' },
+                    { id: 'tv', type: 'tv', name: 'TV Smart HD', x: 260, y: 50, w: 110, h: 25, color: '#ff007f' },
+                    { id: 'sofa', type: 'sofa', name: 'Sofá Cuero', x: 250, y: 140, w: 130, h: 55, color: '#334455' },
+                    { id: 'wardrobe', type: 'wardrobe', name: 'Armario de Ropa', x: 470, y: 80, w: 80, h: 110, color: '#ffee00', action: 'change_cloth' }
                 ],
-                exitDoor: { x: 300, y: 460 }
+                exitDoor: { x: 300, y: 470 }
             },
             'pharma': {
                 name: 'Farmacia & Botica', w: 600, h: 500,
                 furniture: [
-                    { type: 'counter', x: 150, y: 150, w: 300, h: 40, color: '#00ff88', action: 'buy_heal' },
-                    { type: 'shelf', x: 80, y: 60, w: 440, h: 30, color: '#115522' },
-                    { type: 'bed', x: 80, y: 300, w: 60, h: 100, color: '#ffffff' }
+                    { id: 'counter', type: 'counter', name: 'Mostrador Médico ($50)', x: 150, y: 160, w: 300, h: 45, color: '#00ff88', action: 'buy_heal' },
+                    { id: 'shelf', type: 'shelf', name: 'Estante de Remedios', x: 80, y: 60, w: 440, h: 35, color: '#115522' },
+                    { id: 'bed', type: 'bed', name: 'Camilla de Urgencia', x: 80, y: 310, w: 70, h: 110, color: '#ffffff' }
                 ],
-                exitDoor: { x: 300, y: 460 }
-            },
-            'airport': {
-                name: 'Terminal de Aeropuerto', w: 900, h: 700,
-                furniture: [
-                    { type: 'seats', x: 150, y: 200, w: 200, h: 40, color: '#444' },
-                    { type: 'seats', x: 150, y: 350, w: 200, h: 40, color: '#444' },
-                    { type: 'scanner', x: 450, y: 150, w: 60, h: 120, color: '#ffee00' },
-                    { type: 'desk', x: 600, y: 300, w: 200, h: 50, color: '#00f0ff' }
-                ],
-                exitDoor: { x: 450, y: 660 }
+                exitDoor: { x: 300, y: 470 }
             },
             'bank': {
                 name: 'Bóveda y Banco', w: 700, h: 550,
                 furniture: [
-                    { type: 'vault', x: 280, y: 80, w: 140, h: 100, color: '#ffcc00', action: 'rob_vault' },
-                    { type: 'counter', x: 150, y: 260, w: 400, h: 40, color: '#333' }
+                    { id: 'vault', type: 'vault', name: 'Caja Fuerte Principal', x: 280, y: 80, w: 140, h: 100, color: '#ffcc00', action: 'rob_vault' },
+                    { id: 'counter', type: 'counter', name: 'Ventanilla Atención', x: 150, y: 260, w: 400, h: 40, color: '#333' }
                 ],
-                exitDoor: { x: 350, y: 510 }
+                exitDoor: { x: 350, y: 520 }
+            },
+            'airport': {
+                name: 'Terminal de Aeropuerto', w: 900, h: 700,
+                furniture: [
+                    { id: 'seats', type: 'seats', name: 'Asientos Salón', x: 150, y: 200, w: 200, h: 40, color: '#444' },
+                    { id: 'scanner', type: 'scanner', name: 'Escaner Rayos X', x: 450, y: 150, w: 60, h: 120, color: '#ffee00' }
+                ],
+                exitDoor: { x: 450, y: 670 }
             }
         };
 
-        // VEHÍCULOS DETALLADOS
         const cars = [
             { x: 750, y: 1060, angle: 0, speed: 5.5, health: 100, w: 46, h: 22, color: '#ff0055', type: 'sports' },
             { x: 1700, y: 1720, angle: 0, speed: 5.0, health: 120, w: 48, h: 22, color: '#0055ff', type: 'police' },
@@ -203,16 +213,22 @@
             { x: 4800, y: 1120, angle: 0, speed: 7.2, health: 100, w: 48, h: 22, color: '#ffee00', type: 'hypercar' }
         ];
 
-        // GENERAR NPCS
+        // GENERAR NPCS Y SUS DIÁLOGOS
+        const npcQuotes = {
+            civilian: ["¡Qué lindo día en Vicio City!", "¿Has visto el casino?", "¡Cuidado con los pandilleros!", "Tengo prisa, lo siento.", "¡El alcalde debería reparar las calles!"],
+            police: ["Circule, no hay nada que ver.", "Mantén las manos donde pueda verlas.", "Si buscas problemas, me encontrarás a mí.", "Todo en orden por aquí."],
+            gangster: ["¿Qué miras, novato?", "¡Dame tu dinero o habrá problemas!", "Esta zona es nuestra.", "¿Tienes cigarrillos?"]
+        };
+
         for(let i=0; i<60; i++) {
             npcs.push({ 
+                id: i,
                 x: Math.random()*4800 + 200, y: Math.random()*4000 + 200, 
                 angle: Math.random()*6, speed: 1.0, alive: true, 
                 role: (i % 5 === 0) ? 'police' : ((i % 3 === 0) ? 'gangster' : 'civilian')
             });
         }
 
-        // MISIONES SISTEMÁTICAS
         const missionList = [
             { text: "Visita el Banco Central y entra a la bóveda", type: "bank" },
             { text: "Elimina 3 Pandilleros en la ciudad", type: "kills", target: 3, current: 0 },
@@ -235,10 +251,20 @@
         function completeMission() {
             player.money += 500;
             addXP(75);
-            alert("🎉 ¡MISIÓN COMPLETADA! +$500 | +75 XP");
+            showDialog("SISTEMA", "🎉 ¡MISIÓN COMPLETADA! +$500 | +75 XP");
             currentMission = missionList[Math.floor(Math.random()*missionList.length)];
             if(currentMission.type === 'kills') currentMission.current = 0;
             updateHUD();
+        }
+
+        function showDialog(title, text) {
+            const box = document.getElementById('dialog-box');
+            document.getElementById('dialog-title').innerText = title;
+            document.getElementById('dialog-text').innerText = text;
+            box.style.display = 'block';
+
+            if(dialogTimeout) clearTimeout(dialogTimeout);
+            dialogTimeout = setTimeout(() => { box.style.display = 'none'; }, 4000);
         }
 
         function bindTouch(id, key) {
@@ -261,6 +287,7 @@
             if(e.key==='d'||e.key==='ArrowRight') keys.right=true;
             if(e.key===' ') toggleCar();
             if(e.key==='f') shoot();
+            if(e.key==='e') triggerContextInteraction();
         });
         window.addEventListener('keyup', e => {
             if(e.key==='w'||e.key==='ArrowUp') keys.up=false;
@@ -288,19 +315,61 @@
             document.getElementById('mission-val').innerText = currentMission.text + (currentMission.type==='kills'?` (${currentMission.current}/${currentMission.target})` : '');
         }
 
-        function interactBuilding() {
+        function triggerContextInteraction() {
+            // 1. Hablar con NPC cercano
+            if(activeNpcTalk) {
+                const quotes = npcQuotes[activeNpcTalk.role];
+                const text = quotes[Math.floor(Math.random()*quotes.length)];
+                let title = "CIUDADANO";
+                if(activeNpcTalk.role === 'police') title = "POLICÍA";
+                if(activeNpcTalk.role === 'gangster') title = "PANDILLERO";
+                showDialog(title, text);
+                return;
+            }
+
+            // 2. Interactuar con mueble de interior
+            if(currentInterior && activeFurniture) {
+                if(activeFurniture.action === 'change_cloth') {
+                    currentClothIndex = (currentClothIndex + 1) % clothesPalette.length;
+                    player.clothColor = clothesPalette[currentClothIndex];
+                    showDialog("ARMARIO", "🎨 Te has cambiado de ropa. ¡Nuevo look!");
+                } else if(activeFurniture.action === 'buy_heal') {
+                    if(player.money >= 50) {
+                        player.money -= 50;
+                        player.health = player.maxHealth;
+                        updateHUD();
+                        showDialog("FARMACIA", "💉 Salud restaurada al máximo por $50.");
+                        checkMissionProgress('pharma');
+                    } else {
+                        showDialog("FARMACIA", "❌ No tienes suficiente dinero ($50 requerido).");
+                    }
+                } else if(activeFurniture.action === 'rest_heal') {
+                    player.health = player.maxHealth;
+                    updateHUD();
+                    showDialog("CASA", "😴 Descansaste en tu cama. Salud restaurada.");
+                } else if(activeFurniture.action === 'rob_vault') {
+                    player.money += 300;
+                    player.wanted = Math.min(5, player.wanted + 2);
+                    updateHUD();
+                    showDialog("ALERTA BANCO", "💰 ¡Robaste la Bóveda! +$300 (Buscado Nivel " + player.wanted + ")");
+                    checkMissionProgress('bank');
+                }
+                return;
+            }
+
+            // 3. Entrar / Salir de edificios
             if(currentInterior) {
-                // Salir del interior a la ciudad
                 player.x = player.savedExteriorX;
                 player.y = player.savedExteriorY;
                 currentInterior = null;
+                showDialog("CIUDAD", "Regresaste a las calles de Vicio City.");
             } else if(activeDoorBuilding) {
-                // Teletransportarse al interior
                 player.savedExteriorX = player.x;
                 player.savedExteriorY = player.y + 30;
                 currentInterior = activeDoorBuilding.id;
                 player.x = interiors[currentInterior] ? interiors[currentInterior].w / 2 : 200;
                 player.y = interiors[currentInterior] ? interiors[currentInterior].h - 80 : 200;
+                showDialog("INTERIOR", "Entraste a: " + activeDoorBuilding.label);
                 checkMissionProgress(currentInterior);
             }
         }
@@ -337,14 +406,15 @@
 
         function saveGame() {
             localStorage.setItem('vicio_city_by_dani_save', JSON.stringify({ player, GAME_VERSION }));
-            alert("💾 Progreso Guardado - Vicio City by Dani " + GAME_VERSION);
+            showDialog("SISTEMA", "💾 Progreso Guardado correctamente.");
         }
 
         function loadGame() {
             const data = localStorage.getItem('vicio_city_by_dani_save');
             if(data) {
                 Object.assign(player, JSON.parse(data).player);
-                updateHUD(); alert("📂 Progreso Cargado correctamente.");
+                updateHUD(); 
+                showDialog("SISTEMA", "📂 Progreso Cargado.");
             }
         }
 
@@ -385,29 +455,61 @@
 
             if(player.inCar) { player.x = player.carRef.x; player.y = player.carRef.y; }
 
+            // DETECCIÓN DE INTERACCIONES CONTEXTUALES
             activeDoorBuilding = null;
-            const doorBtn = document.getElementById('enter-building-btn');
-
-            if(!currentInterior && !player.inCar) {
-                buildings.forEach(b => {
-                    if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 45) activeDoorBuilding = b;
-                });
-            }
+            activeFurniture = null;
+            activeNpcTalk = null;
+            const btn = document.getElementById('interact-btn');
 
             if(currentInterior) {
-                const door = interiors[currentInterior].exitDoor;
-                doorBtn.style.display = 'block';
-                doorBtn.innerText = "🚪 SALIR A LA CIUDAD";
-                if(Math.hypot(player.x - door.x, player.y - door.y) < 35) {
-                    interactBuilding();
+                const data = interiors[currentInterior];
+                // Chequear Muebles
+                data.furniture.forEach(f => {
+                    const cx = f.x + f.w/2; const cy = f.y + f.h/2;
+                    if(Math.hypot(player.x - cx, player.y - cy) < 65) {
+                        activeFurniture = f;
+                    }
+                });
+
+                // Chequear Puerta Salida
+                const door = data.exitDoor;
+                if(Math.hypot(player.x - door.x, player.y - door.y) < 40) {
+                    btn.style.display = 'block';
+                    btn.innerText = "🚪 SALIR A LA CIUDAD";
+                } else if(activeFurniture) {
+                    btn.style.display = 'block';
+                    btn.innerText = "⚡ " + activeFurniture.name;
+                } else {
+                    btn.style.display = 'none';
                 }
-            } else if(activeDoorBuilding) {
-                doorBtn.style.display = 'block';
-                doorBtn.innerText = `🚪 ENTRAR A ${activeDoorBuilding.label}`;
+
             } else {
-                doorBtn.style.display = 'none';
+                // Chequear Edificios
+                if(!player.inCar) {
+                    buildings.forEach(b => {
+                        if(Math.hypot(player.x - b.doorX, player.y - b.doorY) < 45) activeDoorBuilding = b;
+                    });
+
+                    // Chequear NPCs para hablar
+                    npcs.forEach(npc => {
+                        if(npc.alive && Math.hypot(player.x - npc.x, player.y - npc.y) < 35) {
+                            activeNpcTalk = npc;
+                        }
+                    });
+                }
+
+                if(activeNpcTalk) {
+                    btn.style.display = 'block';
+                    btn.innerText = "💬 HABLAR CON NPC";
+                } else if(activeDoorBuilding) {
+                    btn.style.display = 'block';
+                    btn.innerText = `🚪 ENTRAR A ${activeDoorBuilding.label}`;
+                } else {
+                    btn.style.display = 'none';
+                }
             }
 
+            // PROCESAR BALAS Y COLISIONES
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; b.life--;
                 npcs.forEach(npc => {
@@ -443,6 +545,46 @@
             ctx.fillStyle = '#ffcc99'; 
             ctx.fillRect(2, -8, 6, 4); ctx.fillRect(2, 4, 6, 4);
             ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawFurnitureModel(f) {
+            ctx.save();
+            ctx.translate(f.x, f.y);
+
+            // Sombra mueble
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillRect(4, 4, f.w, f.h);
+
+            if(f.type === 'bed') {
+                // Estructura Cama HD
+                ctx.fillStyle = '#4a2e18'; ctx.fillRect(0, 0, f.w, f.h); // Madera
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(4, 15, f.w - 8, f.h - 20); // Sábana
+                ctx.fillStyle = f.color; ctx.fillRect(4, 4, f.w - 8, 20); // Almohada
+            } else if(f.type === 'wardrobe') {
+                // Armario HD
+                ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.fillStyle = '#111'; ctx.fillRect(2, 2, f.w/2 - 3, f.h - 4); ctx.fillRect(f.w/2 + 1, 2, f.w/2 - 3, f.h - 4);
+                ctx.fillStyle = '#fff'; ctx.fillRect(f.w/2 - 4, f.h/2 - 4, 3, 8); ctx.fillRect(f.w/2 + 1, f.h/2 - 4, 3, 8); // Manijas
+            } else if(f.type === 'tv') {
+                // TV HD
+                ctx.fillStyle = '#111'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.fillStyle = f.color; ctx.fillRect(3, 3, f.w - 6, f.h - 6);
+            } else if(f.type === 'vault') {
+                // Bóveda HD
+                ctx.fillStyle = '#555566'; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.strokeStyle = '#ffee00'; ctx.lineWidth = 3; ctx.strokeRect(4, 4, f.w - 8, f.h - 8);
+                ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(f.w/2, f.h/2, 16, 0, Math.PI*2); ctx.fill();
+            } else {
+                // Genérico (Mostrador / Estantes)
+                ctx.fillStyle = f.color; ctx.fillRect(0, 0, f.w, f.h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, f.w, f.h);
+            }
+
+            // Etiqueta flotante con nombre
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(f.name, f.w/2, -6);
+
             ctx.restore();
         }
 
@@ -485,17 +627,19 @@
 
             if(currentInterior) {
                 const data = interiors[currentInterior];
-                ctx.fillStyle = '#111622'; ctx.fillRect(0, 0, data.w, data.h);
+                // Piso Interior
+                ctx.fillStyle = '#181e2b'; ctx.fillRect(0, 0, data.w, data.h);
                 ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 6; ctx.strokeRect(0, 0, data.w, data.h);
 
-                ctx.fillStyle = '#00ff88'; ctx.fillRect(data.exitDoor.x - 25, data.exitDoor.y - 10, 50, 20);
+                // Puerta Salida
+                ctx.fillStyle = '#00ff88'; ctx.fillRect(data.exitDoor.x - 30, data.exitDoor.y - 10, 60, 20);
+                ctx.fillStyle = '#000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText('SALIDA', data.exitDoor.x, data.exitDoor.y + 4);
 
-                data.furniture.forEach(f => {
-                    ctx.fillStyle = f.color;
-                    ctx.fillRect(f.x, f.y, f.w, f.h);
-                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(f.x, f.y, f.w, f.h);
-                });
+                // Dibujar Muebles HD
+                data.furniture.forEach(f => drawFurnitureModel(f));
 
+                // Jugador
                 drawHuman(player.x, player.y, player.angle, player.clothColor);
 
             } else {
