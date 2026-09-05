@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VICIO CITY V3.4.0 - Ultra Detail, Weapons & Physics Fix</title>
+  <title>VICIO CITY V3.5.0 - Rich Emoji & Interior Fix Build</title>
   <style>
     * {
       box-sizing: border-box;
@@ -14,7 +14,7 @@
       touch-action: manipulation;
     }
     body {
-      background: #000;
+      background: #020208;
       color: #fff;
       font-family: 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
@@ -35,7 +35,7 @@
       left: 10px;
       width: 270px;
       padding: 10px;
-      background: rgba(10, 12, 24, 0.9);
+      background: rgba(10, 12, 24, 0.92);
       border: 2px solid #ff007f;
       border-radius: 8px;
       box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
@@ -165,6 +165,8 @@
       margin: 8px;
       cursor: pointer;
       border: 2px solid #fff;
+      font-size: 20px;
+      line-height: 34px;
     }
   </style>
 </head>
@@ -174,7 +176,7 @@
   <canvas id="gameCanvas"></canvas>
 
   <div class="hud-panel">
-    <div class="hud-title"><span>VICIO CITY V3.4.0</span> <span id="val-zone" style="color:#00ff66;">EXTERIOR</span></div>
+    <div class="hud-title"><span>VICIO CITY V3.5.0</span> <span id="val-zone" style="color:#00ff66;">EXTERIOR</span></div>
     <div class="hud-stats"><span>LVL: 1</span><span>XP: 95/100</span></div>
     <div class="hud-stats"><span>HP: <span id="val-hp">100</span>/100</span><span>CASH: $<span id="val-cash">960</span></span></div>
     <div class="hud-stats"><span>VEHÍCULO: <span id="val-veh" style="color:#ffe600;">A Pie</span></span></div>
@@ -182,13 +184,13 @@
     <div class="hud-mission">
       🎯 <b>MISIÓN ACTIVA:</b><br>
       Elimina 3 Pandilleros (<span id="val-targets">0</span>/3)<br>
-      <small>[Explora edificios, cámbiate de ropa y prueba las armas]</small>
+      <small>[Nuevos detalles visuales, muebles y personajes expresivos]</small>
     </div>
   </div>
 
   <div class="top-buttons">
     <button class="btn-top" onclick="toggleFullscreen()">FULL</button>
-    <button class="btn-top" onclick="alert('Usa los botones o las teclas W A S D / Flechas para moverte. Tecla Espacio: Disparar. Tecla R: Cambiar arma. Tecla F: Entrar/Salir. Tecla E: Vehículos.')">HELP</button>
+    <button class="btn-top" onclick="alert('Usa W A S D / Flechas para moverte. Espacio: Disparo. R: Cambiar Arma. F: Entrar/Salir. E: Subir Vehículo.')">INFO</button>
     <button class="btn-top" onclick="alert('Progreso Guardado')">GUARDAR</button>
   </div>
 
@@ -210,13 +212,13 @@
   </div>
 
   <div id="outfit-modal">
-    <h3 style="color:#00ffff; margin-bottom:10px;">VESTIDOR DE ROPA</h3>
-    <p style="font-size:12px; margin-bottom:10px;">Elige el estilo de tu personaje:</p>
-    <div class="color-opt" style="background:#ff007f;" onclick="changeOutfit('#ff007f')"></div>
-    <div class="color-opt" style="background:#00ffff;" onclick="changeOutfit('#00ffff')"></div>
-    <div class="color-opt" style="background:#00ff66;" onclick="changeOutfit('#00ff66')"></div>
-    <div class="color-opt" style="background:#ffaa00;" onclick="changeOutfit('#ffaa00')"></div>
-    <div class="color-opt" style="background:#a855f7;" onclick="changeOutfit('#a855f7')"></div>
+    <h3 style="color:#00ffff; margin-bottom:10px;">VESTIDOR DE PERSONAJE</h3>
+    <p style="font-size:12px; margin-bottom:10px;">Elige la apariencia de tu avatar:</p>
+    <div class="color-opt" onclick="changeOutfit('🕵️')">🕵️</div>
+    <div class="color-opt" onclick="changeOutfit('🕴️')">🕴️</div>
+    <div class="color-opt" onclick="changeOutfit('👮')">👮</div>
+    <div class="color-opt" onclick="changeOutfit('🧑‍🎤')">🧑‍🎤</div>
+    <div class="color-opt" onclick="changeOutfit('🧙‍♂️')">🧙‍♂️</div>
     <br><br>
     <button class="btn-top" onclick="closeOutfit()">Aceptar</button>
   </div>
@@ -240,7 +242,7 @@ const camera = { x: 0, y: 0 };
 let heliRotorAngle = 0;
 let muzzleFlashTime = 0;
 
-// Tipos de Armas
+// Armas
 const WEAPONS = [
   { name: "Pistola 9mm", speed: 14, damage: 20, spread: 0, count: 1, rate: 200 },
   { name: "Escopeta Recortada", speed: 12, damage: 15, spread: 0.25, count: 4, rate: 500 },
@@ -251,52 +253,63 @@ let lastShotTime = 0;
 
 // Jugador
 const player = {
-  x: 1200, y: 1200, radius: 14, speed: 4.2, angle: 0,
-  color: "#ff007f", cash: 960, hp: 100,
+  x: 1200, y: 1200, radius: 18, speed: 4.5, angle: 0,
+  avatar: "🕵️", cash: 960, hp: 100,
   vehicle: null, dirX: 0, dirY: -1
 };
 
-// Vehículos Detallados
+// Vehículos
 const vehicles = [
-  { id: 1, type: "CAR_SEDAN", name: "Sedán Urbano", x: 1280, y: 1230, w: 40, h: 68, speed: 6.5, color: "#00ffff", angle: 0 },
-  { id: 2, type: "CAR_SUPER", name: "Superdeportivo Neon", x: 1600, y: 1200, w: 44, h: 74, speed: 10.5, color: "#ff007f", angle: 0, neon: true },
-  { id: 3, type: "BIKE", name: "Moto Pista", x: 1100, y: 1300, w: 22, h: 48, speed: 8.8, color: "#ffe600", angle: 0 },
-  { id: 4, type: "HELI", name: "Helicóptero", x: 1850, y: 800, w: 52, h: 85, speed: 7.8, color: "#00ff66", angle: 0 },
-  { id: 5, type: "TANK", name: "Tanque Blindado", x: 650, y: 1650, w: 58, h: 80, speed: 3.5, color: "#455a64", angle: 0 }
+  { id: 1, type: "CAR_SEDAN", icon: "🚗", name: "Sedán Urbano", x: 1280, y: 1230, w: 46, h: 70, speed: 6.8, angle: 0 },
+  { id: 2, type: "CAR_SUPER", icon: "🏎️", name: "Superdeportivo Neón", x: 1600, y: 1200, w: 50, h: 76, speed: 11, angle: 0, neon: true },
+  { id: 3, type: "BIKE", icon: "🏍️", name: "Moto Pista", x: 1100, y: 1300, w: 30, h: 50, speed: 9.2, angle: 0 },
+  { id: 4, type: "HELI", icon: "🚁", name: "Helicóptero", x: 1850, y: 800, w: 60, h: 85, speed: 8.0, angle: 0 },
+  { id: 5, type: "TANK", icon: "🐅", name: "Tanque Blindado", x: 650, y: 1650, w: 64, h: 84, speed: 3.8, angle: 0 }
 ];
 
-// Edificios y Obstáculos del Exterior
+// Edificios en Exterior
 const buildings = [
-  { id: "CASA", label: "Casa Principal", x: 1050, y: 950, w: 160, h: 120, doorX: 1130, doorY: 1070, color: "#1e1b4b" },
-  { id: "BANCO", label: "Banco Central", x: 1500, y: 950, w: 200, h: 130, doorX: 1600, doorY: 1080, color: "#0f2942" },
-  { id: "TALLER", label: "Taller Tuning", x: 750, y: 1400, w: 180, h: 130, doorX: 840, doorY: 1530, color: "#311b11" }
+  { id: "CASA", label: "Casa Principal 🏡", x: 1050, y: 950, w: 180, h: 130, doorX: 1140, doorY: 1080, color: "#1e1b4b" },
+  { id: "BANCO", label: "Banco Central 🏦", x: 1500, y: 950, w: 210, h: 140, doorX: 1605, doorY: 1090, color: "#0f2942" },
+  { id: "TALLER", label: "Taller Tuning 🛠️", x: 750, y: 1400, w: 190, h: 130, doorX: 845, doorY: 1530, color: "#311b11" }
 ];
 
-// Definición de Interiores (Habitaciones + Muebles)
-const INTERIORS = {
-  bounds: { x: 200, y: 120, w: 800, h: 500 },
-  exitDoor: { x: 600, y: 600, w: 80, h: 20 },
+// Decoración Ambiental Exterior
+const environmentalObjects = [
+  { icon: "🌲", x: 980, y: 900, radius: 20 },
+  { icon: "🌳", x: 1280, y: 900, radius: 20 },
+  { icon: "🌲", x: 1420, y: 1320, radius: 20 },
+  { icon: "💡", x: 1130, y: 1130, radius: 10 },
+  { icon: "💡", x: 1300, y: 1130, radius: 10 },
+  { icon: "🧯", x: 1100, y: 1100, radius: 10 }
+];
+
+// Definición e Interior Rectificado
+let currentZone = "EXTERIOR";
+const INTERIOR_CONFIG = {
+  width: 700,
+  height: 450,
   furniture: [
-    { type: "BED", x: 250, y: 150, w: 100, h: 130, color: "#6366f1", label: "Cama King" },
-    { type: "WARDROBE", x: 400, y: 130, w: 90, h: 45, color: "#78350f", label: "Armario" },
-    { type: "DESK", x: 550, y: 140, w: 110, h: 60, color: "#451a03", label: "Escritorio PC" },
-    { type: "SOFA", x: 750, y: 300, w: 70, h: 140, color: "#0284c7", label: "Sillón Confort" },
-    { type: "OUTFIT_BOX", x: 900, y: 150, w: 70, h: 70, color: "#ff007f", label: "👔 Vestidor" }
+    { type: "BED", icon: "🛏️", label: "Cama King", x: 80, y: 60, w: 90, h: 110 },
+    { type: "WARDROBE", icon: "🗄️", label: "Armario", x: 210, y: 50, w: 80, h: 50 },
+    { type: "DESK", icon: "🖥️", label: "Escritorio PC", x: 330, y: 50, w: 100, h: 60 },
+    { type: "PLANT", icon: "🪴", label: "Planta", x: 460, y: 50, w: 40, h: 40 },
+    { type: "SOFA", icon: "🛋️", label: "Sillón", x: 520, y: 180, w: 80, h: 100 },
+    { type: "OUTFIT_BOX", icon: "👔", label: "Vestidor", x: 80, y: 280, w: 80, h: 80 }
   ]
 };
 
 const bullets = [];
 const enemies = [
-  { x: 900, y: 1300, radius: 14, hp: 40, active: true, dirX: 1, dirY: 0 },
-  { x: 1400, y: 800, radius: 14, hp: 40, active: true, dirX: 0, dirY: 1 },
-  { x: 1700, y: 1500, radius: 14, hp: 40, active: true, dirX: -1, dirY: 0 }
+  { x: 900, y: 1300, avatar: "🥷", radius: 18, hp: 40, active: true, dirX: 1, dirY: 0 },
+  { x: 1400, y: 800, avatar: "🦹", radius: 18, hp: 40, active: true, dirX: 0, dirY: 1 },
+  { x: 1700, y: 1500, avatar: "🧟", radius: 18, hp: 40, active: true, dirX: -1, dirY: 0 }
 ];
 
 let targetsDefeated = 0;
-let currentZone = "EXTERIOR"; // EXTERIOR o ID de Edificio
 const keys = { up: false, down: false, left: false, right: false };
 
-// Eventos de Entrada
+// Entrada Controles
 window.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   if (k === 'w' || k === 'arrowup') keys.up = true;
@@ -357,8 +370,8 @@ function shoot() {
 
   if (isTank) {
     bullets.push({
-      x: player.x + Math.cos(baseAngle) * 40,
-      y: player.y + Math.sin(baseAngle) * 40,
+      x: player.x + Math.cos(baseAngle) * 45,
+      y: player.y + Math.sin(baseAngle) * 45,
       vx: Math.cos(baseAngle) * 16,
       vy: Math.sin(baseAngle) * 16,
       isCannon: true,
@@ -371,8 +384,8 @@ function shoot() {
   for (let i = 0; i < wpn.count; i++) {
     const finalAngle = baseAngle + (Math.random() - 0.5) * wpn.spread;
     bullets.push({
-      x: player.x + Math.cos(baseAngle) * 18,
-      y: player.y + Math.sin(baseAngle) * 18,
+      x: player.x + Math.cos(baseAngle) * 20,
+      y: player.y + Math.sin(baseAngle) * 20,
       vx: Math.cos(finalAngle) * wpn.speed,
       vy: Math.sin(finalAngle) * wpn.speed,
       isCannon: false,
@@ -383,10 +396,10 @@ function shoot() {
 }
 
 function interactVehicle() {
-  if (currentZone !== "EXTERIOR") return; // No usar autos dentro
+  if (currentZone !== "EXTERIOR") return;
   if (!player.vehicle) {
     let closest = null;
-    let minDist = 70;
+    let minDist = 75;
     vehicles.forEach(v => {
       const d = Math.hypot(player.x - v.x, player.y - v.y);
       if (d < minDist) { minDist = d; closest = v; }
@@ -396,7 +409,7 @@ function interactVehicle() {
       document.getElementById("val-veh").innerText = closest.name;
     }
   } else {
-    player.x = player.vehicle.x + 50;
+    player.x = player.vehicle.x + 55;
     player.vehicle = null;
     document.getElementById("val-veh").innerText = "A Pie";
   }
@@ -405,61 +418,58 @@ function interactVehicle() {
 function interactDoor() {
   if (currentZone === "EXTERIOR") {
     buildings.forEach(b => {
-      if (Math.hypot(player.x - b.doorX, player.y - b.doorY) < 50) {
+      if (Math.hypot(player.x - b.doorX, player.y - b.doorY) < 55) {
         if (player.vehicle) interactVehicle();
         currentZone = b.id;
         document.getElementById("val-zone").innerText = b.label;
-        player.x = 600; 
-        player.y = 540; // Justo delante de la puerta de salida
+        // Posicionar dentro del rango visible de la habitación
+        player.x = INTERIOR_CONFIG.width / 2;
+        player.y = INTERIOR_CONFIG.height - 60;
       }
     });
   } else {
-    // Entrar al vestidor dentro de la casa
-    const vBox = INTERIORS.furniture.find(f => f.type === "OUTFIT_BOX");
-    if (vBox && Math.hypot(player.x - (vBox.x + vBox.w/2), player.y - (vBox.y + vBox.h/2)) < 60) {
+    // Vestidor interactivo dentro
+    const vBox = INTERIOR_CONFIG.furniture.find(f => f.type === "OUTFIT_BOX");
+    if (vBox && Math.hypot(player.x - (vBox.x + vBox.w/2), player.y - (vBox.y + vBox.h/2)) < 65) {
       document.getElementById("outfit-modal").style.display = "block";
       return;
     }
 
-    // Salida del Edificio
-    const door = INTERIORS.exitDoor;
-    if (player.x >= door.x && player.x <= door.x + door.w && player.y >= door.y - 30) {
+    // Puerta de Salida (parte inferior)
+    if (player.y >= INTERIOR_CONFIG.height - 70 && Math.abs(player.x - INTERIOR_CONFIG.width/2) < 80) {
       const b = buildings.find(item => item.id === currentZone);
       currentZone = "EXTERIOR";
       document.getElementById("val-zone").innerText = "EXTERIOR";
       player.x = b ? b.doorX : 1200;
-      player.y = b ? b.doorY + 45 : 1200;
+      player.y = b ? b.doorY + 50 : 1200;
     }
   }
 }
 
-function changeOutfit(col) { player.color = col; }
+function changeOutfit(av) { player.avatar = av; }
 function closeOutfit() { document.getElementById("outfit-modal").style.display = "none"; }
 
-// Sistema de Colisiones Físicas Reales
+// Validar Límites y Obstáculos
 function checkCollisions(newX, newY) {
   if (currentZone === "EXTERIOR") {
-    // Límites de Mundo
     if (newX < 30 || newX > WORLD.width - 30 || newY < 30 || newY > WORLD.height - 30) {
       return { x: player.x, y: player.y };
     }
-    // Colisión con Edificios (si no va volando en Helicóptero)
     if (!player.vehicle || player.vehicle.type !== "HELI") {
       for (let b of buildings) {
-        if (newX > b.x - 10 && newX < b.x + b.w + 10 && newY > b.y - 10 && newY < b.y + b.h + 10) {
+        if (newX > b.x - 12 && newX < b.x + b.w + 12 && newY > b.y - 12 && newY < b.y + b.h + 12) {
           return { x: player.x, y: player.y };
         }
       }
     }
   } else {
-    // Límites de Paredes en Interiores
-    const ib = INTERIORS.bounds;
-    if (newX - player.radius < ib.x || newX + player.radius > ib.x + ib.w ||
-        newY - player.radius < ib.y || newY + player.radius > ib.y + ib.h) {
+    // Límites estrictos dentro del cuarto
+    const w = INTERIOR_CONFIG.width;
+    const h = INTERIOR_CONFIG.height;
+    if (newX < 25 || newX > w - 25 || newY < 25 || newY > h - 25) {
       return { x: player.x, y: player.y };
     }
-    // Colisión con Muebles
-    for (let f of INTERIORS.furniture) {
+    for (let f of INTERIOR_CONFIG.furniture) {
       if (newX > f.x - 10 && newX < f.x + f.w + 10 && newY > f.y - 10 && newY < f.y + f.h + 10) {
         return { x: player.x, y: player.y };
       }
@@ -486,9 +496,9 @@ function update() {
     const nextX = player.x + player.dirX * activeSpeed;
     const nextY = player.y + player.dirY * activeSpeed;
 
-    const validatedPos = checkCollisions(nextX, nextY);
-    player.x = validatedPos.x;
-    player.y = validatedPos.y;
+    const validPos = checkCollisions(nextX, nextY);
+    player.x = validPos.x;
+    player.y = validPos.y;
 
     if (player.vehicle) {
       player.vehicle.x = player.x;
@@ -505,7 +515,9 @@ function update() {
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
   } else {
-    camera.x = 0; camera.y = 0;
+    // Centrar habitación en pantalla
+    camera.x = -(canvas.width - INTERIOR_CONFIG.width) / 2;
+    camera.y = -(canvas.height - INTERIOR_CONFIG.height) / 2;
   }
 
   // Actualización de Balas
@@ -517,13 +529,13 @@ function update() {
 
     if (currentZone === "EXTERIOR") {
       enemies.forEach(e => {
-        if (e.active && Math.hypot(b.x - e.x, b.y - e.y) < (b.isCannon ? 35 : 22)) {
+        if (e.active && Math.hypot(b.x - e.x, b.y - e.y) < (b.isCannon ? 36 : 24)) {
           e.hp -= b.damage;
           b.life = 0;
           if (e.hp <= 0) {
             e.active = false;
             targetsDefeated++;
-            player.cash += 200;
+            player.cash += 250;
             document.getElementById("val-targets").innerText = targetsDefeated;
             document.getElementById("val-cash").innerText = player.cash;
           }
@@ -549,105 +561,53 @@ function update() {
   }
 }
 
-// Dibujar Vehículos con Sombras y Detalles
+// Renderizado de Vehículos con Emojis + Canvas Hybrid
 function drawVehicle(v) {
   ctx.save();
   ctx.translate(v.x - camera.x, v.y - camera.y);
   ctx.rotate(v.angle + Math.PI/2);
 
-  // Sombra del vehículo
-  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-  ctx.fillRect(-v.w/2 + 6, -v.h/2 + 6, v.w, v.h);
+  // Sombra proyectada
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.beginPath(); ctx.ellipse(4, 4, v.w/2, v.h/2, 0, 0, Math.PI*2); ctx.fill();
 
   if (v.type === "CAR_SUPER") {
-    // Neón Inferior
     ctx.shadowColor = "#ff007f";
     ctx.shadowBlur = 18;
-    ctx.fillStyle = v.color;
-    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
-    ctx.shadowBlur = 0;
-
-    // Detalles Aerodinámicos
-    ctx.fillStyle = "#111827";
-    ctx.fillRect(-v.w/2 - 2, v.h/2 - 8, v.w + 4, 8); // Alerón
-    ctx.fillStyle = "#1f2937";
-    ctx.fillRect(-v.w/2 + 4, -v.h/2 + 16, v.w - 8, 22); // Parabrisas
-    ctx.fillStyle = "#ffe600";
-    ctx.fillRect(-v.w/2 + 2, -v.h/2 - 2, 8, 4); // Faros
-    ctx.fillRect(v.w/2 - 10, -v.h/2 - 2, 8, 4);
-  } 
-  else if (v.type === "CAR_SEDAN") {
-    ctx.fillStyle = v.color;
-    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
-    ctx.fillStyle = "#111";
-    ctx.fillRect(-v.w/2 + 4, -v.h/2 + 14, v.w - 8, 18);
-  } 
-  else if (v.type === "BIKE") {
-    ctx.fillStyle = "#111";
-    ctx.fillRect(-4, -v.h/2, 8, 14); // Rueda delantera
-    ctx.fillRect(-4, v.h/2 - 14, 8, 14); // Rueda trasera
-    ctx.fillStyle = v.color;
-    ctx.fillRect(-v.w/2, -8, v.w, 22);
-  } 
-  else if (v.type === "HELI") {
-    ctx.fillStyle = v.color;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, v.w/2, v.h/3, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillRect(-5, v.h/3, 10, 35);
-    // Hélice Animada
-    ctx.save();
-    ctx.rotate(heliRotorAngle);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.fillRect(-60, -4, 120, 8);
-    ctx.restore();
-  } 
-  else if (v.type === "TANK") {
-    // Orugas
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(-v.w/2 - 5, -v.h/2, 10, v.h);
-    ctx.fillRect(v.w/2 - 5, -v.h/2, 10, v.h);
-    // Cuerpo
-    ctx.fillStyle = v.color;
-    ctx.fillRect(-v.w/2, -v.h/2, v.w, v.h);
-    // Torreta y Cañón
-    ctx.fillStyle = "#0f172a";
-    ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fill();
-    ctx.fillRect(-5, -40, 10, 30);
   }
 
+  // Base Dibujada + Icono Emoji
+  ctx.font = `${v.w}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(v.icon, 0, 0);
+
+  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
-// Personaje + Fogonazo de Disparo
-function drawCharacter(x, y, angle, bodyColor) {
+// Personaje Expresivo con Rotación y Armas
+function drawCharacter(x, y, angle, av, isEnemy = false) {
   ctx.save();
   ctx.translate(x - camera.x, y - camera.y);
+
+  // Sombra de pie
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+  ctx.beginPath(); ctx.ellipse(2, 10, 14, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Avatar Principal
+  ctx.font = "28px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(av, 0, 0);
+
+  // Fogonazo / Indicador de dirección
   ctx.rotate(angle);
-
-  // Sombra del Personaje
-  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.beginPath(); ctx.arc(3, 3, 13, 0, Math.PI * 2); ctx.fill();
-
-  // Cuerpo
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
-
-  // Cabeza
-  ctx.fillStyle = "#fbcfe8";
-  ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
-
-  // Arma
-  ctx.fillStyle = "#334155";
-  ctx.fillRect(6, 4, 12, 5);
-
-  // Fogonazo / Animación de Disparo
-  if (muzzleFlashTime > 0) {
+  if (!isEnemy && muzzleFlashTime > 0) {
     ctx.fillStyle = "#ffe600";
-    ctx.beginPath(); ctx.arc(22, 6, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(22, 0, 10, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#ffffff";
-    ctx.beginPath(); ctx.arc(22, 6, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(22, 0, 5, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.restore();
@@ -657,8 +617,8 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (currentZone === "EXTERIOR") {
-    // Mapa Exterior
-    ctx.fillStyle = "#090d16";
+    // Fondo Exterior
+    ctx.fillStyle = "#0a0e1a";
     ctx.fillRect(-camera.x, -camera.y, WORLD.width, WORLD.height);
 
     // Calles
@@ -666,7 +626,7 @@ function render() {
     ctx.fillRect(0 - camera.x, 1150 - camera.y, WORLD.width, 140);
     ctx.fillRect(1150 - camera.x, 0 - camera.y, 140, WORLD.height);
 
-    // Líneas Amarillas de Calle
+    // Carriles
     ctx.strokeStyle = "#ffe600";
     ctx.lineWidth = 3;
     ctx.setLineDash([20, 20]);
@@ -674,6 +634,12 @@ function render() {
     ctx.moveTo(0 - camera.x, 1220 - camera.y);
     ctx.lineTo(WORLD.width - camera.x, 1220 - camera.y);
     ctx.stroke(); ctx.setLineDash([]);
+
+    // Ambientación
+    environmentalObjects.forEach(o => {
+      ctx.font = "26px sans-serif";
+      ctx.fillText(o.icon, o.x - camera.x, o.y - camera.y);
+    });
 
     // Edificios
     buildings.forEach(b => {
@@ -683,57 +649,66 @@ function render() {
       ctx.lineWidth = 2;
       ctx.strokeRect(b.x - camera.x, b.y - camera.y, b.w, b.h);
 
-      // Puerta Neón Parpadeante
+      // Marcador de Puerta
       ctx.fillStyle = "#ff007f";
-      ctx.fillRect(b.doorX - camera.x - 18, b.doorY - camera.y - 8, 36, 12);
+      ctx.fillRect(b.doorX - camera.x - 20, b.doorY - camera.y - 10, 40, 12);
       ctx.fillStyle = "#00ffff";
       ctx.font = "bold 11px sans-serif";
-      ctx.fillText("🚪 [ENTRAR]", b.doorX - camera.x - 28, b.doorY - camera.y - 14);
-      ctx.fillText(b.label, b.x - camera.x, b.y - camera.y - 8);
+      ctx.fillText("🚪 [ENTRAR]", b.doorX - camera.x - 28, b.doorY - camera.y - 16);
+      ctx.fillText(b.label, b.x - camera.x + 10, b.y - camera.y - 8);
     });
 
     // Vehículos
     vehicles.forEach(v => drawVehicle(v));
 
-    // Enemigos
+    // Enemigos Expresivos
     enemies.forEach(e => {
-      if (e.active) drawCharacter(e.x, e.y, Math.atan2(e.dirY, e.dirX), "#ef4444");
+      if (e.active) drawCharacter(e.x, e.y, Math.atan2(e.dirY, e.dirX), e.avatar, true);
     });
 
   } else {
-    // RENDER DE INTERIOR (Habitaciones y Muebles)
-    const ib = INTERIORS.bounds;
+    // INTERIOR RECTIFICADO (Habitación Completa Visible)
+    const iw = INTERIOR_CONFIG.width;
+    const ih = INTERIOR_CONFIG.height;
 
-    // Fondo del cuarto
-    ctx.fillStyle = "#0f172a";
-    ctx.fillRect(ib.x, ib.y, ib.w, ib.h);
-    ctx.strokeStyle = "#00ffff";
+    // Fondo Habitación
+    ctx.fillStyle = "#111827";
+    ctx.fillRect(-camera.x, -camera.y, iw, ih);
+    ctx.strokeStyle = "#ff007f";
     ctx.lineWidth = 4;
-    ctx.strokeRect(ib.x, ib.y, ib.w, ib.h);
+    ctx.strokeRect(-camera.x, -camera.y, iw, ih);
 
-    // Muebles Detallados
-    INTERIORS.furniture.forEach(f => {
-      ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillRect(f.x + 5, f.y + 5, f.w, f.h); // Sombra mueble
+    // Alfombra Decorativa
+    ctx.fillStyle = "#1e1b4b";
+    ctx.fillRect(150 - camera.x, 150 - camera.y, iw - 300, ih - 220);
 
-      ctx.fillStyle = f.color;
-      ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(f.x, f.y, f.w, f.h);
+    // Muebles Expresivos con Emojis
+    INTERIOR_CONFIG.furniture.forEach(f => {
+      ctx.fillStyle = "rgba(0,0,0,0.3)";
+      ctx.fillRect(f.x - camera.x + 4, f.y - camera.y + 4, f.w, f.h);
 
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#1f2937";
+      ctx.fillRect(f.x - camera.x, f.y - camera.y, f.w, f.h);
+      ctx.strokeStyle = "#00ffff";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(f.x - camera.x, f.y - camera.y, f.w, f.h);
+
+      ctx.font = "28px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(f.icon, f.x - camera.x + f.w/2, f.y - camera.y + f.h/2 + 2);
+
+      ctx.fillStyle = "#fff";
       ctx.font = "10px sans-serif";
-      ctx.fillText(f.label, f.x + 5, f.y + 18);
+      ctx.fillText(f.label, f.x - camera.x + f.w/2, f.y - camera.y + f.h - 4);
     });
 
-    // Puerta de Salida
-    const door = INTERIORS.exitDoor;
+    // Zona de Salida Útil
     ctx.fillStyle = "#ef4444";
-    ctx.fillRect(door.x, door.y, door.w, door.h);
+    ctx.fillRect(iw/2 - 60 - camera.x, ih - 25 - camera.y, 120, 20);
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 12px sans-serif";
-    ctx.fillText("🚪 SALIDA [F]", door.x + 5, door.y - 6);
+    ctx.textAlign = "center";
+    ctx.fillText("🚪 SALIDA [F]", iw/2 - camera.x, ih - 10 - camera.y);
   }
 
   // Balas
@@ -744,9 +719,9 @@ function render() {
     ctx.fill();
   });
 
-  // Jugador a pie
+  // Jugador a pie (siempre visible sobre todo el entorno)
   if (!player.vehicle) {
-    drawCharacter(player.x, player.y, player.angle, player.color);
+    drawCharacter(player.x, player.y, player.angle, player.avatar);
   }
 
   renderMinimap();
@@ -757,11 +732,10 @@ function renderMinimap() {
   mCtx.fillStyle = "#04060a";
   mCtx.fillRect(0, 0, 110, 110);
 
-  const scale = 110 / WORLD.width;
-
   if (currentZone === "EXTERIOR") {
+    const scale = 110 / WORLD.width;
     vehicles.forEach(v => {
-      mCtx.fillStyle = v.type === "TANK" ? "#455a64" : "#00ffff";
+      mCtx.fillStyle = "#00ffff";
       mCtx.fillRect(v.x * scale, v.y * scale, 3, 3);
     });
 
@@ -773,12 +747,21 @@ function renderMinimap() {
         mCtx.fill();
       }
     });
-  }
 
-  mCtx.fillStyle = "#ff007f";
-  mCtx.beginPath();
-  mCtx.arc(player.x * scale, player.y * scale, 4.5, 0, Math.PI * 2);
-  mCtx.fill();
+    mCtx.fillStyle = "#ff007f";
+    mCtx.beginPath();
+    mCtx.arc(player.x * scale, player.y * scale, 4, 0, Math.PI * 2);
+    mCtx.fill();
+  } else {
+    // Vista de minimapa en Interiores
+    const scaleX = 110 / INTERIOR_CONFIG.width;
+    const scaleY = 110 / INTERIOR_CONFIG.height;
+
+    mCtx.fillStyle = "#ff007f";
+    mCtx.beginPath();
+    mCtx.arc(player.x * scaleX, player.y * scaleY, 4, 0, Math.PI * 2);
+    mCtx.fill();
+  }
 }
 
 function gameLoop() {
