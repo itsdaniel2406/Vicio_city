@@ -3,75 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vice City 2D - Ultimate Edition</title>
+    <title>Vice City 2D HD</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
-        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background: #050508; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff; }
         canvas { display: block; width: 100vw; height: 100vh; }
 
+        /* Advertencia de Orientación */
+        #orient-warning { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #080810; color: #ff007f; z-index: 1000; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; text-align: center; padding: 20px; text-shadow: 0 0 10px #ff007f; }
+        @media (orientation: portrait) { #orient-warning { display: flex; } }
+
         /* HUD */
-        .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 10; font-size: 12px; font-weight: bold; pointer-events: none; }
-        .hud-card { background: rgba(0,0,0,0.85); border: 1.5px solid #00ffff; padding: 5px 10px; border-radius: 6px; color: #fff; box-shadow: 0 0 8px rgba(0,255,255,0.3); }
+        .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 10; font-size: 11px; font-weight: bold; pointer-events: none; }
+        .hud-card { background: rgba(5,5,15,0.85); border: 1.5px solid #00f0ff; padding: 5px 10px; border-radius: 8px; color: #fff; box-shadow: 0 0 10px rgba(0,240,255,0.3); backdrop-filter: blur(4px); }
         
         /* Minimapa */
-        #minimap-container { position: absolute; bottom: 15px; left: 15px; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ff00ff; background: rgba(0,0,0,0.85); overflow: hidden; z-index: 15; box-shadow: 0 0 10px #ff00ff; }
+        #minimap-container { position: absolute; bottom: 15px; left: 15px; width: 105px; height: 105px; border-radius: 50%; border: 3px solid #ff007f; background: rgba(0,0,0,0.9); overflow: hidden; z-index: 15; box-shadow: 0 0 12px #ff007f; }
         #minimap { width: 100%; height: 100%; }
 
-        /* Globos de texto NPC */
-        #npc-dialog { display: none; position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 2px solid #ffff00; padding: 10px 15px; border-radius: 10px; z-index: 90; font-size: 14px; color: #ffff00; text-align: center; }
+        /* Diálogos */
+        #npc-dialog { display: none; position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 2px solid #ffee00; padding: 10px 18px; border-radius: 12px; z-index: 90; font-size: 14px; color: #ffee00; text-align: center; box-shadow: 0 0 15px rgba(255,238,0,0.4); }
 
-        /* Modales / Menús */
-        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 290px; background: rgba(10, 10, 20, 0.95); border: 2px solid #ff00ff; border-radius: 10px; padding: 15px; z-index: 100; box-shadow: 0 0 20px rgba(255,0,255,0.5); }
-        .modal h3 { color: #00ffff; margin-bottom: 10px; font-size: 15px; text-align: center; border-bottom: 1px solid #ff00ff; padding-bottom: 5px; }
-        .modal-item { background: rgba(255,255,255,0.1); padding: 8px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-        .modal-item.active { border: 1px solid #00ffff; background: rgba(0,255,255,0.2); }
-        .btn-buy { background: #00ff00; color: #000; border: none; padding: 4px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .close-btn { background: #ff0055; border: none; color: #fff; padding: 6px; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        /* Modales */
+        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 290px; background: rgba(10, 10, 25, 0.95); border: 2px solid #ff007f; border-radius: 12px; padding: 15px; z-index: 100; box-shadow: 0 0 25px rgba(255,0,127,0.5); pointer-events: auto; }
+        .modal h3 { color: #00f0ff; margin-bottom: 12px; font-size: 15px; text-align: center; border-bottom: 1px solid #ff007f; padding-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-item { background: rgba(255,255,255,0.08); padding: 10px; margin: 6px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; border: 1px solid transparent; }
+        .modal-item.active { border: 1px solid #00f0ff; background: rgba(0,240,255,0.25); }
+        .btn-buy { background: #00ff88; color: #000; border: none; padding: 5px 10px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .close-btn { background: #ff0055; border: none; color: #fff; padding: 8px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
 
         /* Controles */
         .controls { position: absolute; bottom: 15px; right: 15px; display: flex; gap: 10px; align-items: flex-end; z-index: 10; pointer-events: none; }
-        .dpad-container { position: absolute; bottom: 15px; left: 130px; pointer-events: auto; }
-        .dpad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 4px; }
-        .btn { background: rgba(0, 0, 0, 0.65); border: 2px solid #00ffff; border-radius: 8px; color: #00ffff; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .btn:active { background: rgba(0, 255, 255, 0.4); }
+        .dpad-container { position: absolute; bottom: 15px; left: 135px; pointer-events: auto; }
+        .dpad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); gap: 4px; }
+        .btn { background: rgba(0, 0, 0, 0.7); border: 2px solid #00f0ff; border-radius: 10px; color: #00f0ff; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,240,255,0.2); }
+        .btn:active { background: rgba(0, 240, 255, 0.4); }
         .btn-up { grid-column: 2; grid-row: 1; }
         .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
         .btn-down { grid-column: 2; grid-row: 3; }
         
         .actions { pointer-events: auto; display: flex; gap: 8px; }
-        .btn-act { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ff00ff; color: #ff00ff; font-size: 18px; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
-        .btn-act:active { background: rgba(255, 0, 255, 0.4); }
+        .btn-act { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ff007f; color: #ff007f; font-size: 18px; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,0,127,0.3); }
+        .btn-act:active { background: rgba(255, 0, 127, 0.4); }
     </style>
 </head>
 <body>
 
+    <div id="orient-warning">🔄 GIRA TU DISPOSITIVO A MODO HORIZONTAL PARA JUGAR</div>
+
     <div class="hud">
-        <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff00ff">1</span> (<span id="xp-val">0</span>/100 XP)</div>
-        <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff00">100</span>/<span id="maxh-val">100</span></div>
-        <div class="hud-card">DINERO: <span id="m-val" style="color:#00ffff">$0</span></div>
+        <div class="hud-card">NIVEL: <span id="lvl-val" style="color:#ff007f">1</span> (<span id="xp-val">0</span>/100 XP)</div>
+        <div class="hud-card">SALUD: <span id="h-val" style="color:#00ff88">100</span>/<span id="maxh-val">100</span></div>
+        <div class="hud-card">DINERO: <span id="m-val" style="color:#00f0ff">$0</span></div>
     </div>
 
-    <div id="npc-dialog">💬 <span id="dialog-text">Hola oficial!</span></div>
+    <div id="npc-dialog">💬 <span id="dialog-text">¡Hola ciudadano!</span></div>
 
     <!-- Minimapa -->
     <div id="minimap-container">
         <canvas id="minimap"></canvas>
     </div>
 
-    <!-- Modal Mochila -->
+    <!-- Mochila Modal -->
     <div id="backpack-modal" class="modal">
-        <h3>🎒 ARMAS</h3>
-        <div class="modal-item active" id="wep-pistol" onclick="selectWeapon('pistol')">
-            <span>🔫 Pistola 9mm</span> <span style="color:#00ff00">EQUIPADA</span>
+        <h3>🎒 ARMAS EN INVENTARIO</h3>
+        <div class="modal-item active" id="wep-pistol">
+            <span>🔫 Pistola 9mm</span> <span style="color:#00ff88" id="status-pistol">EQUIPADA</span>
         </div>
-        <div class="modal-item" id="wep-shotgun" onclick="selectWeapon('shotgun')">
-            <span>💥 Escopeta</span> <span>SELECCIONAR</span>
+        <div class="modal-item" id="wep-shotgun">
+            <span>💥 Escopeta Recortada</span> <span id="status-shotgun">SELECCIONAR</span>
         </div>
         <button class="close-btn" onclick="toggleModal('backpack-modal')">CERRAR</button>
     </div>
 
-    <!-- Modal Tienda / Mejoras -->
+    <!-- Tienda Modal -->
     <div id="shop-modal" class="modal">
         <h3>🛒 TIENDA DE MEJORAS</h3>
         <div class="modal-item">
@@ -99,6 +105,7 @@
 
     <div class="controls">
         <div class="actions">
+            <div class="btn-act" onclick="toggleFullscreen()">🖥️</div>
             <div class="btn-act" onclick="toggleModal('shop-modal')">🛒</div>
             <div class="btn-act" onclick="toggleModal('backpack-modal')">🎒</div>
             <div class="btn-act" onclick="talkNPC()">💬</div>
@@ -116,15 +123,23 @@
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            mCanvas.width = 100; mCanvas.height = 100;
+            mCanvas.width = 105; mCanvas.height = 105;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // --- ESTADO JUGADOR Y JUEGO ---
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        // --- ESTADO GENERAL ---
         const player = { 
-            x: 400, y: 400, angle: 0, speed: 3.0, radius: 10, inCar: false, 
-            health: 100, maxHealth: 100, money: 0, wanted: 0, level: 1, xp: 0, 
+            x: 450, y: 450, angle: 0, speed: 3.2, radius: 10, inCar: false, 
+            health: 100, maxHealth: 100, money: 0, level: 1, xp: 0, 
             weapon: 'pistol', carRef: null 
         };
         const keys = { up: false, down: false, left: false, right: false };
@@ -132,38 +147,48 @@
         const bullets = [];
         const loot = [];
 
-        // VEHÍCULOS VARIADOS
+        // VEHÍCULOS
         const cars = [
-            { x: 480, y: 400, angle: 0, speed: 0, w: 40, h: 22, color: '#ff0055', type: 'sports', name: 'Deportivo' },
-            { x: 200, y: 200, angle: 0, speed: 0, w: 42, h: 22, color: '#0033ff', type: 'police', name: 'Patrulla' },
-            { x: 700, y: 300, angle: 0, speed: 0, w: 50, h: 28, color: '#3b5323', type: 'tank', name: 'Tanque' },
-            { x: 300, y: 700, angle: 0, speed: 0, w: 52, h: 26, color: '#ff3300', type: 'fire', name: 'Bomberos' }
+            { x: 500, y: 450, angle: 0, speed: 4.8, w: 42, h: 22, color: '#ff0055', type: 'sports', name: 'Deportivo' },
+            { x: 800, y: 350, angle: 0, speed: 4.2, w: 44, h: 22, color: '#0044ff', type: 'police', name: 'Patrullero' },
+            { x: 250, y: 800, angle: 0, speed: 2.8, w: 52, h: 28, color: '#2d471e', type: 'tank', name: 'Tanque' },
+            { x: 350, y: 250, angle: 0, speed: 3.8, w: 54, h: 26, color: '#d62828', type: 'fire', name: 'Bomberos' }
         ];
 
+        // PEATONES (NPCs)
         const npcs = [];
-        const npcPhrases = ["¡Hola!", "¡Cuidado!", "¡Esta ciudad da miedo!", "¿Viste ese deportivo?", "¡No me hagas daño!"];
+        const npcPhrases = ["¡Hola oficial!", "¡Qué lindo día!", "¡No dispares!", "¡Cuidado!", "¿Viste ese tanque?"];
         for(let i=0; i<20; i++) {
             npcs.push({ x: Math.random()*1200 + 100, y: Math.random()*1200 + 100, angle: Math.random()*6, speed: 0.8, alive: true, radius: 8 });
         }
 
+        // EDIFICIOS CON DETALLE
         const buildings = [
-            { x: 150, y: 150, w: 200, h: 200, color: '#22153b' },
-            { x: 550, y: 150, w: 220, h: 180, color: '#15223b' },
-            { x: 150, y: 550, w: 200, h: 250, color: '#3b152b' },
-            { x: 550, y: 550, w: 250, h: 200, color: '#153b2b' }
+            { x: 150, y: 150, w: 180, h: 180, color: '#1a1a2e', roof: '#16213e', label: 'BANCO' },
+            { x: 700, y: 150, w: 220, h: 180, color: '#0f3460', roof: '#1f4068', label: 'POLICÍA ESTACIÓN', isPoliceStation: true },
+            { x: 150, y: 550, w: 200, h: 220, color: '#2b1b36', roof: '#3e204d', label: 'TIENDA' },
+            { x: 650, y: 550, w: 250, h: 200, color: '#1b2e2b', roof: '#204d3e', label: 'HOTEL' }
         ];
 
-        // --- CONTROLES Y EVENTOS ---
+        // --- CONTROLES TÁCTILES ---
         function bindTouch(id, key) {
             const el = document.getElementById(id);
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
-            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+            const start = (e) => { e.preventDefault(); keys[key] = true; };
+            const end = (e) => { e.preventDefault(); keys[key] = false; };
+            el.addEventListener('touchstart', start);
+            el.addEventListener('touchend', end);
+            el.addEventListener('mousedown', start);
+            el.addEventListener('mouseup', end);
         }
         bindTouch('b-up', 'up'); bindTouch('b-down', 'down');
         bindTouch('b-left', 'left'); bindTouch('b-right', 'right');
 
-        document.getElementById('b-enter').addEventListener('touchstart', (e) => { e.preventDefault(); toggleCar(); });
-        document.getElementById('b-shoot').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
+        document.getElementById('b-enter').addEventListener('click', toggleCar);
+        document.getElementById('b-shoot').addEventListener('click', shoot);
+
+        // Eventos Selección de Armas
+        document.getElementById('wep-pistol').addEventListener('click', () => selectWeapon('pistol'));
+        document.getElementById('wep-shotgun').addEventListener('click', () => selectWeapon('shotgun'));
 
         window.addEventListener('keydown', e => {
             if(e.key==='w'||e.key==='ArrowUp') keys.up=true;
@@ -185,13 +210,22 @@
             m.style.display = (m.style.display === 'block') ? 'none' : 'block';
         }
 
+        function selectWeapon(wep) {
+            player.weapon = wep;
+            document.getElementById('wep-pistol').className = 'modal-item ' + (wep === 'pistol' ? 'active' : '');
+            document.getElementById('wep-shotgun').className = 'modal-item ' + (wep === 'shotgun' ? 'active' : '');
+            document.getElementById('status-pistol').innerText = wep === 'pistol' ? 'EQUIPADA' : 'SELECCIONAR';
+            document.getElementById('status-pistol').style.color = wep === 'pistol' ? '#00ff88' : '#fff';
+            document.getElementById('status-shotgun').innerText = wep === 'shotgun' ? 'EQUIPADA' : 'SELECCIONAR';
+            document.getElementById('status-shotgun').style.color = wep === 'shotgun' ? '#00ff88' : '#fff';
+            toggleModal('backpack-modal');
+        }
+
         function addXP(amount) {
             player.xp += amount;
             if(player.xp >= 100) {
-                player.level++;
-                player.xp -= 100;
-                player.maxHealth += 20;
-                player.health = player.maxHealth;
+                player.level++; player.xp -= 100;
+                player.maxHealth += 20; player.health = player.maxHealth;
             }
             updateHUD();
         }
@@ -199,7 +233,7 @@
         function talkNPC() {
             let found = false;
             npcs.forEach(npc => {
-                if(npc.alive && Math.hypot(npc.x - player.x, npc.y - player.y) < 40) {
+                if(npc.alive && Math.hypot(npc.x - player.x, npc.y - player.y) < 45) {
                     found = true;
                     const dialog = document.getElementById('npc-dialog');
                     document.getElementById('dialog-text').innerText = npcPhrases[Math.floor(Math.random()*npcPhrases.length)];
@@ -211,34 +245,22 @@
 
         function buyUpgrade(type) {
             if(type === 'health' && player.money >= 200) {
-                player.money -= 200;
-                player.maxHealth += 20;
-                player.health = player.maxHealth;
+                player.money -= 200; player.maxHealth += 20; player.health = player.maxHealth;
             } else if(type === 'speed' && player.money >= 150) {
-                player.money -= 150;
-                player.speed += 0.5;
+                player.money -= 150; player.speed += 0.5;
             }
             updateHUD();
-        }
-
-        function selectWeapon(wep) {
-            player.weapon = wep;
-            document.getElementById('wep-pistol').className = 'modal-item ' + (wep === 'pistol' ? 'active' : '');
-            document.getElementById('wep-shotgun').className = 'modal-item ' + (wep === 'shotgun' ? 'active' : '');
-            toggleModal('backpack-modal');
         }
 
         function toggleCar() {
             if(player.inCar) {
                 player.inCar = false;
-                player.x = player.carRef.x + 35;
-                player.y = player.carRef.y;
+                player.x = player.carRef.x + 35; player.y = player.carRef.y;
                 player.carRef = null;
             } else {
                 cars.forEach(c => {
                     if(Math.hypot(c.x - player.x, c.y - player.y) < 45) {
-                        player.inCar = true;
-                        player.carRef = c;
+                        player.inCar = true; player.carRef = c;
                     }
                 });
             }
@@ -251,14 +273,14 @@
                 bullets.push({
                     x: player.x + Math.cos(player.angle) * 12,
                     y: player.y + Math.sin(player.angle) * 12,
-                    vx: Math.cos(player.angle + angleOffset) * 10,
-                    vy: Math.sin(player.angle + angleOffset) * 10,
+                    vx: Math.cos(player.angle + angleOffset) * 11,
+                    vy: Math.sin(player.angle + angleOffset) * 11,
                     life: 30
                 });
             };
 
             if(player.weapon === 'pistol') { createBullet(0); }
-            else if(player.weapon === 'shotgun') { createBullet(-0.2); createBullet(0); createBullet(0.2); }
+            else if(player.weapon === 'shotgun') { createBullet(-0.25); createBullet(0); createBullet(0.25); }
         }
 
         function updateHUD() {
@@ -269,7 +291,7 @@
             document.getElementById('m-val').innerText = "$" + player.money;
         }
 
-        function checkBuildingCollision(x, y, radius) {
+        function checkCollision(x, y, radius) {
             for(let b of buildings) {
                 if(x + radius > b.x && x - radius < b.x + b.w && y + radius > b.y && y - radius < b.y + b.h) {
                     return true;
@@ -278,46 +300,33 @@
             return false;
         }
 
-        // --- BUCLE DE JUEGO Y FÍSICAS ---
+        // --- FÍSICAS Y MOVIMIENTO ---
         function update() {
-            let nextX = player.x, nextY = player.y;
+            let dx = 0, dy = 0;
+            if(keys.up) dy -= 1;
+            if(keys.down) dy += 1;
+            if(keys.left) dx -= 1;
+            if(keys.right) dx += 1;
 
-            if(!player.inCar) {
-                let dx = 0, dy = 0;
-                if(keys.up) dy -= 1;
-                if(keys.down) dy += 1;
-                if(keys.left) dx -= 1;
-                if(keys.right) dx += 1;
+            const targetObj = player.inCar ? player.carRef : player;
+            const currentSpeed = player.inCar ? targetObj.speed : player.speed;
 
-                if(dx !== 0 || dy !== 0) {
-                    player.angle = Math.atan2(dy, dx);
-                    nextX += dx * player.speed;
-                    nextY += dy * player.speed;
+            if(dx !== 0 || dy !== 0) {
+                targetObj.angle = Math.atan2(dy, dx);
+                let nx = targetObj.x + dx * currentSpeed;
+                let ny = targetObj.y + dy * currentSpeed;
 
-                    if(!checkBuildingCollision(nextX, player.y, player.radius)) player.x = nextX;
-                    if(!checkBuildingCollision(player.x, nextY, player.radius)) player.y = nextY;
-                }
-            } else {
-                const c = player.carRef;
-                const maxSpeed = c.type === 'sports' ? 7 : (c.type === 'tank' ? 3.5 : 5.5);
-                
-                if(keys.left) c.angle -= 0.05;
-                if(keys.right) c.angle += 0.05;
-                if(keys.up) c.speed = Math.min(c.speed + 0.15, maxSpeed);
-                else if(keys.down) c.speed = Math.max(c.speed - 0.15, -2);
-                else c.speed *= 0.92;
+                if(!checkCollision(nx, targetObj.y, targetObj.radius || 15)) targetObj.x = nx;
+                if(!checkCollision(targetObj.x, ny, targetObj.radius || 15)) targetObj.y = ny;
+            }
 
-                nextX = c.x + Math.cos(c.angle) * c.speed;
-                nextY = c.y + Math.sin(c.angle) * c.speed;
+            if(player.inCar) {
+                player.x = player.carRef.x;
+                player.y = player.carRef.y;
 
-                if(!checkBuildingCollision(nextX, c.y, 18)) c.x = nextX; else c.speed = -c.speed * 0.5;
-                if(!checkBuildingCollision(c.x, nextY, 18)) c.y = nextY; else c.speed = -c.speed * 0.5;
-
-                player.x = c.x; player.y = c.y;
-
-                // Atropellar
+                // Atropellar NPCs con auto
                 npcs.forEach(npc => {
-                    if(npc.alive && Math.hypot(npc.x - c.x, npc.y - c.y) < 22 && Math.abs(c.speed) > 1) {
+                    if(npc.alive && Math.hypot(npc.x - player.x, npc.y - player.y) < 22 && (dx!==0||dy!==0)) {
                         npc.alive = false;
                         loot.push({ x: npc.x, y: npc.y, amount: 80 });
                         addXP(25);
@@ -325,9 +334,9 @@
                 });
             }
 
-            // Recoger Loot de Dinero
+            // Recoger Loot Dinero
             loot.forEach((item, index) => {
-                if(Math.hypot(item.x - player.x, item.y - player.y) < 20) {
+                if(Math.hypot(item.x - player.x, item.y - player.y) < 22) {
                     player.money += item.amount;
                     loot.splice(index, 1);
                     updateHUD();
@@ -339,115 +348,158 @@
                 b.x += b.vx; b.y += b.vy; b.life--;
                 
                 npcs.forEach(npc => {
-                    if(npc.alive && Math.hypot(npc.x - b.x, npc.y - b.y) < 10) {
-                        npc.alive = false;
-                        b.life = 0;
+                    if(npc.alive && Math.hypot(npc.x - b.x, npc.y - b.y) < 12) {
+                        npc.alive = false; b.life = 0;
                         loot.push({ x: npc.x, y: npc.y, amount: 100 });
                         addXP(35);
                     }
                 });
 
-                if(b.life <= 0 || checkBuildingCollision(b.x, b.y, 2)) bullets.splice(i, 1);
+                if(b.life <= 0 || checkCollision(b.x, b.y, 2)) bullets.splice(i, 1);
             });
 
-            // Peatones IA
+            // Peatones
             npcs.forEach(npc => {
                 if(npc.alive) {
                     let nx = npc.x + Math.cos(npc.angle) * npc.speed;
                     let ny = npc.y + Math.sin(npc.angle) * npc.speed;
-                    if(!checkBuildingCollision(nx, ny, npc.radius)) {
+                    if(!checkCollision(nx, ny, npc.radius)) {
                         npc.x = nx; npc.y = ny;
                     } else { npc.angle += Math.PI / 2; }
                 }
             });
         }
 
-        // --- DIBUJO Y MODELADO ---
+        // --- RENDERIZADO VISUAL DETALLADO ---
         function draw() {
-            ctx.fillStyle = '#111';
+            ctx.fillStyle = '#080810';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
             ctx.translate(canvas.width/2 - player.x, canvas.height/2 - player.y);
 
-            // Suelo
-            ctx.fillStyle = '#1e1e24';
-            ctx.fillRect(-500, -500, 2500, 2500);
+            // Asfalto
+            ctx.fillStyle = '#181820';
+            ctx.fillRect(-600, -600, 2800, 2800);
 
-            // Edificios
+            // Veredas
+            ctx.fillStyle = '#282835';
+            buildings.forEach(b => { ctx.fillRect(b.x - 14, b.y - 14, b.w + 28, b.h + 28); });
+
+            // SOMBRAS GENERALES
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            buildings.forEach(b => { ctx.fillRect(b.x + 8, b.y + 8, b.w, b.h); });
+
+            // EDIFICIOS DETALLADOS
             buildings.forEach(b => {
                 ctx.fillStyle = b.color;
                 ctx.fillRect(b.x, b.y, b.w, b.h);
-                ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
+
+                // Techo estilizado
+                ctx.fillStyle = b.roof;
+                ctx.fillRect(b.x + 8, b.y + 8, b.w - 16, b.h - 16);
+
+                // Marco / Letrero
+                ctx.strokeStyle = b.isPoliceStation ? '#0088ff' : '#00f0ff';
+                ctx.lineWidth = 2;
                 ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+                ctx.fillStyle = b.isPoliceStation ? '#0088ff' : '#ffffff';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.label, b.x + b.w/2, b.y + 22);
             });
 
-            // Dibujar Loot (Dinero 💵)
+            // LOOT (Dinero 💵)
             loot.forEach(item => {
-                ctx.fillStyle = '#00ff00';
-                ctx.fillRect(item.x - 6, item.y - 4, 12, 8);
+                ctx.fillStyle = '#00ff88';
+                ctx.fillRect(item.x - 7, item.y - 5, 14, 10);
                 ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
-                ctx.strokeRect(item.x - 6, item.y - 4, 12, 8);
+                ctx.strokeRect(item.x - 7, item.y - 5, 14, 10);
             });
 
-            // Peatones
+            // PEATONES DETALLADOS
             npcs.forEach(npc => {
                 if(npc.alive) {
                     ctx.save();
                     ctx.translate(npc.x, npc.y);
                     ctx.rotate(npc.angle);
-                    ctx.fillStyle = '#ffff00';
+
+                    // Sombra
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.beginPath(); ctx.arc(2, 2, 6, 0, Math.PI*2); ctx.fill();
+
+                    // Cabeza y Hombros
+                    ctx.fillStyle = '#eedd00';
                     ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = '#ffcc99';
                     ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, Math.PI*2); ctx.fill();
+
                     ctx.restore();
                 }
             });
 
-            // MODELADO DE VEHÍCULOS
+            // MODELADO DE AUTOS
             cars.forEach(c => {
                 ctx.save();
                 ctx.translate(c.x, c.y);
                 ctx.rotate(c.angle);
                 
-                // Chasis
+                // Sombra del auto
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(-c.w/2 + 3, -c.h/2 + 3, c.w, c.h);
+
+                // Carrocería
                 ctx.fillStyle = c.color;
                 ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
 
-                if(c.type === 'sports') {
-                    ctx.fillStyle = '#00ffff'; // Techo aerodinámico
-                    ctx.fillRect(-5, -c.h/2 + 3, 15, c.h - 6);
-                } else if(c.type === 'police') {
-                    ctx.fillStyle = (Date.now() % 200 < 100) ? '#ff0000' : '#0000ff';
-                    ctx.fillRect(-2, -4, 6, 8); // Sirena
+                // Parabrisas
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(-4, -c.h/2 + 3, 12, c.h - 6);
+
+                // Luces Delanteras
+                ctx.fillStyle = '#ffffaa';
+                ctx.fillRect(c.w/2 - 2, -c.h/2 + 2, 2, 4);
+                ctx.fillRect(c.w/2 - 2, c.h/2 - 6, 2, 4);
+
+                // Torreta Tanque / Sirena
+                if(c.type === 'police') {
+                    ctx.fillStyle = (Date.now() % 200 < 100) ? '#ff0000' : '#0066ff';
+                    ctx.fillRect(-2, -4, 6, 8);
                 } else if(c.type === 'tank') {
-                    ctx.fillStyle = '#1e2d0d'; // Torreta
-                    ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill();
-                    ctx.fillRect(0, -3, 22, 6); // Cañón
-                } else if(c.type === 'fire') {
-                    ctx.fillStyle = '#ffffff'; // Escalera de bomberos
-                    ctx.fillRect(-15, -4, 25, 8);
+                    ctx.fillStyle = '#1e2d0d';
+                    ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); ctx.fill();
+                    ctx.fillRect(0, -3, 20, 6);
                 }
 
                 ctx.restore();
             });
 
-            // Balas
-            ctx.fillStyle = '#ffff00';
+            // BALAS
+            ctx.fillStyle = '#ffee00';
             bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI*2); ctx.fill(); });
 
-            // Jugador
+            // JUGADOR DETALLADO
             if(!player.inCar) {
                 ctx.save();
                 ctx.translate(player.x, player.y);
                 ctx.rotate(player.angle);
+
+                // Sombra
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath(); ctx.arc(2, 2, 7, 0, Math.PI*2); ctx.fill();
+
+                // Manos/Arma
                 ctx.fillStyle = '#ffcc99';
-                ctx.beginPath(); ctx.arc(6, -5, 2.5, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(6, 5, 2.5, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#00ffff';
-                ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, -5, 2.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, 5, 2.5, 0, Math.PI*2); ctx.fill();
+
+                // Torso y Cabeza
+                ctx.fillStyle = '#00f0ff';
+                ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#ffcc99';
                 ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+
                 ctx.restore();
             }
 
@@ -457,18 +509,20 @@
 
         function drawMinimap() {
             mCtx.fillStyle = '#000';
-            mCtx.fillRect(0, 0, 100, 100);
+            mCtx.fillRect(0, 0, 105, 105);
 
             mCtx.save();
-            mCtx.translate(50, 50);
+            mCtx.translate(52, 52);
             const scale = 0.08;
 
-            mCtx.fillStyle = '#555';
+            mCtx.fillStyle = '#444';
             buildings.forEach(b => {
+                mCtx.fillStyle = b.isPoliceStation ? '#0066ff' : '#444';
                 mCtx.fillRect((b.x - player.x)*scale, (b.y - player.y)*scale, b.w*scale, b.h*scale);
             });
 
-            mCtx.fillStyle = '#00ffff';
+            // Jugador
+            mCtx.fillStyle = '#00f0ff';
             mCtx.beginPath(); mCtx.arc(0, 0, 3, 0, Math.PI*2); mCtx.fill();
 
             mCtx.restore();
