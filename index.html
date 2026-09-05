@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vicio City v2.9.3 - Restaurado</title>
+  <title>Vicio City v3.0.0 - Edición Completa</title>
   <style>
     * {
       box-sizing: border-box;
@@ -37,7 +37,7 @@
       background-color: #151c28;
     }
 
-    /* Advertencia de giro en pantalla vertical */
+    /* Advertencia de Giro */
     #rotate-warning {
       display: none;
       position: fixed;
@@ -63,12 +63,12 @@
       position: absolute;
       top: 10px;
       left: 10px;
-      width: clamp(170px, 24vw, 230px);
-      background: rgba(10, 15, 26, 0.88);
+      width: clamp(180px, 25vw, 240px);
+      background: rgba(10, 15, 26, 0.9);
       border: 2px solid #ff007f;
       border-radius: 8px;
-      padding: 6px 10px;
-      box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+      padding: 8px 10px;
+      box-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
       z-index: 10;
       font-size: 11px;
     }
@@ -96,9 +96,10 @@
       background: rgba(255, 204, 0, 0.15);
       border: 1px solid #ffcc00;
       border-radius: 4px;
-      padding: 4px;
-      font-size: 9px;
+      padding: 5px;
+      font-size: 10px;
       color: #ffea79;
+      cursor: pointer;
     }
 
     /* --- HUD TOP RIGHT --- */
@@ -122,7 +123,7 @@
       background: rgba(10, 15, 26, 0.85);
       border: 1.5px solid #00f0ff;
       color: #00f0ff;
-      padding: 4px 8px;
+      padding: 5px 9px;
       border-radius: 5px;
       font-size: 10px;
       cursor: pointer;
@@ -135,8 +136,8 @@
     }
 
     .minimap-container {
-      width: clamp(75px, 15vw, 105px);
-      height: clamp(75px, 15vw, 105px);
+      width: clamp(80px, 16vw, 110px);
+      height: clamp(80px, 16vw, 110px);
       border: 2px solid #ff007f;
       border-radius: 50%;
       overflow: hidden;
@@ -149,22 +150,58 @@
       height: 100%;
     }
 
-    /* --- MENÚ DE ARMAS --- */
-    .weapon-selector-container {
+    /* --- PANEL CONTROLES INFERIOR DERECHO --- */
+    .action-buttons-container {
       position: absolute;
       bottom: 15px;
       right: 15px;
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
+      gap: 12px;
       z-index: 20;
+    }
+
+    .btn-action {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(10, 15, 26, 0.9);
+      border: 2px solid #ff007f;
+      color: #fff;
+      font-size: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(255, 0, 127, 0.6);
+    }
+
+    .btn-action:active {
+      transform: scale(0.92);
+      background: #ff007f;
+    }
+
+    .btn-car {
+      border-color: #00f0ff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    }
+
+    .btn-car:active {
+      background: #00f0ff;
+    }
+
+    /* --- MENÚ DESPLEGABLE DE ARMAS --- */
+    .weapon-selector-container {
+      position: relative;
     }
 
     .weapon-dropdown {
       display: none;
+      position: absolute;
+      bottom: 60px;
+      right: 0;
       flex-direction: column;
       gap: 4px;
-      margin-bottom: 6px;
       background: rgba(10, 15, 26, 0.95);
       border: 1.5px solid #00f0ff;
       border-radius: 8px;
@@ -188,35 +225,20 @@
       background: rgba(255, 0, 127, 0.25);
     }
 
-    .btn-weapon-active {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(10, 15, 26, 0.9);
-      border: 2px solid #ff007f;
-      color: #fff;
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
-    }
-
     /* --- D-PAD --- */
     .dpad {
       position: absolute;
       bottom: 15px;
       left: 15px;
-      width: 96px;
-      height: 96px;
+      width: 100px;
+      height: 100px;
       z-index: 10;
     }
 
     .dpad-btn {
       position: absolute;
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       background: rgba(0, 240, 255, 0.2);
       border: 1.5px solid #00f0ff;
       border-radius: 6px;
@@ -224,7 +246,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 11px;
+      font-size: 12px;
     }
 
     .dpad-btn:active {
@@ -232,10 +254,57 @@
       color: #000;
     }
 
-    .dpad-up    { top: 0; left: 32px; }
-    .dpad-down  { bottom: 0; left: 32px; }
-    .dpad-left  { top: 32px; left: 0; }
-    .dpad-right { top: 32px; right: 0; }
+    .dpad-up    { top: 0; left: 33px; }
+    .dpad-down  { bottom: 0; left: 33px; }
+    .dpad-left  { top: 33px; left: 0; }
+    .dpad-right { top: 33px; right: 0; }
+
+    /* --- MODAL DE MISIONES --- */
+    #missions-modal {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      max-width: 450px;
+      background: rgba(10, 15, 26, 0.95);
+      border: 2px solid #ff007f;
+      border-radius: 10px;
+      padding: 15px;
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
+    }
+
+    #missions-modal h3 {
+      color: #00f0ff;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .mission-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #333;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      font-size: 11px;
+    }
+
+    .mission-item h4 { color: #ffea79; margin-bottom: 3px; }
+
+    .btn-close-modal {
+      background: #ff007f;
+      border: none;
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      float: right;
+      font-size: 11px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -251,12 +320,14 @@
 
     <!-- HUD Izquierdo -->
     <div class="hud-panel">
-      <div class="hud-header">VICIO CITY v2.9.3</div>
+      <div class="hud-header">VICIO CITY v3.0.0</div>
       <div class="stat-row"><span>LVL: 1</span> <span>XP: 95/100</span></div>
       <div class="stat-row"><span>HP: 100/100</span> <span>CASH: $960</span></div>
       <div class="stat-row"><span>WANTED:</span> <span style="color: #ffcc00;">★☆☆☆☆</span></div>
-      <div class="mission-box">
-        🎯 <b>MISIÓN:</b> Elimina 3 Pandilleros en la ciudad (0/3)
+      <div class="mission-box" onclick="toggleMissionsModal()">
+        🎯 <b>MISIÓN ACTIVA:</b><br>
+        Elimina 3 Pandilleros en la ciudad (0/3)<br>
+        <span style="font-size:8px; color:#00f0ff;">[Toca para ver menú de misiones]</span>
       </div>
     </div>
 
@@ -264,18 +335,23 @@
     <div class="top-right-panel">
       <div class="top-buttons">
         <button class="btn-ui" id="btnFull">FULL</button>
+        <button class="btn-ui" onclick="toggleMissionsModal()">MISIONES</button>
         <button class="btn-ui">GUARDAR</button>
-        <button class="btn-ui">CARGAR</button>
       </div>
       <div class="minimap-container">
-        <canvas id="minimap" width="105" height="105"></canvas>
+        <canvas id="minimap" width="110" height="110"></canvas>
       </div>
     </div>
 
-    <!-- Menú Desplegable de Armas -->
-    <div class="weapon-selector-container">
-      <div class="weapon-dropdown" id="weaponDropdown"></div>
-      <button class="btn-weapon-active" id="btnWeaponActive" onclick="toggleWeaponMenu()">🎯</button>
+    <!-- Acciones Inferior Derecho (Disparo, Auto y Selección de Arma) -->
+    <div class="action-buttons-container">
+      <button class="btn-action btn-car" id="btnCar" onclick="toggleEntrarAuto()">🚗</button>
+      <button class="btn-action" id="btnShoot" onclick="disparar()">💥</button>
+      
+      <div class="weapon-selector-container">
+        <div class="weapon-dropdown" id="weaponDropdown"></div>
+        <button class="btn-action" id="btnWeaponActive" style="border-color:#00f0ff;" onclick="toggleWeaponMenu()">🔫</button>
+      </div>
     </div>
 
     <!-- D-Pad -->
@@ -285,6 +361,22 @@
       <div class="dpad-btn dpad-right" id="btnRight">▶</div>
       <div class="dpad-btn dpad-down" id="btnDown">▼</div>
     </div>
+
+    <!-- Modal Misiones -->
+    <div id="missions-modal">
+      <h3>📜 Centro de Misiones</h3>
+      <div class="mission-item">
+        <h4>1. Limpieza de Calle (Principal)</h4>
+        <p>Elimina a 3 pandilleros rivales en la zona este de la ciudad.</p>
+        <p style="color:#00f0ff; margin-top:3px;">Recompensa: $500 + 50 XP</p>
+      </div>
+      <div class="mission-item">
+        <h4>2. Robo Express (Secundaria)</h4>
+        <p>Subete a un vehículo rápido y conduce a 80km/h por la avenida principal.</p>
+        <p style="color:#00f0ff; margin-top:3px;">Recompensa: $300</p>
+      </div>
+      <button class="btn-close-modal" onclick="toggleMissionsModal()">CERRAR</button>
+    </div>
   </div>
 
   <script>
@@ -292,6 +384,9 @@
     const ctx = canvas.getContext('2d');
     const minimapCanvas = document.getElementById('minimap');
     const minimapCtx = minimapCanvas.getContext('2d');
+
+    // Zoom alejado de cámara (Escala 0.7x para ver más mapa)
+    const CAMERA_ZOOM = 0.7;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -322,37 +417,42 @@
     ];
     let armaEquipada = armas[0];
 
-    // --- ENTIDADES Y DETALLES ---
+    // --- ENTIDADES ---
     const jugador = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      radio: 11,
-      color: '#ff9999',
-      velocidad: 3.2
+      x: 350,
+      y: 280,
+      angulo: 0,
+      radio: 12,
+      colorPiel: '#f1c27d',
+      colorRopa: '#ff007f',
+      velocidad: 3.5,
+      enAuto: false,
+      autoActual: null
     };
 
-    const edificaciónes = [
-      { x: 50, y: 40, w: 180, h: 120, color: '#101726', borde: '#00f0ff' },
-      { x: 280, y: 40, w: 220, h: 120, color: '#101726', borde: '#ff007f' },
-      { x: 700, y: 40, w: 250, h: 140, color: '#101726', borde: '#00f0ff' }
+    const edificaciones = [
+      { x: 80, y: 60, w: 260, h: 140, color: '#101726', borde: '#00f0ff', titulo: 'BANCO' },
+      { x: 400, y: 60, w: 300, h: 140, color: '#101726', borde: '#ff007f', titulo: 'CLUB NIGHT' },
+      { x: 780, y: 60, w: 280, h: 160, color: '#101726', borde: '#00f0ff', titulo: 'AMMU-NATION' }
     ];
 
     const arboles = [
-      { x: 120, y: 220, r: 22 }, { x: 180, y: 240, r: 18 }, { x: 90, y: 270, r: 24 },
-      { x: 550, y: 200, r: 20 }, { x: 610, y: 180, r: 25 }, { x: 670, y: 220, r: 19 },
-      { x: 200, y: 480, r: 22 }, { x: 260, y: 510, r: 20 }, { x: 140, y: 520, r: 25 }
+      { x: 120, y: 280, r: 28 }, { x: 180, y: 300, r: 24 }, { x: 80, y: 340, r: 30 },
+      { x: 750, y: 280, r: 26 }, { x: 820, y: 250, r: 32 }, { x: 890, y: 300, r: 25 },
+      { x: 300, y: 620, r: 28 }, { x: 370, y: 650, r: 26 }
     ];
 
     const autos = [
-      { x: 600, y: window.innerHeight * 0.62 + 8, w: 42, h: 22, color: '#ff0055', vx: -1.2 },
-      { x: 150, y: window.innerHeight * 0.62 + 38, w: 42, h: 22, color: '#00ccff', vx: 1.5 }
+      { x: 600, y: 440, w: 55, h: 28, color: '#ff0055', vx: -1.5, angulo: 0 },
+      { x: 200, y: 475, w: 55, h: 28, color: '#00ccff', vx: 1.8, angulo: 0 }
     ];
 
     const npcs = [
-      { x: 300, y: 260, vx: 0.7, vy: 0, color: '#e0a080', tipo: 'peaton' },
-      { x: 750, y: 280, vx: -0.6, vy: 0, color: '#e0a080', tipo: 'peaton' },
-      { x: 420, y: 220, vx: 0, vy: 0.6, color: '#ff3366', tipo: 'pandillero' }
+      { x: 450, y: 320, angulo: 0, vx: 0.7, vy: 0, colorPiel: '#f1c27d', colorRopa: '#00f0ff', tipo: 'peaton' },
+      { x: 850, y: 340, angulo: 0, vx: -0.6, vy: 0, colorPiel: '#e0a080', colorRopa: '#ff3366', tipo: 'pandillero' }
     ];
+
+    const proyectiles = [];
 
     // CONTROLES
     const teclas = { w: false, a: false, s: false, d: false };
@@ -380,6 +480,41 @@
     bindTouch('btnDown', 's');
     bindTouch('btnLeft', 'a');
     bindTouch('btnRight', 'd');
+
+    // ACCIONES
+    function disparar() {
+      proyectiles.push({
+        x: jugador.x + Math.cos(jugador.angulo) * 15,
+        y: jugador.y + Math.sin(jugador.angulo) * 15,
+        vx: Math.cos(jugador.angulo) * 10,
+        vy: Math.sin(jugador.angulo) * 10,
+        vida: 40
+      });
+    }
+
+    function toggleEntrarAuto() {
+      if (jugador.enAuto) {
+        // Bajarse del auto
+        jugador.enAuto = false;
+        jugador.x = jugador.autoActual.x - 20;
+        jugador.y = jugador.autoActual.y;
+        jugador.autoActual = null;
+      } else {
+        // Buscar auto cercano
+        autos.forEach(a => {
+          const dist = Math.hypot(jugador.x - a.x, jugador.y - a.y);
+          if (dist < 45) {
+            jugador.enAuto = true;
+            jugador.autoActual = a;
+          }
+        });
+      }
+    }
+
+    function toggleMissionsModal() {
+      const m = document.getElementById('missions-modal');
+      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+    }
 
     // ARMAS UI
     function renderWeaponMenu() {
@@ -414,115 +549,209 @@
 
     // UPDATE
     function actualizar() {
-      if (teclas.w && jugador.y > jugador.radio) jugador.y -= jugador.velocidad;
-      if (teclas.s && jugador.y < canvas.height - jugador.radio) jugador.y += jugador.velocidad;
-      if (teclas.a && jugador.x > jugador.radio) jugador.x -= jugador.velocidad;
-      if (teclas.d && jugador.x < canvas.width - jugador.radio) jugador.x += jugador.velocidad;
+      let dx = 0, dy = 0;
+      if (teclas.w) dy -= 1;
+      if (teclas.s) dy += 1;
+      if (teclas.a) dx -= 1;
+      if (teclas.d) dx += 1;
 
-      // Animación lenta de NPCs
-      npcs.forEach(npc => {
-        npc.x += npc.vx;
-        npc.y += npc.vy;
-        if (npc.x < 30 || npc.x > canvas.width - 30) npc.vx *= -1;
-        if (npc.y < 30 || npc.y > canvas.height - 30) npc.vy *= -1;
+      if (dx !== 0 || dy !== 0) {
+        const ang = Math.atan2(dy, dx);
+        if (!jugador.enAuto) {
+          jugador.angulo = ang;
+          jugador.x += Math.cos(ang) * jugador.velocidad;
+          jugador.y += Math.sin(ang) * jugador.velocidad;
+        } else {
+          // Conducir Auto
+          jugador.autoActual.x += Math.cos(ang) * 5;
+          jugador.autoActual.y += Math.sin(ang) * 5;
+          jugador.autoActual.angulo = ang;
+          jugador.x = jugador.autoActual.x;
+          jugador.y = jugador.autoActual.y;
+        }
+      }
+
+      // Proyectiles
+      proyectiles.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vida--;
+        if (p.vida <= 0) proyectiles.splice(idx, 1);
       });
 
-      // Movimiento de Autos
+      // Movimiento Autos Sueltos
       autos.forEach(auto => {
-        auto.x += auto.vx;
-        if (auto.x < -60) auto.x = canvas.width + 20;
-        if (auto.x > canvas.width + 60) auto.x = -50;
+        if (auto !== jugador.autoActual) {
+          auto.x += auto.vx;
+          if (auto.x < -60) auto.x = 1200;
+          if (auto.x > 1200) auto.x = -60;
+        }
       });
     }
 
-    // RENDERIZADO DETALLADO
+    // --- DIBUJO CON DETALLE DE PERSONAJES Y ÁRBOLES ---
+    function dibujarPersonaje(x, y, angulo, colorPiel, colorRopa, esJugador) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angulo);
+
+      // Sombra
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(0, 3, 12, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hombros / Cuerpo
+      ctx.fillStyle = colorRopa;
+      ctx.beginPath();
+      ctx.roundRect(-8, -10, 16, 20, 4);
+      ctx.fill();
+
+      // Manos / Brazos
+      ctx.fillStyle = colorPiel;
+      ctx.beginPath();
+      ctx.arc(8, -8, 3.5, 0, Math.PI * 2); // Mano derecha
+      ctx.arc(8, 8, 3.5, 0, Math.PI * 2);  // Mano izquierda
+      ctx.fill();
+
+      // Arma
+      ctx.fillStyle = '#222';
+      ctx.fillRect(6, 4, 10, 3);
+
+      // Cabeza
+      ctx.beginPath();
+      ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
+      ctx.fillStyle = colorPiel;
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Gorra / Pelo si es jugador
+      if (esJugador) {
+        ctx.fillStyle = '#ff007f';
+        ctx.beginPath();
+        ctx.arc(0, 0, 6.5, Math.PI * 0.5, Math.PI * 1.5);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function dibujarArbolDetallado(a) {
+      // Sombra proyectada
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.beginPath();
+      ctx.ellipse(a.x + 8, a.y + 8, a.r * 1.1, a.r * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Tronco central
+      ctx.fillStyle = '#5d4037';
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, a.r * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Capas de follaje
+      const grad = ctx.createRadialGradient(a.x - 5, a.y - 5, 2, a.x, a.y, a.r);
+      grad.addColorStop(0, '#4caf50');
+      grad.addColorStop(0.7, '#2e7d32');
+      grad.addColorStop(1, '#1b5e20');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#0f3811';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // RENDERIZADO PRINCIPAL
     function renderizar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const calleY = canvas.height * 0.62;
-      const calleAltura = 80;
+      ctx.save();
+      // Aplicar alejamieto de cámara (Zoom 0.7x)
+      ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
 
-      // 1. Edificios del mapa
-      edificaciónes.forEach(b => {
+      const calleY = 420;
+      const calleAltura = 100;
+
+      // Edificios
+      edificaciones.forEach(b => {
         ctx.fillStyle = b.color;
         ctx.fillRect(b.x, b.y, b.w, b.h);
         ctx.strokeStyle = b.borde;
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+        ctx.fillStyle = b.borde;
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(b.titulo, b.x + 10, b.y + 25);
       });
 
-      // 2. Veredas
+      // Vereda
       ctx.fillStyle = '#2b3548';
-      ctx.fillRect(0, calleY - 12, canvas.width, calleAltura + 24);
+      ctx.fillRect(0, calleY - 15, 1400, calleAltura + 30);
 
-      // 3. Calzada
+      // Calzada
       ctx.fillStyle = '#1e2533';
-      ctx.fillRect(0, calleY, canvas.width, calleAltura);
+      ctx.fillRect(0, calleY, 1400, calleAltura);
 
-      // Línea divisoria amarilla discontinua
+      // Línea divisoria amarilla
       ctx.strokeStyle = '#ffcc00';
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([15, 12]);
+      ctx.lineWidth = 3;
+      ctx.setLineDash([20, 15]);
       ctx.beginPath();
       ctx.moveTo(0, calleY + calleAltura / 2);
-      ctx.lineTo(canvas.width, calleY + calleAltura / 2);
+      ctx.lineTo(1400, calleY + calleAltura / 2);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // 4. Árboles con sombreado dual
-      arboles.forEach(a => {
-        // Sombra suave
-        ctx.beginPath();
-        ctx.arc(a.x + 4, a.y + 4, a.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-        ctx.fill();
+      // Árboles con textura
+      arboles.forEach(a => dibujarArbolDetallado(a));
 
-        // Copa
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-        ctx.fillStyle = '#2e7d32';
-        ctx.fill();
-        ctx.strokeStyle = '#1b5e20';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-      });
-
-      // 5. Vehículos
+      // Vehículos
       autos.forEach(auto => {
+        ctx.save();
+        ctx.translate(auto.x, auto.y);
+        ctx.rotate(auto.angulo);
         ctx.fillStyle = auto.color;
-        ctx.fillRect(auto.x, auto.y, auto.w, auto.h);
+        ctx.fillRect(-auto.w / 2, -auto.h / 2, auto.w, auto.h);
         ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(auto.x, auto.y, auto.w, auto.h);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-auto.w / 2, -auto.h / 2, auto.w, auto.h);
+
         // Parabrisas
         ctx.fillStyle = '#111';
-        ctx.fillRect(auto.x + (auto.vx > 0 ? 25 : 8), auto.y + 3, 10, auto.h - 6);
+        ctx.fillRect(-auto.w / 4, -auto.h / 2 + 3, 12, auto.h - 6);
+        ctx.restore();
       });
 
-      // 6. NPCs
-      npcs.forEach(npc => {
+      // Proyectiles
+      ctx.fillStyle = '#ffcc00';
+      proyectiles.forEach(p => {
         ctx.beginPath();
-        ctx.arc(npc.x, npc.y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = npc.color;
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
       });
 
-      // 7. Jugador
-      ctx.beginPath();
-      ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2);
-      ctx.fillStyle = jugador.color;
-      ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // NPCs
+      npcs.forEach(npc => {
+        dibujarPersonaje(npc.x, npc.y, npc.angulo, npc.colorPiel, npc.colorRopa, false);
+      });
+
+      // Jugador
+      if (!jugador.enAuto) {
+        dibujarPersonaje(jugador.x, jugador.y, jugador.angulo, jugador.colorPiel, jugador.colorRopa, true);
+      }
+
+      ctx.restore();
 
       renderizarMinimapa();
     }
 
-    // MINIMAPA DETALLADO CON RETÍCULA URBANA
+    // MINIMAPA DETALLADO
     function renderizarMinimapa() {
       const mw = minimapCanvas.width;
       const mh = minimapCanvas.height;
@@ -530,31 +759,26 @@
       minimapCtx.fillStyle = '#0a0f1a';
       minimapCtx.fillRect(0, 0, mw, mh);
 
-      const ex = mw / canvas.width;
-      const ey = mh / canvas.height;
+      const ex = mw / (1400 * CAMERA_ZOOM);
+      const ey = mh / (800 * CAMERA_ZOOM);
 
-      // Cuadrícula / Bloques del mapa
-      minimapCtx.strokeStyle = '#1e2d42';
-      minimapCtx.lineWidth = 1;
-      minimapCtx.strokeRect(10, 10, mw - 20, mh - 20);
-
-      // Calles en minimapa
-      minimapCtx.fillStyle = '#223344';
-      minimapCtx.fillRect(0, (canvas.height * 0.62) * ey, mw, 80 * ey);
-
-      // Edificios en minimapa
-      edificaciónes.forEach(b => {
+      // Edificios
+      edificaciones.forEach(b => {
         minimapCtx.fillStyle = '#152238';
         minimapCtx.fillRect(b.x * ex, b.y * ey, b.w * ex, b.h * ey);
       });
 
-      // NPCs (Rojos / Azules)
+      // Calle
+      minimapCtx.fillStyle = '#223344';
+      minimapCtx.fillRect(0, 420 * ey, mw, 100 * ey);
+
+      // NPCs
       npcs.forEach(npc => {
         minimapCtx.fillStyle = npc.tipo === 'pandillero' ? '#ff3333' : '#00ccff';
         minimapCtx.fillRect(npc.x * ex - 1, npc.y * ey - 1, 3, 3);
       });
 
-      // Jugador (Rosa Neón)
+      // Jugador
       minimapCtx.fillStyle = '#ff007f';
       minimapCtx.beginPath();
       minimapCtx.arc(jugador.x * ex, jugador.y * ey, 3.5, 0, Math.PI * 2);
